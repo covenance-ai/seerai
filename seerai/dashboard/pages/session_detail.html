@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>seerai — conversation</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f1117; color: #e0e0e0;
+            max-width: 960px; margin: 2rem auto; padding: 0 1rem;
+        }
+        .breadcrumb { color: #888; margin-bottom: 1.5rem; }
+        .breadcrumb a { color: #60a5fa; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .chat { display: flex; flex-direction: column; gap: 0.8rem; }
+        .msg {
+            max-width: 75%; padding: 0.8rem 1rem; border-radius: 12px;
+            line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+        }
+        .msg-user { align-self: flex-start; background: #1e3a5f; color: #e0e0e0; border-bottom-left-radius: 4px; }
+        .msg-ai { align-self: flex-end; background: #1a3a2a; color: #e0e0e0; border-bottom-right-radius: 4px; }
+        .msg-error { align-self: center; background: #3b1c1c; color: #fca5a5; border-radius: 8px; max-width: 90%; }
+        .msg-label {
+            font-size: 0.75rem; color: #888; margin-bottom: 0.2rem;
+        }
+        .msg-meta {
+            font-size: 0.7rem; color: #666; margin-top: 0.3rem;
+        }
+        .empty { color: #666; padding: 2rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <p class="breadcrumb">
+        <a href="/">seerai</a> /
+        <a href="" id="user-link"><span id="uid"></span></a> /
+        <span id="sid"></span>
+    </p>
+    <div id="content"><p class="empty">Loading...</p></div>
+    <script>
+        const parts = window.location.pathname.split('/');
+        const userId = decodeURIComponent(parts[2]);
+        const sessionId = decodeURIComponent(parts[3]);
+        document.getElementById('uid').textContent = userId;
+        document.getElementById('sid').textContent = sessionId.length > 24 ? sessionId.slice(0, 24) + '...' : sessionId;
+        document.getElementById('user-link').href = `/sessions/${encodeURIComponent(userId)}`;
+
+        fetch(`/api/users/${encodeURIComponent(userId)}/sessions/${encodeURIComponent(sessionId)}`)
+            .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
+            .then(session => {
+                const el = document.getElementById('content');
+                if (!session.events.length) {
+                    el.innerHTML = '<p class="empty">No events in this session.</p>';
+                    return;
+                }
+                let html = '<div class="chat">';
+                for (const ev of session.events) {
+                    const cls = ev.event_type === 'user_message' ? 'user' : ev.event_type === 'ai_message' ? 'ai' : 'error';
+                    const label = ev.event_type === 'user_message' ? 'User' : ev.event_type === 'ai_message' ? 'AI' : 'Error';
+                    const time = new Date(ev.timestamp).toLocaleTimeString();
+                    let meta = time;
+                    if (ev.metadata) {
+                        const extras = Object.entries(ev.metadata).map(([k,v]) => `${k}: ${v}`).join(', ');
+                        if (extras) meta += ' | ' + extras;
+                    }
+                    html += `<div>
+                        <div class="msg-label">${label}</div>
+                        <div class="msg msg-${cls}">${esc(ev.content)}</div>
+                        <div class="msg-meta">${meta}</div>
+                    </div>`;
+                }
+                html += '</div>';
+                el.innerHTML = html;
+            })
+            .catch(e => {
+                document.getElementById('content').innerHTML = '<p class="empty">Error: ' + e.message + '</p>';
+            });
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+    </script>
+</body>
+</html>

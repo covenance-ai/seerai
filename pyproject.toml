@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["seerai*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.html", "*.css", "*.js"]
+
+[project]
+name = "seerai"
+version = "0.1.0"
+description = "LLM chat observer and aggregator"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic",
+    "google-cloud-firestore",
+    "google-cloud-logging",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests that need Firestore",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+exclude = [".venv", "__pycache__", "build", "dist", "*.egg-info"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["E501", "E402"]
+fixable = ["ALL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

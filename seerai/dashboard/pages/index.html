@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>seerai</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f1117; color: #e0e0e0;
+            max-width: 960px; margin: 2rem auto; padding: 0 1rem;
+        }
+        h1 { margin-bottom: 0.5rem; color: #fff; }
+        .subtitle { color: #888; margin-bottom: 2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 0.6rem 0.8rem; color: #888; border-bottom: 1px solid #2a2d35; font-weight: 500; }
+        td { padding: 0.6rem 0.8rem; border-bottom: 1px solid #1e2028; }
+        tr:hover td { background: #1a1d25; }
+        a { color: #60a5fa; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .empty { color: #666; padding: 2rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>seerai</h1>
+    <p class="subtitle">LLM chat observer</p>
+    <div id="content"><p class="empty">Loading...</p></div>
+    <script>
+        fetch('/api/users')
+            .then(r => r.json())
+            .then(users => {
+                const el = document.getElementById('content');
+                if (!users.length) {
+                    el.innerHTML = '<p class="empty">No users yet. POST events to /api/ingest to get started.</p>';
+                    return;
+                }
+                let html = '<table><thead><tr><th>User</th><th>Last Active</th></tr></thead><tbody>';
+                for (const u of users) {
+                    const t = new Date(u.last_active).toLocaleString();
+                    html += `<tr><td><a href="/sessions/${encodeURIComponent(u.user_id)}">${esc(u.user_id)}</a></td><td>${t}</td></tr>`;
+                }
+                html += '</tbody></table>';
+                el.innerHTML = html;
+            })
+            .catch(e => {
+                document.getElementById('content').innerHTML = '<p class="empty">Error loading users: ' + e.message + '</p>';
+            });
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+    </script>
+</body>
+</html>
