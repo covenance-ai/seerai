@@ -79,11 +79,94 @@ pytest                                  # 20 tests
 ruff check . && ruff format .           # lint
 ```
 
-## Deploy
+## Infrastructure
+
+### GCP
+
+| Resource | Value |
+|----------|-------|
+| Project | `covenance-469421` (number `430011644943`) |
+| Region | `europe-west1` |
+| Cloud Run service | `seerai` |
+| Service URL | https://seerai-430011644943.europe-west1.run.app/ |
+| Service account | `430011644943-compute@developer.gserviceaccount.com` |
+| Firestore | Native mode, `europe-west1` |
+| Firestore collections | `users/{uid}/sessions/{sid}/events/{eid}` |
+| Artifact Registry | `europe-west1-docker.pkg.dev/covenance-469421/cloud-run-source-deploy` |
+
+### Cloud Run config
+
+- Image: built from `Dockerfile` via `gcloud run deploy --source .`
+- Port: 8080 (uvicorn)
+- IAM invoker disabled (`run.googleapis.com/invoker-iam-disabled: true`) — publicly accessible
+- No secrets required (Firestore auth via service account, no JWT)
+- No Cloud Tasks (no async workers)
+
+### Firestore
+
+No setup needed — collections are created automatically on first write. The service account has default Firestore access.
+
+Collections:
+```
+users/{user_id}                                    — user_id, last_active
+users/{user_id}/sessions/{session_id}              — session_id, user_id, last_event_at, event_count, last_event_type
+users/{user_id}/sessions/{session_id}/events/{eid} — event_id, event_type, content, metadata, timestamp
+```
+
+To inspect data: [Firestore Console](https://console.cloud.google.com/firestore/databases/-default-/data?project=covenance-469421)
+
+To wipe all data (careful):
+```bash
+gcloud firestore databases delete --project=covenance-469421 --database="(default)"
+# then recreate:
+gcloud firestore databases create --project=covenance-469421 --location=europe-west1
+```
+
+### Deploy
+
+Redeploy after code changes:
 
 ```bash
 gcloud run deploy seerai --source . --project=covenance-469421 --region=europe-west1
 ```
+
+This builds the Docker image in Cloud Build, pushes to Artifact Registry, and creates a new Cloud Run revision. Takes ~5 minutes. The `--source .` flag triggers a source-based build using the `Dockerfile`.
+
+To check current state:
+
+```bash
+# service status
+gcloud run services describe seerai --project=covenance-469421 --region=europe-west1
+
+# recent logs
+gcloud run services logs read seerai --project=covenance-469421 --region=europe-west1 --limit=50
+
+# list revisions
+gcloud run revisions list --service=seerai --project=covenance-469421 --region=europe-west1
+```
+
+To roll back to a previous revision:
+
+```bash
+gcloud run services update-traffic seerai --to-revisions=REVISION_NAME=100 \
+  --project=covenance-469421 --region=europe-west1
+```
+
+### Custom domain (not yet configured)
+
+To add `seerai.covenance.ai`:
+
+1. Add CNAME record in GoDaddy: `seerai` → `ghs.googlehosted.com`
+2. Map domain in Cloud Run:
+   ```bash
+   gcloud run domain-mappings create --service=seerai --domain=seerai.covenance.ai \
+     --project=covenance-469421 --region=europe-west1
+   ```
+3. Wait for SSL certificate provisioning (~15 min)
+
+### CI/CD (not yet configured)
+
+No Cloud Build trigger exists yet. Deployments are manual via `gcloud run deploy`. To add auto-deploy on push, create a Cloud Build trigger pointing at this repo's `main` branch — see `autodpia/infrastructure/cloud-build/` for the pattern.
 
 ## Stack
 
