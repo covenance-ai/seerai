@@ -16,11 +16,13 @@ Observer service for LLM chat interactions. Any client can POST chat events (use
   "session_id": "conv-42",
   "event_type": "user_message",
   "content": "What is GDPR?",
+  "timestamp": "2026-04-10T10:30:00Z",
   "metadata": {"source": "slack-bot"}
 }
 ```
 
 `event_type` is one of: `user_message`, `ai_message`, `error`.
+`timestamp` is optional — client-side time when the event occurred. Defaults to server receive time if omitted.
 `metadata` is optional — use it for model name, token counts, latency, or anything else.
 
 Returns:

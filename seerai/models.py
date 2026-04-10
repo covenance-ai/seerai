@@ -13,6 +13,7 @@ class IngestEvent(BaseModel):
     session_id: str
     event_type: EventType
     content: str
+    timestamp: datetime | None = None
     metadata: dict | None = None
 
 
