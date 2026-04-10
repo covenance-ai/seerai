@@ -47,11 +47,13 @@ def get_session(user_id: str, session_id: str) -> SessionDetail:
         raise HTTPException(status_code=404, detail="Session not found")
 
     event_docs = session_ref.collection("events").order_by("timestamp").stream()
-    events = [StoredEvent(**doc.to_dict()) for doc in event_docs]
+    events = [
+        StoredEvent(user_id=user_id, session_id=session_id, **doc.to_dict())
+        for doc in event_docs
+    ]
 
-    data = session_doc.to_dict()
     return SessionDetail(
-        session_id=data["session_id"],
-        user_id=data["user_id"],
+        session_id=session_id,
+        user_id=user_id,
         events=events,
     )
