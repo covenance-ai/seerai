@@ -14,7 +14,7 @@ from pathlib import Path
 
 log = logging.getLogger(__name__)
 
-TOP_LEVEL_COLLECTIONS = ["users", "orgs", "subscriptions"]
+TOP_LEVEL_COLLECTIONS = ["users", "orgs", "subscriptions", "insights"]
 
 
 def _default(obj):

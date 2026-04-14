@@ -28,12 +28,24 @@
             fetch(`/api/orgs/${encodeURIComponent(orgId)}/tree`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
             fetch(`/api/orgs/${encodeURIComponent(orgId)}`).then(r => r.json()),
             fetch(`/api/cost/org/${encodeURIComponent(orgId)}`).then(r => r.ok ? r.json() : null),
+            fetch(`/api/insights?org_id=${encodeURIComponent(orgId)}`).then(r => r.ok ? r.json() : []),
         ])
-        .then(([tree, orgNode, costData]) => {
+        .then(([tree, orgNode, costData, insightsData]) => {
+            // Index insights by user and org
+            const insightsByUser = {};
+            const insightsByOrg = {};
+            for (const ins of insightsData) {
+                (insightsByUser[ins.user_id] = insightsByUser[ins.user_id] || []).push(ins);
+                (insightsByOrg[ins.org_id] = insightsByOrg[ins.org_id] || []).push(ins);
+            }
             document.getElementById('title').textContent = orgNode.name;
 
-            // Breadcrumb
-            let bc = '<a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a><span class="mx-1">/</span><a href="/exec" class="text-blue-600 dark:text-blue-400 hover:underline">orgs</a>';
+            // Breadcrumb with company badge
+            const rootOrgId = orgNode.path[0];
+            const companyBadge = (window.seerai && window.seerai.companyBadge) ? window.seerai.companyBadge(rootOrgId, { showName: false }) : '';
+            let bc = '<a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a><span class="mx-1">/</span>'
+                + (companyBadge ? companyBadge + '<span class="mx-1">/</span>' : '')
+                + '<a href="/exec" class="text-blue-600 dark:text-blue-400 hover:underline">orgs</a>';
             for (let i = 0; i < orgNode.path.length; i++) {
                 const pid = orgNode.path[i];
                 bc += '<span class="mx-1">/</span>';
@@ -136,8 +148,9 @@
                         const cRoi = cc ? cc.roi : null;
                         const cRoiColor = cRoi === null ? 'text-gray-400' : cRoi >= 1 ? 'text-emerald-500' : 'text-amber-500';
                         const cRoiLabel = cRoi === null ? '—' : cRoi.toFixed(1) + 'x';
+                        const orgInsCount = (insightsByOrg[c.org_id] || []).length;
                         html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                            <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a></td>
+                            <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a>${insightBadge(orgInsCount)}</td>
                             <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.user_count}</td>
                             <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.session_count}</td>
                             <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${subCost}</td>
@@ -174,8 +187,9 @@
                                 const uRoiColor = uRoi === null ? 'text-gray-400' : uRoi >= 1 ? 'text-emerald-500' : 'text-amber-500';
                                 const uRoiLabel = uRoi === null ? '—' : uRoi.toFixed(1) + 'x';
                                 const utilBar = uc ? miniBar(uc.utility_breakdown) : '<span class="text-gray-400 text-xs">—</span>';
+                                const uInsCount = (insightsByUser[u.user_id] || []).length;
                                 html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                                    <td class="px-4 py-2.5"><a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a></td>
+                                    <td class="px-4 py-2.5"><a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a>${insightBadge(uInsCount)}</td>
                                     <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${uSub}</td>
                                     <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${uVal}</td>
                                     <td class="px-4 py-2.5 text-right font-medium ${uRoiColor}">${uRoiLabel}</td>
@@ -214,6 +228,13 @@
             if (ub.non_work) bar += `<div class="bg-gray-400" style="width:${w(ub.non_work)}%"></div>`;
             bar += '</div>';
             return bar;
+        }
+
+        function insightBadge(count) {
+            if (!count) return '';
+            return ' <a href="/exec/insights" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-800/50 transition-colors" title="' + count + ' insight' + (count > 1 ? 's' : '') + '">'
+                + '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>'
+                + count + '</a>';
         }
 
         function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

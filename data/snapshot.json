@@ -64103,5 +64103,173 @@
       "content": "Help me create a record of processing activities.",
       "metadata": null
     }
+  },
+  "insights": {
+    "a762c7c4-986d-4029-bf49-9f36572b4640": {
+      "insight_id": "a762c7c4-986d-4029-bf49-9f36572b4640",
+      "kind": "cross_department_interest",
+      "priority": 2,
+      "created_at": "2026-04-11T13:24:42.207224+00:00",
+      "title": "Peter exploring Backend Engineering topics",
+      "description": "Analysis of peter.white's recent sessions reveals sustained engagement with Backend Engineering-related queries. Over the past 2 weeks, multiple sessions focused on topics typically associated with the Backend Engineering team, including API architecture, database optimization, and microservice patterns. This pattern suggests genuine interest or an emerging cross-functional need.",
+      "user_id": "peter.white",
+      "org_id": "acme-sales",
+      "target_org_id": "acme-eng-backend",
+      "evidence_session_ids": [
+        "2c6a35e1-478e-4300-ad2f-790171dd2dab",
+        "5309e138-ee50-401b-ae02-a2f1a47530f2",
+        "361cb4b5-6e4c-4b76-83ba-2d092182d68f"
+      ]
+    },
+    "b225b5cb-f526-484c-a42b-945fe1b8b8c0": {
+      "insight_id": "b225b5cb-f526-484c-a42b-945fe1b8b8c0",
+      "kind": "cross_department_interest",
+      "priority": 3,
+      "created_at": "2026-04-07T13:24:42.207224+00:00",
+      "title": "Frank exploring Machine Learning topics",
+      "description": "Analysis of frank.lopez's recent sessions reveals sustained engagement with Machine Learning-related queries. Over the past 2 weeks, multiple sessions focused on topics typically associated with the Machine Learning team, including neural network architectures, model training pipelines, and ML deployment. This pattern suggests genuine interest or an emerging cross-functional need.",
+      "user_id": "frank.lopez",
+      "org_id": "acme-eng-frontend",
+      "target_org_id": "initech-rd-ml",
+      "evidence_session_ids": [
+        "e80a381f-3fa0-44c8-a66e-56c00bfb4e21",
+        "508d67bb-3416-4acf-9466-233d924c35b1",
+        "7fe8584d-4689-45f5-bdf9-f19cfcc3e12f"
+      ]
+    },
+    "47d8704b-86aa-4e91-b798-c6c700364f92": {
+      "insight_id": "47d8704b-86aa-4e91-b798-c6c700364f92",
+      "kind": "cross_department_interest",
+      "priority": 4,
+      "created_at": "2026-04-04T13:24:42.207224+00:00",
+      "title": "Iris exploring Product Design topics",
+      "description": "Analysis of iris.brown's recent sessions reveals sustained engagement with Product Design-related queries. Over the past 2 weeks, multiple sessions focused on topics typically associated with the Product Design team, including user experience patterns, design systems, and accessibility standards. This pattern suggests genuine interest or an emerging cross-functional need.",
+      "user_id": "iris.brown",
+      "org_id": "acme-eng-infra",
+      "target_org_id": "acme-product-design",
+      "evidence_session_ids": [
+        "7d4d6d01-39d7-4d1d-8bf6-b86f75c4a8fc",
+        "743cd806-31af-46d7-a5a9-514c7fc18db6",
+        "940c0111-f077-40c0-b058-0f39acb988ae"
+      ]
+    },
+    "befddd35-d99c-469b-abff-1b207bf172af": {
+      "insight_id": "befddd35-d99c-469b-abff-1b207bf172af",
+      "kind": "cross_department_interest",
+      "priority": 3,
+      "created_at": "2026-04-09T13:24:42.207224+00:00",
+      "title": "Noah exploring Infrastructure topics",
+      "description": "Analysis of noah.thomas's recent sessions reveals sustained engagement with Infrastructure-related queries. Over the past 2 weeks, multiple sessions focused on topics typically associated with the Infrastructure team, including container orchestration, CI/CD pipelines, and cloud architecture. This pattern suggests genuine interest or an emerging cross-functional need.",
+      "user_id": "noah.thomas",
+      "org_id": "acme-product-research",
+      "target_org_id": "acme-eng-infra",
+      "evidence_session_ids": [
+        "0ebdf019-7527-4a5a-a346-0007598aa168",
+        "0a3d953e-a091-4c98-9cb8-eca8e965aebc",
+        "f460ca50-fb8e-434e-aad6-a11b0fd00aad"
+      ]
+    },
+    "68b2f67b-fe8e-4aff-bdb4-2fb45e77eb14": {
+      "insight_id": "68b2f67b-fe8e-4aff-bdb4-2fb45e77eb14",
+      "kind": "above_paygrade",
+      "priority": 2,
+      "created_at": "2026-04-06T13:24:42.207224+00:00",
+      "title": "Sam delivering above-level output",
+      "description": "sam.garcia's session analysis shows 49% of sessions classified as highly useful, with complex multi-turn problem-solving patterns typically seen at higher pay bands. Current rate ($48/hr) is below the team median, suggesting this employee may be undercompensated relative to output quality.",
+      "user_id": "sam.garcia",
+      "org_id": "acme-sales",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "748ec1ce-1fe9-46c6-bd7b-c35f105abf9d",
+        "33d39b62-aaff-4369-b0d5-23d3d1c11f51",
+        "76573423-636f-41e5-96db-5634fd1233c4",
+        "8eacfcc0-32b0-4b3d-91ae-1ff34039326f"
+      ]
+    },
+    "25f3cdf5-a3cc-445f-959c-dee2677f08d2": {
+      "insight_id": "25f3cdf5-a3cc-445f-959c-dee2677f08d2",
+      "kind": "above_paygrade",
+      "priority": 3,
+      "created_at": "2026-04-08T13:24:42.207224+00:00",
+      "title": "Quinn delivering above-level output",
+      "description": "quinn.harris's session analysis shows 48% of sessions classified as highly useful, with complex multi-turn problem-solving patterns typically seen at higher pay bands. Current rate ($53/hr) is below the team median, suggesting this employee may be undercompensated relative to output quality.",
+      "user_id": "quinn.harris",
+      "org_id": "acme-sales",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "7b321a86-25b2-4e15-a7b8-1a5ebc6f9938",
+        "c6f4596c-7ce7-4554-8316-71d55e6d31e3",
+        "aee3a525-4077-4c4e-8f78-52523c1987d9",
+        "4950a028-f312-4bec-a810-155839a1ce71"
+      ]
+    },
+    "e3994985-a89e-4697-99b6-284bdc2aace4": {
+      "insight_id": "e3994985-a89e-4697-99b6-284bdc2aace4",
+      "kind": "above_paygrade",
+      "priority": 3,
+      "created_at": "2026-04-10T13:24:42.207224+00:00",
+      "title": "Henry delivering above-level output",
+      "description": "henry.nguyen's session analysis shows 42% of sessions classified as highly useful, with complex multi-turn problem-solving patterns typically seen at higher pay bands. Current rate ($75/hr) is below the team median, suggesting this employee may be undercompensated relative to output quality.",
+      "user_id": "henry.nguyen",
+      "org_id": "acme-eng-frontend",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "87201210-f4ea-4784-bf93-c8f548761a5a",
+        "10f9e0de-33ca-4808-adcb-638f31f16c96",
+        "967600a2-9666-4c3d-8164-efdf3820c1cc",
+        "cc30f05c-a8c1-465f-865c-bd0235b7f648"
+      ]
+    },
+    "911cbdd7-aff0-4489-9d32-7adfacd4ab63": {
+      "insight_id": "911cbdd7-aff0-4489-9d32-7adfacd4ab63",
+      "kind": "below_paygrade",
+      "priority": 1,
+      "created_at": "2026-04-10T13:24:42.207224+00:00",
+      "title": "Victor underutilizing AI relative to role",
+      "description": "victor.hall's usage pattern shows 12% non-work and 44% trivial sessions. At $132/hr, this represents a gap between expected and actual AI-driven productivity. Consider targeted training or role alignment review.",
+      "user_id": "victor.hall",
+      "org_id": "initech-rd-ml",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "ebcdbadf-91c7-45f4-a79d-69fc40e1cd7d",
+        "a7179220-2764-4718-80d5-fd987e482ff5",
+        "2b8f932d-2d89-4eb5-afce-07a9ec636012",
+        "b429967a-b14e-476a-a385-54c27caf5e80"
+      ]
+    },
+    "7ce6d041-f6fc-4926-a1ce-a7b9e6cd0e18": {
+      "insight_id": "7ce6d041-f6fc-4926-a1ce-a7b9e6cd0e18",
+      "kind": "below_paygrade",
+      "priority": 3,
+      "created_at": "2026-04-11T13:24:42.207224+00:00",
+      "title": "Bob underutilizing AI relative to role",
+      "description": "bob.martinez's usage pattern shows 13% non-work and 42% trivial sessions. At $107/hr, this represents a gap between expected and actual AI-driven productivity. Consider targeted training or role alignment review.",
+      "user_id": "bob.martinez",
+      "org_id": "acme-eng-backend",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "7295b242-dd43-41d6-8922-7ecf7011a7fc",
+        "bdf8d607-2a4f-46b2-8794-1067fbfb9bc2",
+        "edf26f47-745c-4c76-91be-25c17d1bc6c6",
+        "bf838182-d20d-4133-86da-0503698027a6"
+      ]
+    },
+    "5787e655-7c57-4a46-9f2e-427fb33561f7": {
+      "insight_id": "5787e655-7c57-4a46-9f2e-427fb33561f7",
+      "kind": "below_paygrade",
+      "priority": 4,
+      "created_at": "2026-04-08T13:24:42.207224+00:00",
+      "title": "Carol underutilizing AI relative to role",
+      "description": "carol.chen's usage pattern shows 11% non-work and 44% trivial sessions. At $72/hr, this represents a gap between expected and actual AI-driven productivity. Consider targeted training or role alignment review.",
+      "user_id": "carol.chen",
+      "org_id": "acme-eng-backend",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "0f6bd5f0-6c08-4ef9-aed8-cf1ece83f2c7",
+        "85910e19-a66b-4f58-a8c0-5563a9c20068",
+        "6c1c5fa0-22e1-4b36-a83c-7f5549c7a87f",
+        "f2a00da3-e607-48f5-b9f4-7b035bde8add"
+      ]
+    }
   }
 }

@@ -11,6 +11,8 @@ from pydantic import BaseModel
 from seerai.entities import (  # noqa: F401
     Event,
     EventType,
+    Insight,
+    InsightKind,
     OrgNode,
     Session,
     Subscription,

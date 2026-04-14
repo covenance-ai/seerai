@@ -17,6 +17,7 @@
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
             <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a>
             <span class="mx-1">/</span>
+            <span id="company-badge"></span>
             <span id="uid" class="text-gray-700 dark:text-gray-300"></span>
         </p>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Sessions</h1>
@@ -47,8 +48,9 @@
         Promise.all([
             fetch(`/api/cost/user/${encodeURIComponent(userId)}`).then(r => r.ok ? r.json() : null).catch(() => null),
             fetch(`/api/users/${encodeURIComponent(userId)}/sessions`).then(r => r.json()),
+            fetch(`/api/insights?user_id=${encodeURIComponent(userId)}`).then(r => r.ok ? r.json() : []).catch(() => []),
         ])
-        .then(([costData, sessions]) => {
+        .then(([costData, sessions, userInsights]) => {
             if (costData) {
                 hourlyRate = costData.hourly_rate || 0;
                 const eff = costData.efficiency_ratio;
@@ -92,6 +94,30 @@
                     roi: costData.roi,
                 });
             }
+            // Render user insights inline
+            if (userInsights.length) {
+                const KIND_STYLES = {
+                    cross_department_interest: { label: 'Cross-department', cls: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
+                    above_paygrade: { label: 'Above paygrade', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
+                    below_paygrade: { label: 'Below paygrade', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
+                };
+                let insHtml = '<div class="mb-6 space-y-2">';
+                insHtml += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Insights</h2>';
+                for (const ins of userInsights) {
+                    const kind = KIND_STYLES[ins.kind] || KIND_STYLES.cross_department_interest;
+                    insHtml += `<div class="rounded-lg border border-violet-200 dark:border-violet-800/40 bg-violet-50 dark:bg-violet-900/10 px-4 py-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${kind.cls}">${kind.label}</span>
+                            <span class="text-xs text-gray-400">P${ins.priority}</span>
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">${esc(ins.title)}</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">${esc(ins.description)}</p>
+                    </div>`;
+                }
+                insHtml += '</div>';
+                document.getElementById('cost-cards').insertAdjacentHTML('afterend', insHtml);
+            }
+
             allSessions = sessions;
             renderSessions(sessions);
         })
@@ -157,6 +183,19 @@
         }
 
         function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+        // Render company badge once nav data is ready
+        (function waitBadge() {
+            if (!window.seerai || !window.seerai.ready) { setTimeout(waitBadge, 50); return; }
+            window.seerai.ready.then(function () {
+                const company = window.seerai.getUserCompany(userId);
+                if (company) {
+                    document.getElementById('company-badge').innerHTML =
+                        window.seerai.companyBadge(company, { showName: false })
+                        + '<span class="mx-1">/</span>';
+                }
+            });
+        })();
     </script>
 </body>
 </html>

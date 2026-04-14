@@ -9,6 +9,7 @@ Collection hierarchy:
     users/{user_id}/sessions/{session_id}
     users/{user_id}/sessions/{session_id}/events/{event_id}
     subscriptions/{subscription_id}
+    insights/{insight_id}
 """
 
 from __future__ import annotations
@@ -19,8 +20,9 @@ from typing import ClassVar, Literal
 from seerai.firestore_model import FirestoreModel
 
 EventType = Literal["user_message", "ai_message", "error"]
-UserRole = Literal["exec", "user"]
+UserRole = Literal["admin", "exec", "user"]
 UtilityClass = Literal["non_work", "trivial", "useful"]
+InsightKind = Literal["cross_department_interest", "above_paygrade", "below_paygrade"]
 
 
 class OrgNode(FirestoreModel):
@@ -103,6 +105,24 @@ class Event(FirestoreModel):
             direction="ASCENDING",
             limit=0,  # no limit
         )
+
+
+class Insight(FirestoreModel):
+    """insights/{insight_id} — an AI-generated insight about an employee."""
+
+    __collection__: ClassVar[str] = "insights"
+    __id_field__: ClassVar[str] = "insight_id"
+
+    insight_id: str
+    kind: InsightKind
+    priority: int  # 1 (critical) to 5 (low)
+    created_at: datetime
+    title: str
+    description: str  # AI analysis text
+    user_id: str
+    org_id: str  # user's department
+    target_org_id: str | None = None  # for cross_department_interest
+    evidence_session_ids: list[str]
 
 
 class Subscription(FirestoreModel):

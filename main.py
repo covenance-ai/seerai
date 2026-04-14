@@ -20,6 +20,7 @@ from seerai.cost.endpoint import router as cost_router
 from seerai.dashboard.endpoint import router as dashboard_router
 from seerai.datasource import router as datasource_router
 from seerai.ingest.endpoint import router as ingest_router
+from seerai.insights.endpoint import router as insights_router
 from seerai.org.endpoint import router as org_router
 from seerai.query.endpoint import router as query_router
 from seerai.subscriptions.endpoint import router as subscriptions_router
@@ -48,6 +49,7 @@ app.include_router(query_router, prefix="/api")
 app.include_router(org_router, prefix="/api")
 app.include_router(subscriptions_router, prefix="/api")
 app.include_router(cost_router, prefix="/api")
+app.include_router(insights_router, prefix="/api")
 app.include_router(datasource_router, prefix="/api")
 app.mount(
     "/static",

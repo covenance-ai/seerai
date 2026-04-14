@@ -17,8 +17,10 @@ python -m seerai.plausibility --fix # normalize violations in-place
 
 - `POST /api/ingest` — record chat events
 - `GET /api/users`, `/api/users/{id}/sessions`, etc. — query data
+- `GET /api/insights` — AI insights (cross-department interest, paygrade alignment)
 - `GET /`, `/sessions/{id}`, `/session/{uid}/{sid}` — HTML dashboard
-- Firestore: `users/{uid}/sessions/{sid}/events/{eid}` hierarchy
+- `GET /exec/insights` — exec insights view
+- Firestore: `users/{uid}/sessions/{sid}/events/{eid}`, `insights/{iid}`
 
 ## Data sources
 
