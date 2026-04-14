@@ -111,13 +111,17 @@
             }
         </button>`;
 
-        // Data source indicator
+        // Data source selector
         const ds = _dsInfo;
         const dsLabel = ds ? ds.source : '...';
-        const dsColor = dsLabel === 'local'
-            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-            : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
-        const dsBtn = `<button id="seerai-ds-btn" class="relative text-[0.65rem] px-2 py-1 rounded font-semibold uppercase cursor-pointer transition-colors ${dsColor}" title="Data source: ${dsLabel}">${dsLabel}</button>`;
+        const dsIcon = dsLabel === 'local'
+            ? '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7M4 7c0-2 1-3 3-3h10c2 0 3 1 3 3M4 7h16M8 12h.01M12 12h.01M16 12h.01"/></svg>'
+            : '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>';
+        const dsBtn = `<button id="seerai-ds-btn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border cursor-pointer transition-colors text-xs font-medium bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 text-gray-600 dark:text-gray-300" title="Data source: ${dsLabel}">
+            ${dsIcon}
+            <span>${dsLabel}</span>
+            <span class="text-gray-400 text-[0.6rem]">&#9662;</span>
+        </button>`;
 
         nav.innerHTML = `
             <a href="/" class="font-semibold text-gray-900 dark:text-white text-base mr-2">seerai</a>
