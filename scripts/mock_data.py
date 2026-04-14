@@ -141,6 +141,14 @@ AI_RESPONSES = [
 PROVIDERS = ["anthropic", "openai", "google", "mistral"]
 PLATFORMS = ["chrome", "firefox", "vscode", "cli", "slack", "safari"]
 
+# Provider → possible models. Session picks one provider+model and sticks with it.
+PROVIDER_MODELS = {
+    "anthropic": ["claude-sonnet-4", "claude-haiku-4"],
+    "openai": ["gpt-4o", "o3-mini"],
+    "google": ["gemini-2.0-flash", "gemini-2.5-pro"],
+    "mistral": ["mistral-large", "mistral-small"],
+}
+
 # Subscription plans — (provider, plan_name, monthly_cost_cents)
 SUBSCRIPTION_PLANS = [
     ("anthropic", "Claude Pro", 2000),
@@ -154,6 +162,49 @@ ERROR_MESSAGES = [
     "Service temporarily unavailable. The model is being updated.",
     "Invalid input: message exceeds maximum token length.",
 ]
+
+
+class PlausibilityError(Exception):
+    pass
+
+
+def check_session_events(events: list[dict]) -> None:
+    """Validate plausibility of a session's event sequence.
+
+    Raises PlausibilityError if any rule is violated:
+    - Session must not end on user_message
+    - Session must start with user_message
+    - All AI messages must use the same model
+    - Event count must be >= 2
+    """
+    if len(events) < 2:
+        raise PlausibilityError(f"Session has {len(events)} events, need >= 2")
+
+    if events[0]["event_type"] != "user_message":
+        raise PlausibilityError(
+            f"Session starts with {events[0]['event_type']}, expected user_message"
+        )
+
+    if events[-1]["event_type"] == "user_message":
+        raise PlausibilityError("Session ends with user_message")
+
+    models_used = {
+        e["metadata"]["model"]
+        for e in events
+        if e.get("metadata") and "model" in e["metadata"]
+    }
+    if len(models_used) > 1:
+        raise PlausibilityError(f"Multiple models in one session: {models_used}")
+
+
+def check_stub_session(session_data: dict) -> None:
+    """Validate plausibility of a stub session (no events, just summary fields)."""
+    if session_data.get("last_event_type") == "user_message":
+        raise PlausibilityError("Stub session has last_event_type=user_message")
+    if session_data.get("event_count", 0) < 2:
+        raise PlausibilityError(
+            f"Stub session has event_count={session_data.get('event_count')}"
+        )
 
 
 def flatten_tree(
@@ -267,6 +318,7 @@ def create_users_and_data():
                 total_sessions += 1
                 session_id = str(uuid.uuid4())
                 provider = random.choice(PROVIDERS)
+                session_model = random.choice(PROVIDER_MODELS[provider])
                 platform = random.choice(PLATFORMS)
                 num_events = random.randrange(
                     4, 21, 2
@@ -283,15 +335,11 @@ def create_users_and_data():
                     ]
                 )
 
-                batch = DB.batch()
-                last_event_type = None
-
+                # Build events list, then validate, then write
+                events = []
                 for j, event_time in enumerate(event_times):
-                    total_events += 1
-                    event_count += 1
                     event_id = str(uuid.uuid4())
 
-                    # Alternate user/ai, with ~5% errors on AI turns (never first/last)
                     is_user_turn = j % 2 == 0
                     if is_user_turn:
                         event_type = "user_message"
@@ -304,37 +352,40 @@ def create_users_and_data():
                         event_type = "ai_message"
                         content = random.choice(AI_RESPONSES)
 
-                    last_event_type = event_type
-
                     metadata = None
                     if event_type == "ai_message":
                         metadata = {
-                            "model": random.choice(
-                                ["claude-sonnet-4", "gpt-4o", "gemini-2.0-flash"]
-                            ),
+                            "model": session_model,
                             "tokens": random.randint(50, 800),
                             "latency_ms": random.randint(200, 3000),
                         }
 
-                    event_ref = (
-                        DB.collection("users")
-                        .document(user_id)
-                        .collection("sessions")
-                        .document(session_id)
-                        .collection("events")
-                        .document(event_id)
-                    )
-                    batch.set(
-                        event_ref,
+                    events.append(
                         {
                             "event_id": event_id,
                             "event_type": event_type,
                             "content": content,
                             "metadata": metadata,
                             "timestamp": event_time,
-                        },
+                        }
                     )
 
+                check_session_events(events)
+                event_count = len(events)
+                last_event_type = events[-1]["event_type"]
+
+                batch = DB.batch()
+                for ev in events:
+                    total_events += 1
+                    event_ref = (
+                        DB.collection("users")
+                        .document(user_id)
+                        .collection("sessions")
+                        .document(session_id)
+                        .collection("events")
+                        .document(ev["event_id"])
+                    )
+                    batch.set(event_ref, ev)
                 batch.commit()
 
                 # Write session summary
@@ -364,6 +415,106 @@ def create_users_and_data():
     print(
         f"Created {total_users} users, {total_sessions} sessions, {total_events} events."
     )
+
+
+def create_stub_sessions():
+    """Create content-free sessions for realistic volume.
+
+    Each user gets a usage profile (power/moderate/light) that determines
+    how many sessions per day they generate. Sessions have realistic aggregate
+    fields but no event documents underneath.
+    """
+    now = datetime.now(UTC)
+
+    # (min, max) sessions per day
+    PROFILES = {"power": (8, 20), "moderate": (3, 8), "light": (0, 3)}
+    PROFILE_WEIGHTS = [0.2, 0.5, 0.3]
+
+    total = 0
+    batch = DB.batch()
+    batch_size = 0
+    latest_per_user: dict[str, datetime] = {}
+
+    for user_list in USERS.values():
+        for user_id in user_list:
+            profile = random.choices(list(PROFILES), PROFILE_WEIGHTS)[0]
+            min_daily, max_daily = PROFILES[profile]
+
+            # Each user sticks to 1-2 providers/platforms
+            user_providers = random.sample(PROVIDERS, k=random.randint(1, 2))
+            user_platforms = random.sample(PLATFORMS, k=random.randint(1, 2))
+
+            for day in range(30):
+                day_start = now - timedelta(days=day + 1)
+                num_sessions = random.randint(min_daily, max_daily)
+
+                for _ in range(num_sessions):
+                    session_id = str(uuid.uuid4())
+
+                    # Bias toward working hours (8-22)
+                    session_time = day_start + timedelta(
+                        hours=random.gauss(14, 3), minutes=random.uniform(0, 60)
+                    )
+                    duration = timedelta(minutes=random.uniform(2, 45))
+                    last_event_at = session_time + duration
+
+                    event_count = max(2, int(random.gauss(10, 6)))
+                    event_count += event_count % 2  # round up to even
+
+                    error_count = 0
+                    if random.random() < 0.12:
+                        error_count = random.randint(1, max(1, event_count // 6))
+
+                    last_event_type = random.choices(
+                        ["ai_message", "error"],
+                        weights=[90, 10],
+                    )[0]
+
+                    session_ref = (
+                        DB.collection("users")
+                        .document(user_id)
+                        .collection("sessions")
+                        .document(session_id)
+                    )
+                    stub_data = {
+                        "session_id": session_id,
+                        "user_id": user_id,
+                        "last_event_at": last_event_at,
+                        "last_event_type": last_event_type,
+                        "event_count": event_count,
+                        "error_count": error_count,
+                        "provider": random.choice(user_providers),
+                        "platform": random.choice(user_platforms),
+                        "utility": random.choices(UTILITY_CLASSES, UTILITY_WEIGHTS)[0],
+                    }
+                    check_stub_session(stub_data)
+                    batch.set(session_ref, stub_data)
+                    batch_size += 1
+                    total += 1
+
+                    if last_event_at > latest_per_user.get(
+                        user_id, datetime.min.replace(tzinfo=UTC)
+                    ):
+                        latest_per_user[user_id] = last_event_at
+
+                    if batch_size >= 400:
+                        batch.commit()
+                        batch = DB.batch()
+                        batch_size = 0
+
+    # Update last_active for users whose stubs are more recent
+    for user_id, latest in latest_per_user.items():
+        batch.set(
+            DB.collection("users").document(user_id),
+            {"last_active": latest},
+            merge=True,
+        )
+        batch_size += 1
+
+    if batch_size > 0:
+        batch.commit()
+
+    print(f"Created {total} stub sessions (no events).")
 
 
 def create_subscriptions():
@@ -419,6 +570,7 @@ def main():
 
     create_orgs()
     create_users_and_data()
+    create_stub_sessions()
     create_subscriptions()
     print("Done.")
 
