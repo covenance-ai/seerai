@@ -3,8 +3,8 @@ from collections import defaultdict
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from seerai.firestore_client import get_firestore_client
-from seerai.models import OrgNode, OrgNodeStats, UserSummary
+from seerai.entities import OrgNode, Session, User
+from seerai.models import OrgNodeStats
 
 router = APIRouter(tags=["org"])
 
@@ -21,15 +21,12 @@ class AssignOrgRequest(BaseModel):
 
 @router.post("/orgs")
 def create_org(req: CreateOrgRequest) -> OrgNode:
-    db = get_firestore_client()
-
     if req.parent_id:
-        parent_doc = db.collection("orgs").document(req.parent_id).get()
-        if not parent_doc.exists:
+        parent = OrgNode.get(req.parent_id)
+        if not parent:
             raise HTTPException(404, "Parent org not found")
-        parent = parent_doc.to_dict()
-        path = parent["path"] + [req.org_id]
-        depth = parent["depth"] + 1
+        path = parent.path + [req.org_id]
+        depth = parent.depth + 1
     else:
         path = [req.org_id]
         depth = 0
@@ -41,79 +38,66 @@ def create_org(req: CreateOrgRequest) -> OrgNode:
         path=path,
         depth=depth,
     )
-    db.collection("orgs").document(req.org_id).set(node.model_dump())
+    node.save(merge=False)
     return node
 
 
 @router.get("/orgs")
 def list_root_orgs() -> list[OrgNode]:
-    db = get_firestore_client()
-    docs = db.collection("orgs").where("depth", "==", 0).stream()
-    return [OrgNode(**doc.to_dict()) for doc in docs]
+    return OrgNode.query("depth", "==", 0)
 
 
 @router.get("/orgs/{org_id}")
 def get_org(org_id: str) -> OrgNode:
-    db = get_firestore_client()
-    doc = db.collection("orgs").document(org_id).get()
-    if not doc.exists:
+    node = OrgNode.get(org_id)
+    if not node:
         raise HTTPException(404, "Org not found")
-    return OrgNode(**doc.to_dict())
+    return node
 
 
-def _get_descendants(db, org_id: str) -> list[OrgNode]:
+def _get_descendants(org_id: str) -> list[OrgNode]:
     """All org nodes that have org_id in their path (includes the node itself)."""
-    docs = db.collection("orgs").where("path", "array_contains", org_id).stream()
-    return [OrgNode(**doc.to_dict()) for doc in docs]
+    return OrgNode.query("path", "array_contains", org_id)
 
 
-def _compute_stats(db, nodes: list[OrgNode]) -> dict[str, OrgNodeStats]:
+def _compute_stats(descendants: list[OrgNode]) -> dict[str, OrgNodeStats]:
     """Compute aggregate stats for each org node from its descendant users/sessions."""
-    org_ids = {n.org_id for n in nodes}
+    org_ids = {n.org_id for n in descendants}
 
-    # Build parent→children map for bottom-up aggregation
+    # Build parent->children map
     children_map: dict[str | None, list[str]] = defaultdict(list)
-    for n in nodes:
+    for n in descendants:
         children_map[n.parent_id].append(n.org_id)
 
     # Load users for all org_ids — Firestore 'in' limited to 30
-    users_by_org: dict[str, list[dict]] = defaultdict(list)
+    users_by_org: dict[str, list[User]] = defaultdict(list)
     org_id_list = list(org_ids)
     for i in range(0, len(org_id_list), 30):
         batch = org_id_list[i : i + 30]
-        docs = db.collection("users").where("org_id", "in", batch).stream()
-        for doc in docs:
-            d = doc.to_dict()
-            users_by_org[d["org_id"]].append(d)
+        for u in User.query("org_id", "in", batch):
+            users_by_org[u.org_id].append(u)
 
     # Load session stats per user
-    user_stats: dict[
-        str, tuple[int, int, int]
-    ] = {}  # uid → (sessions, messages, errors)
+    user_stats: dict[str, tuple[int, int, int]] = {}
     for org_users in users_by_org.values():
         for u in org_users:
-            uid = u["user_id"]
-            if uid in user_stats:
+            if u.user_id in user_stats:
                 continue
-            sessions = (
-                db.collection("users").document(uid).collection("sessions").stream()
-            )
+            sessions = Session.for_user(u.user_id, order_by="last_event_at", limit=0)
             s_count, m_count, e_count = 0, 0, 0
             for s in sessions:
-                sd = s.to_dict()
                 s_count += 1
-                m_count += sd.get("event_count", 0)
-                e_count += sd.get("error_count", 0)
-            user_stats[uid] = (s_count, m_count, e_count)
+                m_count += s.event_count
+                e_count += s.error_count
+            user_stats[u.user_id] = (s_count, m_count, e_count)
 
-    # Direct stats per org node (only its directly assigned users)
+    # Direct stats per org node
     direct: dict[str, OrgNodeStats] = {}
-    for n in nodes:
+    for n in descendants:
         u_count, s_count, m_count, e_count = 0, 0, 0, 0
         for u in users_by_org.get(n.org_id, []):
-            uid = u["user_id"]
             u_count += 1
-            us, um, ue = user_stats.get(uid, (0, 0, 0))
+            us, um, ue = user_stats.get(u.user_id, (0, 0, 0))
             s_count += us
             m_count += um
             e_count += ue
@@ -128,12 +112,9 @@ def _compute_stats(db, nodes: list[OrgNode]) -> dict[str, OrgNodeStats]:
             error_count=e_count,
         )
 
-    # Bottom-up aggregation: add children's stats to parent
-    # Process deepest nodes first
-    by_depth = sorted(nodes, key=lambda n: n.depth, reverse=True)
-    aggregated: dict[str, OrgNodeStats] = {
-        oid: OrgNodeStats(**s.model_dump()) for oid, s in direct.items()
-    }
+    # Bottom-up aggregation
+    by_depth = sorted(descendants, key=lambda n: n.depth, reverse=True)
+    aggregated = {oid: OrgNodeStats(**s.model_dump()) for oid, s in direct.items()}
 
     for n in by_depth:
         for child_id in children_map.get(n.org_id, []):
@@ -160,14 +141,12 @@ class OrgTreeNode(BaseModel):
 
 @router.get("/orgs/{org_id}/tree")
 def get_org_tree(org_id: str) -> OrgTreeNode:
-    db = get_firestore_client()
-    descendants = _get_descendants(db, org_id)
+    descendants = _get_descendants(org_id)
     if not any(n.org_id == org_id for n in descendants):
         raise HTTPException(404, "Org not found")
 
-    stats = _compute_stats(db, descendants)
+    stats = _compute_stats(descendants)
 
-    # Build tree recursively
     children_map: dict[str | None, list[OrgNode]] = defaultdict(list)
     for n in descendants:
         if n.org_id != org_id:
@@ -184,56 +163,37 @@ def get_org_tree(org_id: str) -> OrgTreeNode:
 
 @router.get("/orgs/{org_id}/children")
 def get_org_children(org_id: str) -> list[OrgNodeStats]:
-    db = get_firestore_client()
-    # Verify parent exists
-    parent_doc = db.collection("orgs").document(org_id).get()
-    if not parent_doc.exists:
+    if not OrgNode.get(org_id):
         raise HTTPException(404, "Org not found")
 
-    descendants = _get_descendants(db, org_id)
-    stats = _compute_stats(db, descendants)
+    descendants = _get_descendants(org_id)
+    stats = _compute_stats(descendants)
     return [stats[n.org_id] for n in descendants if n.parent_id == org_id]
 
 
 @router.get("/orgs/{org_id}/users")
-def get_org_users(org_id: str) -> list[UserSummary]:
-    db = get_firestore_client()
-    descendants = _get_descendants(db, org_id)
+def get_org_users(org_id: str) -> list[User]:
+    descendants = _get_descendants(org_id)
     if not any(n.org_id == org_id for n in descendants):
         raise HTTPException(404, "Org not found")
 
     org_ids = [n.org_id for n in descendants]
-    users = []
+    users: list[User] = []
     for i in range(0, len(org_ids), 30):
         batch = org_ids[i : i + 30]
-        docs = db.collection("users").where("org_id", "in", batch).stream()
-        for doc in docs:
-            d = doc.to_dict()
-            users.append(
-                UserSummary(
-                    user_id=d["user_id"],
-                    last_active=d["last_active"],
-                    org_id=d.get("org_id"),
-                )
-            )
+        users.extend(User.query("org_id", "in", batch))
     return sorted(users, key=lambda u: u.last_active, reverse=True)
 
 
 @router.put("/users/{user_id}/org")
-def assign_user_org(user_id: str, req: AssignOrgRequest) -> UserSummary:
-    db = get_firestore_client()
-
-    # Verify org exists
-    org_doc = db.collection("orgs").document(req.org_id).get()
-    if not org_doc.exists:
+def assign_user_org(user_id: str, req: AssignOrgRequest) -> User:
+    if not OrgNode.get(req.org_id):
         raise HTTPException(404, "Org not found")
 
-    # Verify user exists
-    user_ref = db.collection("users").document(user_id)
-    user_doc = user_ref.get()
-    if not user_doc.exists:
+    user = User.get(user_id)
+    if not user:
         raise HTTPException(404, "User not found")
 
-    user_ref.update({"org_id": req.org_id})
-    updated = user_ref.get().to_dict()
-    return UserSummary(**updated)
+    user.org_id = req.org_id
+    user.save()
+    return user

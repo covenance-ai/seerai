@@ -4,7 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from seerai.models import OrgNode, OrgNodeStats
+from seerai.entities import OrgNode
+from seerai.models import OrgNodeStats
 
 
 class TestOrgNode:

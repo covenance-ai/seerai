@@ -1,10 +1,21 @@
+"""API request/response models.
+
+Entity types (what's stored in Firestore) live in entities.py.
+These models are for API payloads and computed responses.
+"""
+
 from datetime import datetime
-from typing import Literal
 
 from pydantic import BaseModel
 
-EventType = Literal["user_message", "ai_message", "error"]
-UserRole = Literal["exec", "user"]
+from seerai.entities import (  # noqa: F401
+    Event,
+    EventType,
+    OrgNode,
+    Session,
+    User,
+    UserRole,
+)
 
 
 class IngestEvent(BaseModel):
@@ -19,47 +30,18 @@ class IngestEvent(BaseModel):
 
 
 class StoredEvent(IngestEvent):
-    """Event as persisted in Firestore, with server-assigned fields."""
+    """API response after ingesting — event fields plus user/session context."""
 
     event_id: str
     timestamp: datetime
 
 
-class SessionSummary(BaseModel):
-    """Summary of a session for listing views."""
-
-    session_id: str
-    user_id: str
-    last_event_at: datetime
-    event_count: int
-    last_event_type: EventType | None = None
-
-
 class SessionDetail(BaseModel):
-    """Full session with its events."""
+    """Full session with its events — API response for session detail view."""
 
     session_id: str
     user_id: str
     events: list[StoredEvent]
-
-
-class UserSummary(BaseModel):
-    """Summary of a user for listing views."""
-
-    user_id: str
-    last_active: datetime
-    org_id: str | None = None
-    role: UserRole = "user"
-
-
-class OrgNode(BaseModel):
-    """A single node in the organizational hierarchy."""
-
-    org_id: str
-    name: str
-    parent_id: str | None = None
-    path: list[str]
-    depth: int
 
 
 class OrgNodeStats(BaseModel):

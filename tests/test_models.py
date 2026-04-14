@@ -5,10 +5,10 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
+from seerai.entities import Session
 from seerai.models import (
     IngestEvent,
     SessionDetail,
-    SessionSummary,
     StoredEvent,
 )
 
@@ -87,11 +87,11 @@ class TestStoredEvent:
         assert rebuilt == original
 
 
-class TestSessionSummary:
+class TestSession:
     def test_all_event_types_in_last_event(self):
         """last_event_type accepts all valid types and None."""
         for t in ("user_message", "ai_message", "error", None):
-            s = SessionSummary(
+            s = Session(
                 session_id="s",
                 user_id="u",
                 last_event_at=datetime.now(UTC),

@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from fastapi import APIRouter
 from google.cloud.firestore_v1 import Increment
 
+from seerai.entities import Event, Session, User
 from seerai.firestore_client import get_firestore_client
 from seerai.models import IngestEvent, StoredEvent
 
@@ -15,17 +16,24 @@ def _write_event(event: IngestEvent) -> StoredEvent:
     event_id = str(uuid.uuid4())
     ts = event.timestamp or datetime.now(UTC)
 
-    user_ref = db.collection("users").document(event.user_id)
-    session_ref = user_ref.collection("sessions").document(event.session_id)
-    event_ref = session_ref.collection("events").document(event_id)
+    user_ref = User._doc_ref(db, event.user_id)
+    session_ref = Session._doc_ref(
+        db, event.session_id, Session.parent_path(event.user_id)
+    )
+    event_ref = Event._doc_ref(
+        db, event_id, Event.parent_path(event.user_id, event.session_id)
+    )
+
+    stored_event = Event(
+        event_id=event_id,
+        event_type=event.event_type,
+        content=event.content,
+        metadata=event.metadata,
+        timestamp=ts,
+    )
 
     batch = db.batch()
-
-    batch.set(
-        user_ref,
-        {"user_id": event.user_id, "last_active": ts},
-        merge=True,
-    )
+    batch.set(user_ref, {"user_id": event.user_id, "last_active": ts}, merge=True)
 
     session_data = {
         "session_id": event.session_id,
@@ -36,20 +44,9 @@ def _write_event(event: IngestEvent) -> StoredEvent:
     }
     if event.event_type == "error":
         session_data["error_count"] = Increment(1)
-
     batch.set(session_ref, session_data, merge=True)
 
-    batch.set(
-        event_ref,
-        {
-            "event_id": event_id,
-            "event_type": event.event_type,
-            "content": event.content,
-            "metadata": event.metadata,
-            "timestamp": ts,
-        },
-    )
-
+    batch.set(event_ref, stored_event.model_dump())
     batch.commit()
 
     return StoredEvent(

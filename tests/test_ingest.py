@@ -133,24 +133,10 @@ class TestQueryEndpoints:
     def test_session_not_found(self, client):
         """GET /api/users/{uid}/sessions/{sid} returns 404 for missing session."""
         tc, mock_db, _ = client
-        # Build the chain: collection("users").document("alice").collection("sessions").document("x")
-        # then .get() returns a doc with .exists = False
+        # Entity model uses db.document("users/alice").collection("sessions").document("x").get()
         mock_session_doc = MagicMock()
         mock_session_doc.exists = False
-
-        mock_session_ref = MagicMock()
-        mock_session_ref.get.return_value = mock_session_doc
-
-        mock_sessions_coll = MagicMock()
-        mock_sessions_coll.document.return_value = mock_session_ref
-
-        mock_user_doc = MagicMock()
-        mock_user_doc.collection.return_value = mock_sessions_coll
-
-        mock_users_coll = MagicMock()
-        mock_users_coll.document.return_value = mock_user_doc
-
-        mock_db.collection.return_value = mock_users_coll
+        mock_db.document.return_value.collection.return_value.document.return_value.get.return_value = mock_session_doc
         resp = tc.get("/api/users/alice/sessions/nonexistent")
         assert resp.status_code == 404
 
