@@ -1,17 +1,31 @@
 """Cost efficiency and ROI endpoints.
 
-Compares flat-rate subscription costs against:
-1. API-equivalent costs computed from actual token usage
-2. Estimated hours saved, converted to dollar value via hourly_rate
+All cost/value/utility metrics are reported over a trailing 30-day window so they
+are apples-to-apples with monthly subscription cost. ROI = monthly value / monthly
+subscription becomes a per-month ratio that maps to how subscriptions are billed.
 
-Estimated hours saved per session = log2(event_count) × hours_factor
-  - useful:  hours_factor = 0.25  (2 events ≈ 15 min, 64 events ≈ 1.5 hr)
-  - trivial: hours_factor = 0.05  (2 events ≈ 3 min, 64 events ≈ 18 min)
+Compares flat-rate subscription costs against:
+1. API-equivalent costs computed from actual token usage (last 30 days)
+2. Net estimated hours saved, converted to dollar value via hourly_rate (last 30 days)
+
+Per-session value = hourly_rate × log2(event_count) × hours_factor × discount
+  - useful:  hours_factor =  0.25
+  - trivial: hours_factor =  0.05
   - non_work: 0
+  - harmful: hours_factor = -0.30  (negative — see below)
+
+The DISPLACEMENT_FACTOR (currently 0.5) discounts only positive contributions
+on the principle that not all "saved" time would have produced equivalent
+business value otherwise (the alternative might have been faster than estimated,
+the work might not have been strictly necessary, etc.). Negative contributions
+from harmful sessions are NOT discounted: the cleanup time after a hallucinated
+suggestion is real wall-clock time spent recovering, with no counterfactual to
+discount against.
 """
 
 import math
 from collections import defaultdict
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -22,20 +36,43 @@ from seerai.pricing import token_cost
 router = APIRouter(tags=["cost"])
 
 # Maps utility class to estimated hours-saved per unit of log2(events).
-UTILITY_HOURS_FACTOR = {"non_work": 0.0, "trivial": 0.05, "useful": 0.25}
+# `harmful` is negative — sessions that cost the user more time than they saved.
+UTILITY_HOURS_FACTOR = {
+    "non_work": 0.0,
+    "trivial": 0.05,
+    "useful": 0.25,
+    "harmful": -0.30,
+}
+
+# Discount applied to *positive* per-session value to reflect that saved time
+# isn't 1:1 fungible with paid hourly rate (counterfactual uncertainty,
+# context-switch overhead, etc.). Harmful sessions bypass this — see module docstring.
+DISPLACEMENT_FACTOR = 0.5
+
+# Trailing window for value/cost metrics — keeps them on the same timescale as
+# monthly subscription cost so ROI and efficiency_ratio are per-month ratios.
+WINDOW_DAYS = 30
+
+
+def _window_cutoff() -> datetime:
+    return datetime.now(UTC) - timedelta(days=WINDOW_DAYS)
 
 
 def session_value(hourly_rate: float, event_count: int, utility: str | None) -> float:
-    """Estimated dollar value of a session = hourly_rate × hours_saved.
+    """Estimated dollar value of a session.
 
-    hours_saved = log2(event_count) × hours_factor(utility)
+    value = hourly_rate × log2(event_count) × hours_factor(utility) × displacement
+
+    `displacement` is DISPLACEMENT_FACTOR for positive (useful/trivial) sessions
+    and 1.0 for negative (harmful) sessions — see module docstring for rationale.
     """
     if not utility or utility not in UTILITY_HOURS_FACTOR:
         return 0.0
     factor = UTILITY_HOURS_FACTOR[utility]
     if factor == 0 or event_count < 1:
         return 0.0
-    return hourly_rate * math.log2(max(event_count, 1)) * factor
+    raw = hourly_rate * math.log2(max(event_count, 1)) * factor
+    return raw * DISPLACEMENT_FACTOR if factor > 0 else raw
 
 
 class ModelUsage(BaseModel):
@@ -48,6 +85,7 @@ class UtilityBreakdown(BaseModel):
     non_work: int = 0
     trivial: int = 0
     useful: int = 0
+    harmful: int = 0
     unclassified: int = 0
 
 
@@ -80,15 +118,18 @@ class OrgCostSummary(BaseModel):
 
 
 def _user_cost(user: User, sessions: list[Session], subs: list[Subscription]) -> UserCost:
-    """Compute cost metrics from session-level token_usage (no event scanning)."""
+    """Compute per-month cost metrics over the trailing WINDOW_DAYS."""
     monthly_sub = sum(s.monthly_cost_cents for s in subs) / 100.0
+
+    cutoff = _window_cutoff()
+    windowed = [s for s in sessions if s.last_event_at >= cutoff]
 
     by_model: dict[str, int] = defaultdict(int)
     rate = user.hourly_rate or 0.0
     total_value = 0.0
     breakdown = UtilityBreakdown()
 
-    for s in sessions:
+    for s in windowed:
         # Accumulate token usage from session-level data
         if s.token_usage:
             for model, tokens in s.token_usage.items():
@@ -101,6 +142,8 @@ def _user_cost(user: User, sessions: list[Session], subs: list[Subscription]) ->
             breakdown.trivial += 1
         elif s.utility == "useful":
             breakdown.useful += 1
+        elif s.utility == "harmful":
+            breakdown.harmful += 1
         else:
             breakdown.unclassified += 1
         total_value += session_value(rate, s.event_count, s.utility)
@@ -125,7 +168,7 @@ def _user_cost(user: User, sessions: list[Session], subs: list[Subscription]) ->
         efficiency_ratio=round(eff_ratio, 2) if eff_ratio is not None else None,
         estimated_value=round(total_value, 2),
         roi=round(roi, 2) if roi is not None else None,
-        session_count=len(sessions),
+        session_count=len(windowed),
         utility_breakdown=breakdown,
         models=models,
     )
@@ -187,6 +230,7 @@ def org_cost(org_id: str) -> OrgCostSummary:
         non_work=sum(u.utility_breakdown.non_work for u in user_costs),
         trivial=sum(u.utility_breakdown.trivial for u in user_costs),
         useful=sum(u.utility_breakdown.useful for u in user_costs),
+        harmful=sum(u.utility_breakdown.harmful for u in user_costs),
         unclassified=sum(u.utility_breakdown.unclassified for u in user_costs),
     )
 

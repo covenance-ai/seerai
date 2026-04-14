@@ -96,7 +96,7 @@
                     </div>
                     <div data-metric="value" class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.total_estimated_value.toFixed(0)}</div>
-                        <div class="text-xs text-gray-400 mt-0.5">Estimated Value</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Value / mo</div>
                     </div>
                     <div data-metric="efficiency" class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold ${effColor}">${effLabel}</div>
@@ -137,7 +137,7 @@
                             <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Users</th>
                             <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sessions</th>
                             <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sub $/mo</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value / mo</th>
                             <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">ROI</th>
                         </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
                     for (let i = 0; i < tree.children.length; i++) {
@@ -150,7 +150,7 @@
                         const cRoiLabel = cRoi === null ? '—' : cRoi.toFixed(1) + 'x';
                         const orgInsCount = (insightsByOrg[c.org_id] || []).length;
                         html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                            <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a>${insightBadge(orgInsCount)}</td>
+                            <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a>${insightBadge(orgInsCount, {org_id: c.org_id})}</td>
                             <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.user_count}</td>
                             <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.session_count}</td>
                             <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${subCost}</td>
@@ -173,7 +173,7 @@
                                 <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
                                     <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">User</th>
                                     <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sub $/mo</th>
-                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value / mo</th>
                                     <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">ROI</th>
                                     <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Utility</th>
                                     <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
@@ -189,7 +189,7 @@
                                 const utilBar = uc ? miniBar(uc.utility_breakdown) : '<span class="text-gray-400 text-xs">—</span>';
                                 const uInsCount = (insightsByUser[u.user_id] || []).length;
                                 html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                                    <td class="px-4 py-2.5"><a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a>${insightBadge(uInsCount)}</td>
+                                    <td class="px-4 py-2.5"><a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a>${insightBadge(uInsCount, {user_id: u.user_id})}</td>
                                     <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${uSub}</td>
                                     <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${uVal}</td>
                                     <td class="px-4 py-2.5 text-right font-medium ${uRoiColor}">${uRoiLabel}</td>
@@ -218,21 +218,26 @@
         });
 
         function miniBar(ub) {
-            const total = ub.non_work + ub.trivial + ub.useful + (ub.unclassified || 0);
+            const harmful = ub.harmful || 0;
+            const total = ub.non_work + ub.trivial + ub.useful + harmful + (ub.unclassified || 0);
             if (total === 0) return '<span class="text-gray-400 text-xs">—</span>';
             const w = (n) => Math.round(n / total * 100);
-            let bar = '<div class="flex h-2 w-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700" title="' +
-                ub.useful + ' useful, ' + ub.trivial + ' trivial, ' + ub.non_work + ' non-work">';
+            const title = ub.useful + ' useful, ' + ub.trivial + ' trivial, ' + ub.non_work + ' non-work' +
+                (harmful ? ', ' + harmful + ' harmful (QA-flagged)' : '');
+            let bar = '<div class="flex h-2 w-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700" title="' + title + '">';
             if (ub.useful) bar += `<div class="bg-emerald-500" style="width:${w(ub.useful)}%"></div>`;
             if (ub.trivial) bar += `<div class="bg-blue-400" style="width:${w(ub.trivial)}%"></div>`;
             if (ub.non_work) bar += `<div class="bg-gray-400" style="width:${w(ub.non_work)}%"></div>`;
+            if (harmful) bar += `<div class="bg-red-500" style="width:${w(harmful)}%"></div>`;
             bar += '</div>';
             return bar;
         }
 
-        function insightBadge(count) {
+        function insightBadge(count, params) {
             if (!count) return '';
-            return ' <a href="/exec/insights" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-800/50 transition-colors" title="' + count + ' insight' + (count > 1 ? 's' : '') + '">'
+            var qs = new URLSearchParams(params || {}).toString();
+            var href = '/exec/insights' + (qs ? '?' + qs : '');
+            return ' <a href="' + href + '" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-800/50 transition-colors" title="' + count + ' insight' + (count > 1 ? 's' : '') + '">'
                 + '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>'
                 + count + '</a>';
         }

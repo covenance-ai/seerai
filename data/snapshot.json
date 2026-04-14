@@ -972,14 +972,16 @@
     },
     "a3ee0051-ca0e-4f42-922c-32130e55f359": {
       "session_id": "a3ee0051-ca0e-4f42-922c-32130e55f359",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-05T06:11:10.528464+00:00",
       "event_count": 14,
       "user_id": "alice.johnson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-12T01:36:22.569641+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "b3f6d573-23a6-4d7c-880d-e1a793da7bbd": {
       "session_id": "b3f6d573-23a6-4d7c-880d-e1a793da7bbd",
@@ -1315,14 +1317,16 @@
     },
     "16d83460-6333-4232-aa66-082612eaff3c": {
       "session_id": "16d83460-6333-4232-aa66-082612eaff3c",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-29T03:45:05.693671+00:00",
       "event_count": 10,
       "user_id": "bob.martinez",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-12T19:16:19.005281+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "1709dcad-9560-4844-b24b-6a8a57fc07bc": {
       "session_id": "1709dcad-9560-4844-b24b-6a8a57fc07bc",
@@ -1517,14 +1521,16 @@
     },
     "305fc045-2303-469e-8f35-7a93458ad718": {
       "session_id": "305fc045-2303-469e-8f35-7a93458ad718",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-11T01:08:25.184274+00:00",
       "event_count": 4,
       "user_id": "bob.martinez",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-08T10:49:12.114140+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "3159346b-876c-46ed-880b-f58670cad80a": {
       "session_id": "3159346b-876c-46ed-880b-f58670cad80a",
@@ -1952,14 +1958,16 @@
     },
     "618f4ac7-a7d2-4522-b599-2f6d2706a803": {
       "session_id": "618f4ac7-a7d2-4522-b599-2f6d2706a803",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-05T21:45:37.551116+00:00",
       "event_count": 8,
       "user_id": "bob.martinez",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-09T02:34:10.927636+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "631f039e-af85-436a-ab36-a13ce0a1144a": {
       "session_id": "631f039e-af85-436a-ab36-a13ce0a1144a",
@@ -1985,14 +1993,16 @@
     },
     "64d6d5b4-d94a-4ebc-974b-b68b0e898071": {
       "session_id": "64d6d5b4-d94a-4ebc-974b-b68b0e898071",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-04T03:29:27.950069+00:00",
       "event_count": 16,
       "user_id": "bob.martinez",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-09T23:06:23.332021+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "657fa4d1-2138-44af-8d7b-c6bec78d51fc": {
       "session_id": "657fa4d1-2138-44af-8d7b-c6bec78d51fc",
@@ -4374,14 +4384,16 @@
   "users/carol.chen/sessions": {
     "01b201ef-16fb-423a-be3c-28ec6411ad17": {
       "session_id": "01b201ef-16fb-423a-be3c-28ec6411ad17",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "chrome",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-17T00:49:24.503528+00:00",
       "event_count": 12,
       "user_id": "carol.chen",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-10T08:35:02.502765+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "01e6ddb1-9663-4fc6-8134-fb6b6e9ac65d": {
       "session_id": "01e6ddb1-9663-4fc6-8134-fb6b6e9ac65d",
@@ -4473,14 +4485,16 @@
     },
     "095f7b98-aabd-4fe4-bae1-4a816aa1b860": {
       "session_id": "095f7b98-aabd-4fe4-bae1-4a816aa1b860",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-06T00:27:35.153435+00:00",
       "event_count": 18,
       "user_id": "carol.chen",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T23:52:08.596790+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "09d45b60-b90a-4e02-a9b1-fb9dc356b4e9": {
       "session_id": "09d45b60-b90a-4e02-a9b1-fb9dc356b4e9",
@@ -4728,14 +4742,16 @@
     },
     "1396bd02-9b41-4328-a041-17b9822f631f": {
       "session_id": "1396bd02-9b41-4328-a041-17b9822f631f",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "chrome",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-27T02:54:41.359115+00:00",
       "event_count": 6,
       "user_id": "carol.chen",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-09T22:11:45.152218+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "14fbf993-bdd2-4500-8832-9d00031f34f3": {
       "session_id": "14fbf993-bdd2-4500-8832-9d00031f34f3",
@@ -4871,14 +4887,16 @@
     },
     "1ce02b9e-a349-4d1d-b6ac-398f4e142627": {
       "session_id": "1ce02b9e-a349-4d1d-b6ac-398f4e142627",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "chrome",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-01T22:51:06.508685+00:00",
       "event_count": 18,
       "user_id": "carol.chen",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-13T19:08:39.656376+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "1fb22b1e-ed0f-4b26-af1a-378ce992d474": {
       "session_id": "1fb22b1e-ed0f-4b26-af1a-378ce992d474",
@@ -6257,14 +6275,16 @@
     },
     "745d9b55-8e6a-47ab-a299-1d13dc64a4cc": {
       "session_id": "745d9b55-8e6a-47ab-a299-1d13dc64a4cc",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-14T01:12:55.822854+00:00",
       "event_count": 6,
       "user_id": "carol.chen",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-07T18:53:42.384695+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "74afe925-bf16-48f8-8603-d00874bbe564": {
       "session_id": "74afe925-bf16-48f8-8603-d00874bbe564",
@@ -10513,14 +10533,16 @@
     },
     "48a9d557-5cae-481b-b943-a58a602b9b4a": {
       "session_id": "48a9d557-5cae-481b-b943-a58a602b9b4a",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "error",
       "last_event_at": "2026-04-13T05:48:49.239871+00:00",
       "event_count": 18,
       "user_id": "dave.wilson",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T04:34:54.169988+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "4ab6f3c9-dfb0-4b32-88c5-5f710b1fe48c": {
       "session_id": "4ab6f3c9-dfb0-4b32-88c5-5f710b1fe48c",
@@ -10623,14 +10645,16 @@
     },
     "5cf86758-7326-4e67-8b10-5d2cb2237543": {
       "session_id": "5cf86758-7326-4e67-8b10-5d2cb2237543",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-17T02:45:33.998358+00:00",
       "event_count": 6,
       "user_id": "dave.wilson",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-10T12:40:43.633405+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "5d51266a-6446-45ca-a972-0fc33ad93ce7": {
       "session_id": "5d51266a-6446-45ca-a972-0fc33ad93ce7",
@@ -10656,14 +10680,16 @@
     },
     "62c1d06e-0054-4ea4-bcdc-67cd55b30f65": {
       "session_id": "62c1d06e-0054-4ea4-bcdc-67cd55b30f65",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "error",
       "last_event_at": "2026-03-31T04:17:11.009875+00:00",
       "event_count": 10,
       "user_id": "dave.wilson",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-10T05:40:26.603879+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "656f4e98-9faa-4a6e-b704-f58f9ce81aaf": {
       "session_id": "656f4e98-9faa-4a6e-b704-f58f9ce81aaf",
@@ -11498,7 +11524,7 @@
     },
     "e9837a59-aaed-40e3-8cb3-015ba8d876c4": {
       "session_id": "e9837a59-aaed-40e3-8cb3-015ba8d876c4",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "token_usage": {
@@ -11508,7 +11534,9 @@
       "last_event_at": "2026-03-18T23:19:57.937820+00:00",
       "event_count": 12,
       "user_id": "dave.wilson",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T23:23:21.786830+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "eb069e88-0a29-4a8f-9e1b-c07858040635": {
       "session_id": "eb069e88-0a29-4a8f-9e1b-c07858040635",
@@ -11545,14 +11573,16 @@
     },
     "ee3c15cf-4e68-438c-9bf1-163bf777b25c": {
       "session_id": "ee3c15cf-4e68-438c-9bf1-163bf777b25c",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-30T21:27:26.587250+00:00",
       "event_count": 12,
       "user_id": "dave.wilson",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T15:13:12.666149+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "ee643538-8ae9-4ef6-b504-49dcfe817010": {
       "session_id": "ee643538-8ae9-4ef6-b504-49dcfe817010",
@@ -12671,14 +12701,16 @@
     },
     "11d1e89c-c437-43da-9bbd-bae4a5534d87": {
       "session_id": "11d1e89c-c437-43da-9bbd-bae4a5534d87",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-27T00:36:31.651676+00:00",
       "event_count": 16,
       "user_id": "eve.kim",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-14T10:49:03.911308+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "1487e373-8fdf-40a1-930b-af05ad95841f": {
       "session_id": "1487e373-8fdf-40a1-930b-af05ad95841f",
@@ -15514,14 +15546,16 @@
     },
     "abe38f51-415c-4877-acdb-19e02ee04a9e": {
       "session_id": "abe38f51-415c-4877-acdb-19e02ee04a9e",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-12T08:28:01.692657+00:00",
       "event_count": 6,
       "user_id": "eve.kim",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-10T19:47:57.648343+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "ac8a0758-0373-4855-8ebb-a2872277f71e": {
       "session_id": "ac8a0758-0373-4855-8ebb-a2872277f71e",
@@ -15868,14 +15902,16 @@
     },
     "bef1462b-6a27-4ef9-8795-46f5839f40a1": {
       "session_id": "bef1462b-6a27-4ef9-8795-46f5839f40a1",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-25T00:49:58.557393+00:00",
       "event_count": 6,
       "user_id": "eve.kim",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-13T10:35:45.269121+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "bf01d4ea-03eb-4cd8-9656-9df38342bad8": {
       "session_id": "bf01d4ea-03eb-4cd8-9656-9df38342bad8",
@@ -17014,25 +17050,29 @@
     },
     "f8bbf8e0-9b7b-4723-bc27-d062b8fd2cb7": {
       "session_id": "f8bbf8e0-9b7b-4723-bc27-d062b8fd2cb7",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-19T00:36:27.324971+00:00",
       "event_count": 16,
       "user_id": "eve.kim",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T05:07:49.826663+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "f9ea9f49-8eb2-4af5-81f2-ed5e84e39614": {
       "session_id": "f9ea9f49-8eb2-4af5-81f2-ed5e84e39614",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "error",
       "last_event_at": "2026-04-11T22:37:02.588782+00:00",
       "event_count": 6,
       "user_id": "eve.kim",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T04:21:21.239270+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "fa3df722-f81a-4f66-af7a-a9d13d8164ed": {
       "session_id": "fa3df722-f81a-4f66-af7a-a9d13d8164ed",
@@ -18205,14 +18245,16 @@
     },
     "7fe8584d-4689-45f5-bdf9-f19cfcc3e12f": {
       "session_id": "7fe8584d-4689-45f5-bdf9-f19cfcc3e12f",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-10T01:56:17.042798+00:00",
       "event_count": 14,
       "user_id": "frank.lopez",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-13T16:12:24.200268+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "831bcb0c-4c66-4820-a4c1-8480185851da": {
       "session_id": "831bcb0c-4c66-4820-a4c1-8480185851da",
@@ -19168,14 +19210,16 @@
     },
     "60188d0b-6797-4708-8aa4-4f540c89abe8": {
       "session_id": "60188d0b-6797-4708-8aa4-4f540c89abe8",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-13T01:33:48.725641+00:00",
       "event_count": 14,
       "user_id": "grace.patel",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T01:41:09.541129+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "63401a26-18b2-4cd0-823b-7efaa9c4a956": {
       "session_id": "63401a26-18b2-4cd0-823b-7efaa9c4a956",
@@ -21238,14 +21282,16 @@
     },
     "040a2ffe-093d-4988-87a7-3e9168583d2f": {
       "session_id": "040a2ffe-093d-4988-87a7-3e9168583d2f",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-17T01:56:02.089901+00:00",
       "event_count": 22,
       "user_id": "iris.brown",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T02:23:27.629626+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "07f21de6-1bb1-4051-9fca-6f74564c8dfb": {
       "session_id": "07f21de6-1bb1-4051-9fca-6f74564c8dfb",
@@ -22019,14 +22065,16 @@
     },
     "6198932c-6951-4f33-a3a0-2bb3e7fd282e": {
       "session_id": "6198932c-6951-4f33-a3a0-2bb3e7fd282e",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-02T01:58:46.528543+00:00",
       "event_count": 2,
       "user_id": "iris.brown",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-11T10:49:04.806522+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "627e291b-91fd-49bf-a01f-259ca4fcc09d": {
       "session_id": "627e291b-91fd-49bf-a01f-259ca4fcc09d",
@@ -22495,14 +22543,16 @@
     },
     "9f0ea536-a77b-418b-8880-9da2cb85230b": {
       "session_id": "9f0ea536-a77b-418b-8880-9da2cb85230b",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-07T23:26:47.311805+00:00",
       "event_count": 6,
       "user_id": "iris.brown",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-08T20:29:56.554816+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "9f90224e-3224-4657-8498-ef4ac09454f1": {
       "session_id": "9f90224e-3224-4657-8498-ef4ac09454f1",
@@ -22627,7 +22677,7 @@
     },
     "b22d573f-9901-43a5-940f-0fcbbc49b0a9": {
       "session_id": "b22d573f-9901-43a5-940f-0fcbbc49b0a9",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "safari",
       "token_usage": {
@@ -22637,7 +22687,9 @@
       "last_event_at": "2026-03-25T00:46:25.459142+00:00",
       "event_count": 10,
       "user_id": "iris.brown",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-08T19:15:39.246533+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "b23effaf-f0ee-4ff4-b4e5-9ba23a25b1a0": {
       "session_id": "b23effaf-f0ee-4ff4-b4e5-9ba23a25b1a0",
@@ -23030,14 +23082,16 @@
     },
     "f83db177-7009-4d92-a487-854c3cdffa94": {
       "session_id": "f83db177-7009-4d92-a487-854c3cdffa94",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "error",
       "last_event_at": "2026-03-26T04:30:45.257350+00:00",
       "event_count": 26,
       "user_id": "iris.brown",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-09T13:00:17.597326+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "f9880680-2c82-4cdd-908f-861e9ec34e10": {
       "session_id": "f9880680-2c82-4cdd-908f-861e9ec34e10",
@@ -24319,14 +24373,16 @@
     },
     "1c72e55b-a458-4b59-a5a6-a9fb16f18f22": {
       "session_id": "1c72e55b-a458-4b59-a5a6-a9fb16f18f22",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "chrome",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-21T06:01:51.055058+00:00",
       "event_count": 8,
       "user_id": "jack.taylor",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-13T08:14:43.600589+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "211d9c63-23f0-4315-a0d7-95b9c655b486": {
       "session_id": "211d9c63-23f0-4315-a0d7-95b9c655b486",
@@ -24418,14 +24474,16 @@
     },
     "2b41a087-ea57-4b92-b5bb-3e2f81056bae": {
       "session_id": "2b41a087-ea57-4b92-b5bb-3e2f81056bae",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-07T22:38:12.866129+00:00",
       "event_count": 2,
       "user_id": "jack.taylor",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-08T10:50:36.211168+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "3005d75c-bd35-41f7-9f7e-08b0fe0cce70": {
       "session_id": "3005d75c-bd35-41f7-9f7e-08b0fe0cce70",
@@ -26563,14 +26621,16 @@
     },
     "059f07b6-2d5f-4d26-a115-1c8a3afa51b0": {
       "session_id": "059f07b6-2d5f-4d26-a115-1c8a3afa51b0",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-01T05:10:02.862698+00:00",
       "event_count": 10,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-10T14:11:24.025603+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "05cb7cfa-3e7e-4a5d-85ea-5528c6c8cb5c": {
       "session_id": "05cb7cfa-3e7e-4a5d-85ea-5528c6c8cb5c",
@@ -26596,14 +26656,16 @@
     },
     "0716e959-23aa-41e3-a289-18b138d81572": {
       "session_id": "0716e959-23aa-41e3-a289-18b138d81572",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-27T02:27:37.750598+00:00",
       "event_count": 14,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-09T05:48:33.891321+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "07eebe1b-0f7d-4595-8953-ded66865fb58": {
       "session_id": "07eebe1b-0f7d-4595-8953-ded66865fb58",
@@ -26618,14 +26680,16 @@
     },
     "07f787cf-5e99-4e54-a2ea-e72d2219540b": {
       "session_id": "07f787cf-5e99-4e54-a2ea-e72d2219540b",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-23T03:43:29.483439+00:00",
       "event_count": 8,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T18:52:53.223078+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "08ba1212-f99d-4ded-97a0-f5faeed859a6": {
       "session_id": "08ba1212-f99d-4ded-97a0-f5faeed859a6",
@@ -26662,14 +26726,16 @@
     },
     "098237c2-4824-471f-b69d-7635615cd36e": {
       "session_id": "098237c2-4824-471f-b69d-7635615cd36e",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-14T01:07:35.256424+00:00",
       "event_count": 14,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-13T13:23:45.595420+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "098403e0-6106-4644-ae00-a4eb76b9f655": {
       "session_id": "098403e0-6106-4644-ae00-a4eb76b9f655",
@@ -26871,14 +26937,16 @@
     },
     "11a4f29a-ea94-40c1-992c-7ca56d2d0d87": {
       "session_id": "11a4f29a-ea94-40c1-992c-7ca56d2d0d87",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-26T02:49:27.833927+00:00",
       "event_count": 8,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T22:06:21.403667+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "11f4dcc8-57cf-4200-b4b5-aed42cd82c49": {
       "session_id": "11f4dcc8-57cf-4200-b4b5-aed42cd82c49",
@@ -26937,14 +27005,16 @@
     },
     "177c438e-993a-4d20-8c5c-bf6e871a7cb3": {
       "session_id": "177c438e-993a-4d20-8c5c-bf6e871a7cb3",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-27T04:35:53.337503+00:00",
       "event_count": 2,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-10T07:23:54.500774+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "17e49d60-fb51-4be9-8dfa-842498e1c1af": {
       "session_id": "17e49d60-fb51-4be9-8dfa-842498e1c1af",
@@ -27082,14 +27152,16 @@
     },
     "1e8427ab-7e68-469d-ab18-b21be4e535de": {
       "session_id": "1e8427ab-7e68-469d-ab18-b21be4e535de",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-16T05:00:15.474864+00:00",
       "event_count": 2,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-08T17:00:57.066911+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "1f4fcb47-1566-4041-b06a-735287efba04": {
       "session_id": "1f4fcb47-1566-4041-b06a-735287efba04",
@@ -27280,14 +27352,16 @@
     },
     "2afcfc54-70f5-4c6d-88ad-ff1ae2b9b870": {
       "session_id": "2afcfc54-70f5-4c6d-88ad-ff1ae2b9b870",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-02T22:58:45.211584+00:00",
       "event_count": 10,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-07T21:06:13.345881+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "2b3152b6-219a-4752-beb7-672cb4d4c0ad": {
       "session_id": "2b3152b6-219a-4752-beb7-672cb4d4c0ad",
@@ -27852,14 +27926,16 @@
     },
     "4e88f6cc-f559-463d-a140-1b3f9800767a": {
       "session_id": "4e88f6cc-f559-463d-a140-1b3f9800767a",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-13T02:43:53.724635+00:00",
       "event_count": 14,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T18:04:45.391760+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "4e8f047f-5aeb-4282-b476-d47ada11219a": {
       "session_id": "4e8f047f-5aeb-4282-b476-d47ada11219a",
@@ -27907,14 +27983,16 @@
     },
     "4fec92ea-0ac5-4e5d-a8a7-1ffba294a6a3": {
       "session_id": "4fec92ea-0ac5-4e5d-a8a7-1ffba294a6a3",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-21T22:00:07.103300+00:00",
       "event_count": 14,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T20:56:28.520797+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "509e31fb-5a96-45f7-bc23-eabd2a425aa1": {
       "session_id": "509e31fb-5a96-45f7-bc23-eabd2a425aa1",
@@ -28072,14 +28150,16 @@
     },
     "5b5a8f10-abbe-436b-a74e-c30a07f5a116": {
       "session_id": "5b5a8f10-abbe-436b-a74e-c30a07f5a116",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-09T00:09:54.368667+00:00",
       "event_count": 16,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-13T11:26:36.321354+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "5dadedc5-e7aa-4571-a7f4-e85f0f1dac59": {
       "session_id": "5dadedc5-e7aa-4571-a7f4-e85f0f1dac59",
@@ -28358,14 +28438,16 @@
     },
     "6b78cf20-f25b-4df0-9e8f-3756ed3732c4": {
       "session_id": "6b78cf20-f25b-4df0-9e8f-3756ed3732c4",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-20T01:05:51.941584+00:00",
       "event_count": 2,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T08:31:51.026544+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "6b956825-b7ed-4861-931f-85bfd6d739fa": {
       "session_id": "6b956825-b7ed-4861-931f-85bfd6d739fa",
@@ -29128,14 +29210,16 @@
     },
     "9ae1761a-8200-4d10-924d-5d01f6b766c0": {
       "session_id": "9ae1761a-8200-4d10-924d-5d01f6b766c0",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-20T00:45:28.484645+00:00",
       "event_count": 8,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-13T15:02:25.302813+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "9b289621-9ee8-4a4e-8262-7fe1e1e6a6af": {
       "session_id": "9b289621-9ee8-4a4e-8262-7fe1e1e6a6af",
@@ -29207,14 +29291,16 @@
     },
     "a1236979-4150-4ea9-a317-dbd57723d925": {
       "session_id": "a1236979-4150-4ea9-a317-dbd57723d925",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 2,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-02T21:17:23.721394+00:00",
       "event_count": 16,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-10T16:03:25.215744+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "a15c4179-5a11-4c9d-b666-3fe917b26bb5": {
       "session_id": "a15c4179-5a11-4c9d-b666-3fe917b26bb5",
@@ -29515,14 +29601,16 @@
     },
     "b6a16b23-a8b6-4ca3-9b86-cfad88333e1c": {
       "session_id": "b6a16b23-a8b6-4ca3-9b86-cfad88333e1c",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-11T05:13:48.700631+00:00",
       "event_count": 4,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-09T02:21:59.866607+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "b6ebc057-0ec5-4d32-b429-dd474a5686bb": {
       "session_id": "b6ebc057-0ec5-4d32-b429-dd474a5686bb",
@@ -29702,14 +29790,16 @@
     },
     "bf39c530-8254-4f5f-9011-056721f1ec54": {
       "session_id": "bf39c530-8254-4f5f-9011-056721f1ec54",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-06T05:16:20.650050+00:00",
       "event_count": 8,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-14T06:50:30.451996+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "c1528b67-c84b-45bb-a2d1-30d6d99ffb2c": {
       "session_id": "c1528b67-c84b-45bb-a2d1-30d6d99ffb2c",
@@ -30010,14 +30100,16 @@
     },
     "d305ec7a-de72-4f9f-adf3-901309dbf2c1": {
       "session_id": "d305ec7a-de72-4f9f-adf3-901309dbf2c1",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-06T03:18:05.618210+00:00",
       "event_count": 10,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T00:42:33.970305+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "d3c6cd48-f811-436f-b0a5-36dc16898aa1": {
       "session_id": "d3c6cd48-f811-436f-b0a5-36dc16898aa1",
@@ -30265,14 +30357,16 @@
     },
     "e1fb634b-9cf9-4e11-b560-39cad49a97b0": {
       "session_id": "e1fb634b-9cf9-4e11-b560-39cad49a97b0",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-18T01:24:54.372532+00:00",
       "event_count": 4,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T07:59:26.773446+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "e3b9d104-e575-4232-b07d-d804b66add42": {
       "session_id": "e3b9d104-e575-4232-b07d-d804b66add42",
@@ -30331,14 +30425,16 @@
     },
     "e733fae9-20f4-4c64-8106-6eda22c2017c": {
       "session_id": "e733fae9-20f4-4c64-8106-6eda22c2017c",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "error",
       "last_event_at": "2026-04-04T00:57:39.726333+00:00",
       "event_count": 6,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-08T14:08:31.928309+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "e78bbbfa-26aa-43b1-be76-9e3eb794ad7e": {
       "session_id": "e78bbbfa-26aa-43b1-be76-9e3eb794ad7e",
@@ -30564,14 +30660,16 @@
     },
     "f510a793-0371-4a58-9710-5353f9a657c1": {
       "session_id": "f510a793-0371-4a58-9710-5353f9a657c1",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-20T21:28:25.187579+00:00",
       "event_count": 8,
       "user_id": "kate.davis",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-13T20:27:40.943071+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "f51f8cee-9851-4a6f-80ea-b584abea161b": {
       "session_id": "f51f8cee-9851-4a6f-80ea-b584abea161b",
@@ -30586,14 +30684,16 @@
     },
     "f5ee9073-22a8-4d2b-89df-8ce5e703075d": {
       "session_id": "f5ee9073-22a8-4d2b-89df-8ce5e703075d",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-18T02:01:36.788066+00:00",
       "event_count": 2,
       "user_id": "kate.davis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-14T06:27:18.293319+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "f6ab8971-8be3-4272-b061-9e670fecfd54": {
       "session_id": "f6ab8971-8be3-4272-b061-9e670fecfd54",
@@ -31575,14 +31675,16 @@
   "users/liam.moore/sessions": {
     "04e87be9-11a4-4ea8-b5a8-6814a605c9e3": {
       "session_id": "04e87be9-11a4-4ea8-b5a8-6814a605c9e3",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-27T23:31:25.566754+00:00",
       "event_count": 12,
       "user_id": "liam.moore",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-10T01:53:34.907586+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "0b7f36f1-69eb-40a8-a049-fef27a6269fa": {
       "session_id": "0b7f36f1-69eb-40a8-a049-fef27a6269fa",
@@ -31793,14 +31895,16 @@
     },
     "49c4effe-ff80-4e6f-aa41-77df872408e2": {
       "session_id": "49c4effe-ff80-4e6f-aa41-77df872408e2",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-14T06:08:14.833394+00:00",
       "event_count": 12,
       "user_id": "liam.moore",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-14T03:31:47.824119+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "4fe02f63-b457-4afa-a4fe-72e5ad33466b": {
       "session_id": "4fe02f63-b457-4afa-a4fe-72e5ad33466b",
@@ -32094,14 +32198,16 @@
     },
     "b7c9fa95-1d07-4ab1-a1d2-3d6ba81f0585": {
       "session_id": "b7c9fa95-1d07-4ab1-a1d2-3d6ba81f0585",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-07T01:08:02.123929+00:00",
       "event_count": 8,
       "user_id": "liam.moore",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-11T14:50:29.536686+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "b7df32d9-aba0-42d3-86f5-e68927366f62": {
       "session_id": "b7df32d9-aba0-42d3-86f5-e68927366f62",
@@ -33025,14 +33131,16 @@
     },
     "01525ba4-c60f-477c-abed-1fa33533c1d6": {
       "session_id": "01525ba4-c60f-477c-abed-1fa33533c1d6",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-08T02:39:12.450428+00:00",
       "event_count": 14,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-07T21:04:19.315852+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "05ae171d-30c8-4fdf-80df-43829d3879eb": {
       "session_id": "05ae171d-30c8-4fdf-80df-43829d3879eb",
@@ -33179,14 +33287,16 @@
     },
     "20ade572-c6d7-4f9e-88ad-bc7c39de6dc8": {
       "session_id": "20ade572-c6d7-4f9e-88ad-bc7c39de6dc8",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-03T10:54:37.264277+00:00",
       "event_count": 10,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-13T01:54:35.698380+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "2176f3c6-582f-47dd-afb8-57758885a268": {
       "session_id": "2176f3c6-582f-47dd-afb8-57758885a268",
@@ -33256,14 +33366,16 @@
     },
     "29cfc1c5-1364-4632-840c-25e4e235c08f": {
       "session_id": "29cfc1c5-1364-4632-840c-25e4e235c08f",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-23T22:31:33.041674+00:00",
       "event_count": 2,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-11T03:59:43.365992+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "2b9806e0-ce50-4542-82ec-ec00937fdcf8": {
       "session_id": "2b9806e0-ce50-4542-82ec-ec00937fdcf8",
@@ -33368,14 +33480,16 @@
     },
     "36c1203b-b0b3-4335-b56a-53d97ee2bbab": {
       "session_id": "36c1203b-b0b3-4335-b56a-53d97ee2bbab",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-02T00:39:40.021460+00:00",
       "event_count": 14,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-14T03:37:33.842707+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "38b7a994-37d6-4851-82fa-52ff2bf5da24": {
       "session_id": "38b7a994-37d6-4851-82fa-52ff2bf5da24",
@@ -33480,14 +33594,16 @@
     },
     "4b23e950-6d16-4029-80ff-a6e2e20bfef0": {
       "session_id": "4b23e950-6d16-4029-80ff-a6e2e20bfef0",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "firefox",
       "last_event_type": "error",
       "last_event_at": "2026-03-23T02:49:57.177207+00:00",
       "event_count": 2,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-13T02:06:38.654003+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "4e84de29-ab20-435c-9b43-3e70b2685a72": {
       "session_id": "4e84de29-ab20-435c-9b43-3e70b2685a72",
@@ -33535,7 +33651,7 @@
     },
     "537b47e1-d449-4797-8696-f7f86f52af42": {
       "session_id": "537b47e1-d449-4797-8696-f7f86f52af42",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "cli",
       "token_usage": {
@@ -33545,7 +33661,9 @@
       "last_event_at": "2026-03-19T21:41:04.571041+00:00",
       "event_count": 10,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-08T12:52:49.807307+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "53844495-eef6-4d5c-bd56-31ea2f5eb5a6": {
       "session_id": "53844495-eef6-4d5c-bd56-31ea2f5eb5a6",
@@ -33736,14 +33854,16 @@
     },
     "6d4950db-dba2-4470-a3b9-6bccd414cab5": {
       "session_id": "6d4950db-dba2-4470-a3b9-6bccd414cab5",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-19T00:17:00.351821+00:00",
       "event_count": 10,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-12T14:42:41.757134+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "6e76f19a-92bf-4190-b0e1-2d4dc08aac55": {
       "session_id": "6e76f19a-92bf-4190-b0e1-2d4dc08aac55",
@@ -33846,14 +33966,16 @@
     },
     "7e6e81b8-eefd-434b-85eb-1fc08aa9b29e": {
       "session_id": "7e6e81b8-eefd-434b-85eb-1fc08aa9b29e",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-25T03:29:16.274022+00:00",
       "event_count": 4,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-08T15:06:40.877046+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "7f49b019-7383-4468-9a45-ce9b1c6ed810": {
       "session_id": "7f49b019-7383-4468-9a45-ce9b1c6ed810",
@@ -33890,14 +34012,16 @@
     },
     "83d15c47-5c4e-4e3b-b898-790c3dacb32c": {
       "session_id": "83d15c47-5c4e-4e3b-b898-790c3dacb32c",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-01T03:32:45.128666+00:00",
       "event_count": 10,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-12T22:01:22.331930+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "83f85ae1-20da-4f03-93cd-f74190205059": {
       "session_id": "83f85ae1-20da-4f03-93cd-f74190205059",
@@ -34643,14 +34767,16 @@
     },
     "ed37b570-948b-4721-bc7d-f97e324550f7": {
       "session_id": "ed37b570-948b-4721-bc7d-f97e324550f7",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-29T22:48:58.165729+00:00",
       "event_count": 4,
       "user_id": "mia.anderson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-08T15:07:33.431962+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "f012d7d4-64da-4dcd-9384-4d893f9c521c": {
       "session_id": "f012d7d4-64da-4dcd-9384-4d893f9c521c",
@@ -36701,14 +36827,16 @@
     },
     "47af290c-5a29-470f-8228-0311d84dee08": {
       "session_id": "47af290c-5a29-470f-8228-0311d84dee08",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-07T04:36:22.748391+00:00",
       "event_count": 14,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-13T01:00:41.036003+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "47b3bc59-0bec-4c7a-9760-925e0480d3fc": {
       "session_id": "47b3bc59-0bec-4c7a-9760-925e0480d3fc",
@@ -36734,14 +36862,16 @@
     },
     "48f5774a-ff04-42e3-9665-381eb09d69ad": {
       "session_id": "48f5774a-ff04-42e3-9665-381eb09d69ad",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-07T04:36:05.797211+00:00",
       "event_count": 4,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-09T16:25:01.863061+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "4a5e45a4-ca03-4c76-b79f-f63acf013833": {
       "session_id": "4a5e45a4-ca03-4c76-b79f-f63acf013833",
@@ -37254,14 +37384,16 @@
     },
     "6ebcc400-68d6-41ee-a759-634824d258bb": {
       "session_id": "6ebcc400-68d6-41ee-a759-634824d258bb",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-10T03:28:36.623697+00:00",
       "event_count": 22,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-08T23:20:05.801226+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "6ed90cb1-f93f-4425-ac86-de0ae59ea46f": {
       "session_id": "6ed90cb1-f93f-4425-ac86-de0ae59ea46f",
@@ -37287,14 +37419,16 @@
     },
     "6f97501c-a916-4089-bcac-1fb5933bfba0": {
       "session_id": "6f97501c-a916-4089-bcac-1fb5933bfba0",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-13T01:04:19.677656+00:00",
       "event_count": 10,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T23:53:50.110318+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "7040a44d-8ee0-4c34-b450-4c0e5cba9398": {
       "session_id": "7040a44d-8ee0-4c34-b450-4c0e5cba9398",
@@ -37408,14 +37542,16 @@
     },
     "762561c5-1b7a-4e04-83fb-dc94f5884167": {
       "session_id": "762561c5-1b7a-4e04-83fb-dc94f5884167",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-04T21:06:33.349292+00:00",
       "event_count": 14,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T22:33:26.362099+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "769c1c2d-9b34-4d99-856e-482f0981c218": {
       "session_id": "769c1c2d-9b34-4d99-856e-482f0981c218",
@@ -38812,14 +38948,16 @@
     },
     "c748b1a8-97a4-4649-af5a-22bc3bded12d": {
       "session_id": "c748b1a8-97a4-4649-af5a-22bc3bded12d",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-11T02:55:31.810161+00:00",
       "event_count": 8,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T08:50:31.957530+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "c8286e42-98df-461f-b0e7-9077fb798973": {
       "session_id": "c8286e42-98df-461f-b0e7-9077fb798973",
@@ -38867,14 +39005,16 @@
     },
     "cb86777f-c919-4fb4-aeaa-e7c3a9d2d9d6": {
       "session_id": "cb86777f-c919-4fb4-aeaa-e7c3a9d2d9d6",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-29T23:46:54.633178+00:00",
       "event_count": 6,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-07T16:34:12.312568+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "cba1a94d-9271-4b14-a115-0e8998ba51fd": {
       "session_id": "cba1a94d-9271-4b14-a115-0e8998ba51fd",
@@ -38933,14 +39073,16 @@
     },
     "ce62d3fc-9a85-415c-9a29-4554ae306270": {
       "session_id": "ce62d3fc-9a85-415c-9a29-4554ae306270",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-17T00:40:41.025597+00:00",
       "event_count": 4,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-10T02:16:45.273378+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "ce62fc56-c948-42cc-a296-5309672b4a7d": {
       "session_id": "ce62fc56-c948-42cc-a296-5309672b4a7d",
@@ -39505,14 +39647,16 @@
     },
     "ecf21d2f-8b03-4945-a4df-bd2dbada4891": {
       "session_id": "ecf21d2f-8b03-4945-a4df-bd2dbada4891",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-28T23:49:02.973506+00:00",
       "event_count": 20,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-08T21:40:07.851863+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "ecf69dd7-300c-406d-88fe-7907b14692ff": {
       "session_id": "ecf69dd7-300c-406d-88fe-7907b14692ff",
@@ -39615,14 +39759,16 @@
     },
     "f0de5b7f-49e8-4fe0-959b-9758e57b6415": {
       "session_id": "f0de5b7f-49e8-4fe0-959b-9758e57b6415",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-09T23:08:07.110323+00:00",
       "event_count": 6,
       "user_id": "noah.thomas",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-10T02:51:07.232692+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "f15e01e1-a7ed-4034-9b9b-8d298ba0e0d7": {
       "session_id": "f15e01e1-a7ed-4034-9b9b-8d298ba0e0d7",
@@ -41326,14 +41472,16 @@
     },
     "473ef59a-9fc3-4e7a-9a0f-5c9b8566c0f9": {
       "session_id": "473ef59a-9fc3-4e7a-9a0f-5c9b8566c0f9",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "error",
       "last_event_at": "2026-03-24T05:29:14.721452+00:00",
       "event_count": 8,
       "user_id": "olivia.jackson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-11T18:54:54.770008+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "4afd2ab4-378b-4b55-90c0-8079f87f3b4d": {
       "session_id": "4afd2ab4-378b-4b55-90c0-8079f87f3b4d",
@@ -42068,14 +42216,16 @@
     },
     "9d1082dc-9fe3-4c97-a8e9-164d4c7800e1": {
       "session_id": "9d1082dc-9fe3-4c97-a8e9-164d4c7800e1",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-09T07:16:29.575835+00:00",
       "event_count": 20,
       "user_id": "olivia.jackson",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-10T01:49:41.754291+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "9e78d350-3aae-49ce-8c7d-6fd90c128b77": {
       "session_id": "9e78d350-3aae-49ce-8c7d-6fd90c128b77",
@@ -43529,14 +43679,16 @@
     },
     "223f54f0-d235-4fc8-9b8e-7fbc677cdccd": {
       "session_id": "223f54f0-d235-4fc8-9b8e-7fbc677cdccd",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "error",
       "last_event_at": "2026-04-04T22:57:58.998716+00:00",
       "event_count": 8,
       "user_id": "peter.white",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-13T06:00:14.470031+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "2c6a35e1-478e-4300-ad2f-790171dd2dab": {
       "session_id": "2c6a35e1-478e-4300-ad2f-790171dd2dab",
@@ -43551,14 +43703,16 @@
     },
     "2d94e7c3-f2c2-4eb1-86a5-5d9e4cc1402c": {
       "session_id": "2d94e7c3-f2c2-4eb1-86a5-5d9e4cc1402c",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-28T02:59:34.553287+00:00",
       "event_count": 12,
       "user_id": "peter.white",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-11T12:22:55.530411+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "361cb4b5-6e4c-4b76-83ba-2d092182d68f": {
       "session_id": "361cb4b5-6e4c-4b76-83ba-2d092182d68f",
@@ -43683,7 +43837,7 @@
     },
     "7eb9b012-37f1-4d66-b298-8950db4eab0f": {
       "session_id": "7eb9b012-37f1-4d66-b298-8950db4eab0f",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "chrome",
       "token_usage": {
@@ -43693,7 +43847,9 @@
       "last_event_at": "2026-03-26T21:03:10.783562+00:00",
       "event_count": 10,
       "user_id": "peter.white",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-09T11:05:22.630989+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "86bc8a5d-8ca3-4090-9b9e-69fa88859914": {
       "session_id": "86bc8a5d-8ca3-4090-9b9e-69fa88859914",
@@ -43766,25 +43922,29 @@
     },
     "a9b0343d-b230-42b0-bde6-8f935c4dfe88": {
       "session_id": "a9b0343d-b230-42b0-bde6-8f935c4dfe88",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-19T04:25:33.794513+00:00",
       "event_count": 8,
       "user_id": "peter.white",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-14T09:22:10.441230+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "a9ecf287-f2dd-4529-b07a-3f26da8ca0f6": {
       "session_id": "a9ecf287-f2dd-4529-b07a-3f26da8ca0f6",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-01T04:09:38.899972+00:00",
       "event_count": 10,
       "user_id": "peter.white",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-08T21:42:45.917210+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "b4cc8592-a12c-4e0a-b6bb-b29f06c47a44": {
       "session_id": "b4cc8592-a12c-4e0a-b6bb-b29f06c47a44",
@@ -43865,7 +44025,7 @@
     },
     "eeed3260-3617-4787-b6ef-bd7de2774eae": {
       "session_id": "eeed3260-3617-4787-b6ef-bd7de2774eae",
-      "utility": "useful",
+      "utility": "harmful",
       "platform": "slack",
       "token_usage": {
         "claude-sonnet-4": 2689
@@ -43874,7 +44034,9 @@
       "last_event_at": "2026-03-15T13:16:58.776133+00:00",
       "event_count": 14,
       "user_id": "peter.white",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-11T19:16:58.881307+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "f072fba6-955a-4f3d-9143-55b7a5858e78": {
       "session_id": "f072fba6-955a-4f3d-9143-55b7a5858e78",
@@ -44465,14 +44627,16 @@
     },
     "52045401-96cb-4e5b-b8aa-3bd8bb32a8f3": {
       "session_id": "52045401-96cb-4e5b-b8aa-3bd8bb32a8f3",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "cli",
       "last_event_type": "error",
       "last_event_at": "2026-03-24T00:14:03.349057+00:00",
       "event_count": 18,
       "user_id": "quinn.harris",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-08T02:46:20.686137+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "526d39f0-ee4b-4596-a74b-de0e54ab4e99": {
       "session_id": "526d39f0-ee4b-4596-a74b-de0e54ab4e99",
@@ -44487,14 +44651,16 @@
     },
     "53d148f8-06e5-4531-8fec-54c1883f6602": {
       "session_id": "53d148f8-06e5-4531-8fec-54c1883f6602",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-17T06:34:02.445747+00:00",
       "event_count": 2,
       "user_id": "quinn.harris",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-07T22:19:46.391889+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "547df458-a9c5-4906-8582-0f333a30f909": {
       "session_id": "547df458-a9c5-4906-8582-0f333a30f909",
@@ -44509,14 +44675,16 @@
     },
     "579150c9-9dde-41ab-85c5-788ef38d1804": {
       "session_id": "579150c9-9dde-41ab-85c5-788ef38d1804",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-12T08:23:13.965714+00:00",
       "event_count": 16,
       "user_id": "quinn.harris",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T23:06:33.470722+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "5a7e49d5-c237-4fab-876d-c6e423ce9289": {
       "session_id": "5a7e49d5-c237-4fab-876d-c6e423ce9289",
@@ -44661,14 +44829,16 @@
     },
     "97b4c2da-9da2-40ab-9594-3808bf9cd0a8": {
       "session_id": "97b4c2da-9da2-40ab-9594-3808bf9cd0a8",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-22T05:59:29.364018+00:00",
       "event_count": 8,
       "user_id": "quinn.harris",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T20:58:48.500369+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "9ad43cd7-067e-4d40-8f57-da523707d3ac": {
       "session_id": "9ad43cd7-067e-4d40-8f57-da523707d3ac",
@@ -44699,14 +44869,16 @@
     },
     "aa18b18a-d16c-4286-a675-643208c870ea": {
       "session_id": "aa18b18a-d16c-4286-a675-643208c870ea",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-26T04:21:31.129667+00:00",
       "event_count": 4,
       "user_id": "quinn.harris",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T07:27:36.093811+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "aa7e5af0-cac7-429f-9720-2f4611efbe09": {
       "session_id": "aa7e5af0-cac7-429f-9720-2f4611efbe09",
@@ -44857,14 +45029,16 @@
     },
     "eecc355c-687e-45f0-a162-998b28c3997a": {
       "session_id": "eecc355c-687e-45f0-a162-998b28c3997a",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "cli",
       "last_event_type": "error",
       "last_event_at": "2026-03-22T01:43:29.255878+00:00",
       "event_count": 4,
       "user_id": "quinn.harris",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T13:02:58.399433+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     }
   },
   "users/quinn.harris/sessions/046aa948-1f31-4e3d-bfab-a7c7eff7b81e/events": {},
@@ -45560,14 +45734,16 @@
     },
     "134561fd-8b45-4527-8a0d-eb05a92792a9": {
       "session_id": "134561fd-8b45-4527-8a0d-eb05a92792a9",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "error",
       "last_event_at": "2026-04-03T01:34:46.618336+00:00",
       "event_count": 8,
       "user_id": "rachel.martin",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-10T15:52:58.051502+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "1995d41b-d94a-41fa-8a29-f43b384db634": {
       "session_id": "1995d41b-d94a-41fa-8a29-f43b384db634",
@@ -45648,14 +45824,16 @@
     },
     "267533f3-f1a3-4ab9-895a-a5f17d9edab3": {
       "session_id": "267533f3-f1a3-4ab9-895a-a5f17d9edab3",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "error",
       "last_event_at": "2026-04-03T03:46:05.639314+00:00",
       "event_count": 4,
       "user_id": "rachel.martin",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-10T04:55:01.380544+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "28ba8fdd-bd64-49e5-a5b9-d57af7f860ee": {
       "session_id": "28ba8fdd-bd64-49e5-a5b9-d57af7f860ee",
@@ -46078,14 +46256,16 @@
     },
     "e5a4baf4-128f-46ac-b562-5bed0ef7bea8": {
       "session_id": "e5a4baf4-128f-46ac-b562-5bed0ef7bea8",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-09T03:21:27.010547+00:00",
       "event_count": 8,
       "user_id": "rachel.martin",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-09T17:06:15.065217+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "ededf65e-0953-4f47-9b80-cd48a73da4a2": {
       "session_id": "ededf65e-0953-4f47-9b80-cd48a73da4a2",
@@ -46793,14 +46973,16 @@
     },
     "008c22e2-c3c7-4bf1-a902-6277aada135c": {
       "session_id": "008c22e2-c3c7-4bf1-a902-6277aada135c",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "error",
       "last_event_at": "2026-03-27T20:33:55.423278+00:00",
       "event_count": 10,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-07T14:24:12.994369+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "0187fc8f-e77c-45e7-9a23-424e0c3c8415": {
       "session_id": "0187fc8f-e77c-45e7-9a23-424e0c3c8415",
@@ -46815,14 +46997,16 @@
     },
     "02226cb0-c127-4f20-8001-c76311cb0da4": {
       "session_id": "02226cb0-c127-4f20-8001-c76311cb0da4",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-14T05:58:25.928132+00:00",
       "event_count": 12,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T06:27:25.545247+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "07286757-383f-48cf-9c4d-e14c882aba02": {
       "session_id": "07286757-383f-48cf-9c4d-e14c882aba02",
@@ -47038,36 +47222,42 @@
     },
     "23a58bfd-d393-4b44-97e6-04bdd7ded30b": {
       "session_id": "23a58bfd-d393-4b44-97e6-04bdd7ded30b",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-08T08:42:57.371013+00:00",
       "event_count": 6,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-07T20:01:00.346863+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "24b6c841-8d53-4877-aff6-ce565ef02452": {
       "session_id": "24b6c841-8d53-4877-aff6-ce565ef02452",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-08T23:06:32.118683+00:00",
       "event_count": 10,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T18:34:16.165759+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "2876b396-7f48-4397-900b-8b7cbbda23ec": {
       "session_id": "2876b396-7f48-4397-900b-8b7cbbda23ec",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-04T18:35:50.537274+00:00",
       "event_count": 8,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-09T04:58:37.398356+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "2b27c0c8-120c-4ccf-bcc8-c867cdb36864": {
       "session_id": "2b27c0c8-120c-4ccf-bcc8-c867cdb36864",
@@ -47370,14 +47560,16 @@
     },
     "6070a41b-3b07-4292-90dc-1147689e2df3": {
       "session_id": "6070a41b-3b07-4292-90dc-1147689e2df3",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-10T03:16:36.880181+00:00",
       "event_count": 16,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-07T23:50:34.240397+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "6140b570-3f29-45ec-8f8f-18e7a21174f9": {
       "session_id": "6140b570-3f29-45ec-8f8f-18e7a21174f9",
@@ -47425,14 +47617,16 @@
     },
     "69808412-8c79-40ec-a4c1-e2e5049e3287": {
       "session_id": "69808412-8c79-40ec-a4c1-e2e5049e3287",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-12T03:26:20.365150+00:00",
       "event_count": 6,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-08T00:10:56.101599+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "6b0ea06c-2c13-4007-b72d-682c8c6d2314": {
       "session_id": "6b0ea06c-2c13-4007-b72d-682c8c6d2314",
@@ -47447,14 +47641,16 @@
     },
     "6bb299e3-87ae-4941-acb6-18af2a62d641": {
       "session_id": "6bb299e3-87ae-4941-acb6-18af2a62d641",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-26T03:33:16.524673+00:00",
       "event_count": 4,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-14T11:59:21.646672+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "6c0bb394-5f3e-4336-879d-d6ed95c9b608": {
       "session_id": "6c0bb394-5f3e-4336-879d-d6ed95c9b608",
@@ -47696,14 +47892,16 @@
     },
     "827f4d9a-8336-4712-af50-4650951d6228": {
       "session_id": "827f4d9a-8336-4712-af50-4650951d6228",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-20T21:51:45.318857+00:00",
       "event_count": 2,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-13T14:57:47.695335+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "83e85acc-f856-487b-8d68-c9b3f6a304de": {
       "session_id": "83e85acc-f856-487b-8d68-c9b3f6a304de",
@@ -47729,14 +47927,16 @@
     },
     "86affdc3-9603-4513-af5a-5b701b6924c6": {
       "session_id": "86affdc3-9603-4513-af5a-5b701b6924c6",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "error",
       "last_event_at": "2026-03-23T01:10:26.473284+00:00",
       "event_count": 4,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-14T13:37:32.150537+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "8810817a-00f1-43a8-9fe0-fb84f4520f73": {
       "session_id": "8810817a-00f1-43a8-9fe0-fb84f4520f73",
@@ -47751,25 +47951,29 @@
     },
     "887b835d-27d7-49d3-92ce-e9683dea7bb4": {
       "session_id": "887b835d-27d7-49d3-92ce-e9683dea7bb4",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-11T07:25:35.623858+00:00",
       "event_count": 2,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T20:27:44.186298+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "898037f3-12cb-47b2-8c1d-535f5b615c76": {
       "session_id": "898037f3-12cb-47b2-8c1d-535f5b615c76",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-19T00:35:49.067962+00:00",
       "event_count": 12,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-07T21:32:32.087730+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "8b1de8a0-7bc6-4cc4-bca5-9bb15d3ab12f": {
       "session_id": "8b1de8a0-7bc6-4cc4-bca5-9bb15d3ab12f",
@@ -47806,14 +48010,16 @@
     },
     "912feb87-c01f-45af-a5d9-d0c0bbf9d824": {
       "session_id": "912feb87-c01f-45af-a5d9-d0c0bbf9d824",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "error",
       "last_event_at": "2026-04-08T06:44:02.852270+00:00",
       "event_count": 12,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T13:33:54.958399+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "9153ab59-ed6a-4894-9fae-62e17dda4898": {
       "session_id": "9153ab59-ed6a-4894-9fae-62e17dda4898",
@@ -47960,14 +48166,16 @@
     },
     "9ef1aee2-6fc6-4699-9624-2d53b2ff3b7d": {
       "session_id": "9ef1aee2-6fc6-4699-9624-2d53b2ff3b7d",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-01T06:24:31.104431+00:00",
       "event_count": 12,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T06:58:12.737767+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "a05d2242-06b0-4360-b883-e39069edea3a": {
       "session_id": "a05d2242-06b0-4360-b883-e39069edea3a",
@@ -47982,25 +48190,29 @@
     },
     "a38a5d25-8a04-46d7-98e2-45358de5f596": {
       "session_id": "a38a5d25-8a04-46d7-98e2-45358de5f596",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-19T22:24:52.245790+00:00",
       "event_count": 10,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-10T20:15:39.518085+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "a3b4c9d1-e263-4c21-b2a4-0e3446fbc37b": {
       "session_id": "a3b4c9d1-e263-4c21-b2a4-0e3446fbc37b",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-29T01:08:59.287591+00:00",
       "event_count": 8,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-08T04:28:26.684651+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "a505e601-53c2-4b8c-99c2-6c2f9cbf685f": {
       "session_id": "a505e601-53c2-4b8c-99c2-6c2f9cbf685f",
@@ -48070,14 +48282,16 @@
     },
     "b49c6365-9ebd-45e6-a940-0b9790da4e97": {
       "session_id": "b49c6365-9ebd-45e6-a940-0b9790da4e97",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-14T04:47:36.812554+00:00",
       "event_count": 16,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-09T04:46:48.676567+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "b79e0421-ad1e-40f9-917e-8bc4274175aa": {
       "session_id": "b79e0421-ad1e-40f9-917e-8bc4274175aa",
@@ -48169,14 +48383,16 @@
     },
     "be672107-1ec9-4914-b9c8-45d246723acb": {
       "session_id": "be672107-1ec9-4914-b9c8-45d246723acb",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-05T04:42:35.109432+00:00",
       "event_count": 12,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-09T05:59:47.078405+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "bf46f7c8-f7e8-402a-9b93-017b47e20dbf": {
       "session_id": "bf46f7c8-f7e8-402a-9b93-017b47e20dbf",
@@ -48213,25 +48429,29 @@
     },
     "c22005e9-691b-4776-83c8-b8aa4bf70983": {
       "session_id": "c22005e9-691b-4776-83c8-b8aa4bf70983",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-14T03:01:15.099046+00:00",
       "event_count": 16,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-11T00:57:03.700880+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "c29b439a-512b-474f-940a-74cb03bed180": {
       "session_id": "c29b439a-512b-474f-940a-74cb03bed180",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "error",
       "last_event_at": "2026-04-04T01:43:46.992319+00:00",
       "event_count": 24,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T22:27:54.700422+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "c5540602-2928-4bd4-912a-5a981c078508": {
       "session_id": "c5540602-2928-4bd4-912a-5a981c078508",
@@ -48358,14 +48578,16 @@
     },
     "d924368e-0b02-4fce-a3f4-8c2633174191": {
       "session_id": "d924368e-0b02-4fce-a3f4-8c2633174191",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "error",
       "last_event_at": "2026-04-07T21:25:25.684198+00:00",
       "event_count": 2,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-08T22:21:22.142777+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "d9c616c4-882e-4543-8d0a-0b2d74aaf4a6": {
       "session_id": "d9c616c4-882e-4543-8d0a-0b2d74aaf4a6",
@@ -48424,25 +48646,29 @@
     },
     "dfeb3a36-e618-4828-8c5f-a80d9c789c2a": {
       "session_id": "dfeb3a36-e618-4828-8c5f-a80d9c789c2a",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-04T22:13:56.394646+00:00",
       "event_count": 12,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-13T23:27:56.502472+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "e0d25cae-e5cc-4e06-a415-b2ca5b3276b5": {
       "session_id": "e0d25cae-e5cc-4e06-a415-b2ca5b3276b5",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "error",
       "last_event_at": "2026-04-13T01:18:18.604544+00:00",
       "event_count": 6,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-07T23:30:32.124198+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "e2eeebde-b47c-41fe-b7f2-992291086787": {
       "session_id": "e2eeebde-b47c-41fe-b7f2-992291086787",
@@ -48512,14 +48738,16 @@
     },
     "e7974f27-a022-431d-8cec-a3d1cdf4f890": {
       "session_id": "e7974f27-a022-431d-8cec-a3d1cdf4f890",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-05T01:12:15.311504+00:00",
       "event_count": 8,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-12T01:21:27.172361+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "e98604d0-7f59-479d-8991-27e548b3ae56": {
       "session_id": "e98604d0-7f59-479d-8991-27e548b3ae56",
@@ -50053,14 +50281,16 @@
     },
     "c7774490-6ca0-40ab-8c9b-8d615ade4d4b": {
       "session_id": "c7774490-6ca0-40ab-8c9b-8d615ade4d4b",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-01T03:29:17.801991+00:00",
       "event_count": 14,
       "user_id": "tina.clark",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-11T06:31:09.964296+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "cc045e27-fa76-4057-9e87-11eec36b99b4": {
       "session_id": "cc045e27-fa76-4057-9e87-11eec36b99b4",
@@ -50945,14 +51175,16 @@
     },
     "0fcca49c-50e8-4ccb-8c6a-bc712e947968": {
       "session_id": "0fcca49c-50e8-4ccb-8c6a-bc712e947968",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-16T00:36:44.365795+00:00",
       "event_count": 2,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-07T15:26:49.194682+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "0fd3964b-3a31-4c45-9a64-730b867cc879": {
       "session_id": "0fd3964b-3a31-4c45-9a64-730b867cc879",
@@ -51752,14 +51984,16 @@
     },
     "3cfc3192-d217-469e-b44a-6fdc1c2102d7": {
       "session_id": "3cfc3192-d217-469e-b44a-6fdc1c2102d7",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-19T00:25:02.136031+00:00",
       "event_count": 18,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T00:28:30.663072+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "3dcc5c9c-eaba-44b5-9aca-e81a6dd63da4": {
       "session_id": "3dcc5c9c-eaba-44b5-9aca-e81a6dd63da4",
@@ -51840,14 +52074,16 @@
     },
     "432d7089-5af7-4738-bd00-55aee996b532": {
       "session_id": "432d7089-5af7-4738-bd00-55aee996b532",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-03T01:50:40.856299+00:00",
       "event_count": 10,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T16:11:04.440970+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "438297c8-28a2-4b3c-bebc-c2b489fff5da": {
       "session_id": "438297c8-28a2-4b3c-bebc-c2b489fff5da",
@@ -52214,14 +52450,16 @@
     },
     "5a07585c-3efd-4434-bc84-b26924f4cff4": {
       "session_id": "5a07585c-3efd-4434-bc84-b26924f4cff4",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-24T03:28:44.909053+00:00",
       "event_count": 14,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T00:12:41.801698+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "5bc629db-7bf0-4fa2-a020-c8b31a5d247b": {
       "session_id": "5bc629db-7bf0-4fa2-a020-c8b31a5d247b",
@@ -52357,14 +52595,16 @@
     },
     "65788b75-3b47-4b59-988a-23fba0aafc4e": {
       "session_id": "65788b75-3b47-4b59-988a-23fba0aafc4e",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-14T03:45:36.970256+00:00",
       "event_count": 14,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T19:07:53.437122+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "6597b5c9-42c1-4c98-9d1d-55468c3a5fa8": {
       "session_id": "6597b5c9-42c1-4c98-9d1d-55468c3a5fa8",
@@ -52610,14 +52850,16 @@
     },
     "7569eeef-b3ec-4576-9ef7-27fe566056ba": {
       "session_id": "7569eeef-b3ec-4576-9ef7-27fe566056ba",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-19T00:03:39.500738+00:00",
       "event_count": 2,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-09T10:15:12.960600+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "758026ca-799a-4066-a434-66cf5a237c1b": {
       "session_id": "758026ca-799a-4066-a434-66cf5a237c1b",
@@ -52632,14 +52874,16 @@
     },
     "75d55a71-d4eb-4609-8fe8-ab657f9d3710": {
       "session_id": "75d55a71-d4eb-4609-8fe8-ab657f9d3710",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-27T08:53:34.295699+00:00",
       "event_count": 2,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T11:33:39.473938+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "75e5daed-3907-43fe-bce4-ab57df1a4642": {
       "session_id": "75e5daed-3907-43fe-bce4-ab57df1a4642",
@@ -53292,25 +53536,29 @@
     },
     "9f564e47-f73b-42a9-99e2-be2c4a822a40": {
       "session_id": "9f564e47-f73b-42a9-99e2-be2c4a822a40",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "error",
       "last_event_at": "2026-03-28T20:10:16.640941+00:00",
       "event_count": 8,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T18:58:38.405883+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "9f6e0317-cdd4-4da1-8efe-9400c71bdbab": {
       "session_id": "9f6e0317-cdd4-4da1-8efe-9400c71bdbab",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-13T04:13:58.921053+00:00",
       "event_count": 10,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-14T11:52:55.361033+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "a0bfc776-ff79-47a3-8150-12b76137ea28": {
       "session_id": "a0bfc776-ff79-47a3-8150-12b76137ea28",
@@ -53998,14 +54246,16 @@
     },
     "c8297819-0144-4be9-9f04-aa68587459f9": {
       "session_id": "c8297819-0144-4be9-9f04-aa68587459f9",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-17T08:45:59.062503+00:00",
       "event_count": 16,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-14T02:43:19.253474+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "c95fca62-f6de-48af-82b2-be2f1046d092": {
       "session_id": "c95fca62-f6de-48af-82b2-be2f1046d092",
@@ -54064,14 +54314,16 @@
     },
     "cd55312f-b67f-4055-a2d1-f7e48d950ff1": {
       "session_id": "cd55312f-b67f-4055-a2d1-f7e48d950ff1",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-01T00:52:09.199606+00:00",
       "event_count": 8,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T17:58:45.746988+00:00",
+      "utility_qa_note": "Stronger model: code suggestion contained subtle off-by-one bug; user spent ~40min debugging."
     },
     "cde07963-7e97-4988-9a36-bf0c24ff0727": {
       "session_id": "cde07963-7e97-4988-9a36-bf0c24ff0727",
@@ -54218,14 +54470,16 @@
     },
     "d21d6043-b54d-41e7-bec3-8c2bbe2c69be": {
       "session_id": "d21d6043-b54d-41e7-bec3-8c2bbe2c69be",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-04T23:18:08.658718+00:00",
       "event_count": 2,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T02:57:35.664881+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "d24714f3-e95a-4296-9af3-04598763dfd6": {
       "session_id": "d24714f3-e95a-4296-9af3-04598763dfd6",
@@ -54757,14 +55011,16 @@
     },
     "f0dc8835-6409-4ed3-a339-07dc5c685fd8": {
       "session_id": "f0dc8835-6409-4ed3-a339-07dc5c685fd8",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-18T02:26:35.920744+00:00",
       "event_count": 24,
       "user_id": "uma.lewis",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-08T01:37:34.698274+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "f1438d82-1cbf-49cb-93ab-0b7434c142ff": {
       "session_id": "f1438d82-1cbf-49cb-93ab-0b7434c142ff",
@@ -55897,14 +56153,16 @@
     },
     "0a5bcf14-a880-448d-b0fb-e70bf587f672": {
       "session_id": "0a5bcf14-a880-448d-b0fb-e70bf587f672",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-26T01:19:35.143996+00:00",
       "event_count": 14,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-14T04:17:45.160273+00:00",
+      "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
     },
     "0bd8d571-2971-4579-beff-de60ee1ab06f": {
       "session_id": "0bd8d571-2971-4579-beff-de60ee1ab06f",
@@ -56273,14 +56531,16 @@
     },
     "269b40e7-a20d-40d7-a3fa-c00a6eb48001": {
       "session_id": "269b40e7-a20d-40d7-a3fa-c00a6eb48001",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-23T23:35:26.082971+00:00",
       "event_count": 2,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-12T01:20:39.969169+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "273603fe-f5bc-4552-8cd9-870620edaeca": {
       "session_id": "273603fe-f5bc-4552-8cd9-870620edaeca",
@@ -56902,14 +57162,16 @@
     },
     "46d7b4b2-7366-4d6b-a5ed-dfc67cb6c6d9": {
       "session_id": "46d7b4b2-7366-4d6b-a5ed-dfc67cb6c6d9",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-08T21:41:46.236147+00:00",
       "event_count": 10,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-09T18:14:32.567424+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "46d8250a-530e-4011-8c89-1d46089447fd": {
       "session_id": "46d8250a-530e-4011-8c89-1d46089447fd",
@@ -56990,14 +57252,16 @@
     },
     "4a02e3fa-ae35-4830-a166-cda85ae8b95d": {
       "session_id": "4a02e3fa-ae35-4830-a166-cda85ae8b95d",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-24T03:24:29.116221+00:00",
       "event_count": 6,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-11T11:37:33.840954+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "4a0ae8c6-8456-4049-bb81-0c7dc08f45e6": {
       "session_id": "4a0ae8c6-8456-4049-bb81-0c7dc08f45e6",
@@ -57344,14 +57608,16 @@
     },
     "5a19fb2d-8c08-4c67-9bfe-64c46f6af2e5": {
       "session_id": "5a19fb2d-8c08-4c67-9bfe-64c46f6af2e5",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-09T20:42:16.942052+00:00",
       "event_count": 16,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-12T01:32:32.769604+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "5adbbece-41f4-4971-bf55-664c31866eab": {
       "session_id": "5adbbece-41f4-4971-bf55-664c31866eab",
@@ -58589,14 +58855,16 @@
     },
     "95019c8f-17e3-458d-9a21-01e2eeef2d3f": {
       "session_id": "95019c8f-17e3-458d-9a21-01e2eeef2d3f",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-25T05:45:49.979061+00:00",
       "event_count": 12,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-10T19:46:25.203428+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "958ee656-4179-4643-bdc3-7d2bdb0f93bb": {
       "session_id": "958ee656-4179-4643-bdc3-7d2bdb0f93bb",
@@ -59571,14 +59839,16 @@
     },
     "c214c11d-6f0a-4c67-9add-7017bbc28be5": {
       "session_id": "c214c11d-6f0a-4c67-9add-7017bbc28be5",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-03T05:59:12.944941+00:00",
       "event_count": 12,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-12T15:18:25.562162+00:00",
+      "utility_qa_note": "Stronger model: incorrect regex pattern matched too broadly; data corruption in staging."
     },
     "c27cdedb-c369-4efd-a756-55255ca2567a": {
       "session_id": "c27cdedb-c369-4efd-a756-55255ca2567a",
@@ -60079,14 +60349,16 @@
     },
     "e4047d09-650b-4884-b138-6df46ffa4f6f": {
       "session_id": "e4047d09-650b-4884-b138-6df46ffa4f6f",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-02T01:28:46.259601+00:00",
       "event_count": 18,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-09T01:11:36.357661+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "e48ab242-664e-4116-86a6-18f12b2e0474": {
       "session_id": "e48ab242-664e-4116-86a6-18f12b2e0474",
@@ -60431,14 +60703,16 @@
     },
     "f68575fa-1eda-46d5-a660-4f2e950e3019": {
       "session_id": "f68575fa-1eda-46d5-a660-4f2e950e3019",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-30T02:56:08.601594+00:00",
       "event_count": 14,
       "user_id": "victor.hall",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "utility_qa_reviewed_at": "2026-04-11T02:32:15.045554+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "f7fc134a-bb3c-40bb-911f-b3fbfd37b280": {
       "session_id": "f7fc134a-bb3c-40bb-911f-b3fbfd37b280",
@@ -61607,14 +61881,16 @@
     },
     "1e2d4e53-6dc6-4ae7-8a40-e9376552ef24": {
       "session_id": "1e2d4e53-6dc6-4ae7-8a40-e9376552ef24",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-08T00:55:21.836709+00:00",
       "event_count": 4,
       "user_id": "wendy.young",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-12T16:52:23.906978+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "1ff12827-08a4-46c8-bb49-5c185179dc04": {
       "session_id": "1ff12827-08a4-46c8-bb49-5c185179dc04",
@@ -61796,14 +62072,16 @@
     },
     "7f430a4d-3323-41cf-b3fa-461af5eb5d3c": {
       "session_id": "7f430a4d-3323-41cf-b3fa-461af5eb5d3c",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-27T00:35:30.121923+00:00",
       "event_count": 6,
       "user_id": "wendy.young",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-14T12:53:16.574954+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "7f78cff6-82dd-402d-8e50-ea231029c4fa": {
       "session_id": "7f78cff6-82dd-402d-8e50-ea231029c4fa",
@@ -61983,14 +62261,16 @@
     },
     "bc59b2cd-f77a-48d0-84fb-b5891607aab6": {
       "session_id": "bc59b2cd-f77a-48d0-84fb-b5891607aab6",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-04T03:20:20.371632+00:00",
       "event_count": 8,
       "user_id": "wendy.young",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-10T00:10:24.237680+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "c00d75a8-eee6-4d4a-be1d-1b6f35ec5ce2": {
       "session_id": "c00d75a8-eee6-4d4a-be1d-1b6f35ec5ce2",
@@ -62468,14 +62748,16 @@
     },
     "1ffc87a6-7c60-44ae-ab0a-ae4a2e316043": {
       "session_id": "1ffc87a6-7c60-44ae-ab0a-ae4a2e316043",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-17T01:05:25.058235+00:00",
       "event_count": 16,
       "user_id": "xander.king",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-11T02:22:12.302842+00:00",
+      "utility_qa_note": "Stronger model: AI hallucinated API endpoint that does not exist; user committed broken integration."
     },
     "24ddeb8a-ef26-439b-a0d3-b77af8b117f5": {
       "session_id": "24ddeb8a-ef26-439b-a0d3-b77af8b117f5",
@@ -62523,14 +62805,16 @@
     },
     "2989df17-8119-45d8-afe9-d8ce4ed0fc93": {
       "session_id": "2989df17-8119-45d8-afe9-d8ce4ed0fc93",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-05T02:01:13.538642+00:00",
       "event_count": 10,
       "user_id": "xander.king",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T19:54:09.921296+00:00",
+      "utility_qa_note": "User feedback: AI invented a config flag that does not exist in our codebase."
     },
     "2a0c300a-8794-49f5-9a73-896da10fc9df": {
       "session_id": "2a0c300a-8794-49f5-9a73-896da10fc9df",
@@ -62635,14 +62919,16 @@
     },
     "55162a69-6b08-428e-8673-f3785371e3a7": {
       "session_id": "55162a69-6b08-428e-8673-f3785371e3a7",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-23T03:12:55.732128+00:00",
       "event_count": 16,
       "user_id": "xander.king",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-12T07:52:54.782190+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): refactor suggestion broke 3 downstream tests; reverted."
     },
     "5634836b-54aa-4ff4-a84c-3867cc3cd235": {
       "session_id": "5634836b-54aa-4ff4-a84c-3867cc3cd235",
@@ -62701,14 +62987,16 @@
     },
     "5fc70d23-7c12-49b0-8d6e-76770ddacb12": {
       "session_id": "5fc70d23-7c12-49b0-8d6e-76770ddacb12",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "error",
       "last_event_at": "2026-03-22T03:56:16.747306+00:00",
       "event_count": 14,
       "user_id": "xander.king",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-08T13:46:31.488523+00:00",
+      "utility_qa_note": "Stronger model: SQL had wrong join cardinality, produced incorrect totals shipped to client."
     },
     "61aa9b9c-fe0d-47c0-8555-fec036aeacf8": {
       "session_id": "61aa9b9c-fe0d-47c0-8555-fec036aeacf8",
@@ -62952,14 +63240,16 @@
     },
     "ab0ca168-68f7-4db5-aba2-8023c83322de": {
       "session_id": "ab0ca168-68f7-4db5-aba2-8023c83322de",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "safari",
       "last_event_type": "error",
       "last_event_at": "2026-03-24T04:47:30.288014+00:00",
       "event_count": 8,
       "user_id": "xander.king",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-07T23:49:20.359133+00:00",
+      "utility_qa_note": "Stronger model: long debugging spiral on wrong root cause; eventual fix was unrelated."
     },
     "b57cd155-1795-4283-97b5-f4d39b9cc966": {
       "session_id": "b57cd155-1795-4283-97b5-f4d39b9cc966",
@@ -63034,14 +63324,16 @@
     },
     "c5d8b630-aea5-4f85-ace2-18b94f11251d": {
       "session_id": "c5d8b630-aea5-4f85-ace2-18b94f11251d",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-11T01:56:14.563366+00:00",
       "event_count": 8,
       "user_id": "xander.king",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-07T16:15:49.515063+00:00",
+      "utility_qa_note": "User feedback (thumbs-down): AI confidently misquoted GDPR Article; flagged by reviewer."
     },
     "cb9dedc6-396a-4e78-8f51-c9acb52fb740": {
       "session_id": "cb9dedc6-396a-4e78-8f51-c9acb52fb740",
@@ -63056,14 +63348,16 @@
     },
     "ce7a6c4d-f141-46d5-8e40-f1efdc1d5202": {
       "session_id": "ce7a6c4d-f141-46d5-8e40-f1efdc1d5202",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 1,
       "platform": "safari",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-06T09:29:28.947929+00:00",
       "event_count": 20,
       "user_id": "xander.king",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-13T10:53:50.481792+00:00",
+      "utility_qa_note": "Stronger model: AI-drafted email contained factual errors about pricing tier."
     },
     "d315bf57-e25f-4aac-982d-b689a3a7ab00": {
       "session_id": "d315bf57-e25f-4aac-982d-b689a3a7ab00",
@@ -64275,6 +64569,40 @@
         "85910e19-a66b-4f58-a8c0-5563a9c20068",
         "6c1c5fa0-22e1-4b36-a83c-7f5549c7a87f",
         "f2a00da3-e607-48f5-b9f4-7b035bde8add"
+      ]
+    },
+    "364cb95c-4045-48dd-ab00-b1e6390eb80a": {
+      "insight_id": "364cb95c-4045-48dd-ab00-b1e6390eb80a",
+      "kind": "negative_roi_pattern",
+      "priority": 2,
+      "created_at": "2026-04-12T13:51:13.679920+00:00",
+      "title": "Sales: AI usage flagged net-negative by QA review",
+      "description": "Post-hoc QA (stronger model + user feedback) re-reviewed sessions in Sales and flagged 39 of 302 (13%) as harmful \u2014 AI hallucinations, broken suggestions, or confidently-wrong outputs that the user acted on. Sample notes from the QA pass: 'User feedback: AI suggested deprecated library version; build broke in CI.'. Recommend reviewing the team's prompts, model choice, and onboarding \u2014 the negative-value signal indicates AI is not yet a productivity win here.",
+      "user_id": "sam.garcia",
+      "org_id": "acme-sales",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "dfeb3a36-e618-4828-8c5f-a80d9c789c2a",
+        "887b835d-27d7-49d3-92ce-e9683dea7bb4",
+        "23a58bfd-d393-4b44-97e6-04bdd7ded30b",
+        "6070a41b-3b07-4292-90dc-1147689e2df3"
+      ]
+    },
+    "09ad2323-3fff-4ee4-bd95-a4147661580b": {
+      "insight_id": "09ad2323-3fff-4ee4-bd95-a4147661580b",
+      "kind": "negative_roi_pattern",
+      "priority": 2,
+      "created_at": "2026-04-12T13:51:13.679920+00:00",
+      "title": "Operations: AI usage flagged net-negative by QA review",
+      "description": "Post-hoc QA (stronger model + user feedback) re-reviewed sessions in Operations and flagged 10 of 120 (8%) as harmful \u2014 AI hallucinations, broken suggestions, or confidently-wrong outputs that the user acted on. Sample notes from the QA pass: 'User feedback: AI invented a config flag that does not exist in our codebase.'. Recommend reviewing the team's prompts, model choice, and onboarding \u2014 the negative-value signal indicates AI is not yet a productivity win here.",
+      "user_id": "xander.king",
+      "org_id": "initech-ops",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "2989df17-8119-45d8-afe9-d8ce4ed0fc93",
+        "c5d8b630-aea5-4f85-ace2-18b94f11251d",
+        "5fc70d23-7c12-49b0-8d6e-76770ddacb12",
+        "ce7a6c4d-f141-46d5-8e40-f1efdc1d5202"
       ]
     }
   }

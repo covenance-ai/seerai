@@ -159,8 +159,8 @@
 
     return `
       <h3>Cost Efficiency</h3>
-      <p>Compares what your AI usage would cost at <strong>per-token API rates</strong> versus the flat <strong>subscription</strong> you pay.</p>
-      <div class="tt-formula">efficiency = API-equivalent cost &divide; subscription cost</div>
+      <p>Compares what your AI usage <strong>over the last 30 days</strong> would cost at per-token API rates versus the flat <strong>monthly subscription</strong> you pay.</p>
+      <div class="tt-formula">efficiency = API-equivalent cost (last 30d) &divide; subscription cost (per month)</div>
       <p>Most AI providers offer two billing models: fixed monthly subscriptions (e.g. Claude Pro at $20/mo) or pay-per-use API access billed by tokens consumed. This ratio tells you which is the better deal for your usage pattern.</p>
       ${verdict}
     `;
@@ -183,15 +183,22 @@
     }
 
     return `
-      <h3>Estimated Value</h3>
-      <p>Approximates how much <strong>employee time</strong> AI tools are saving, converted to dollars using each person's hourly rate.</p>
-      <div class="tt-formula">value = hourly_rate &times; hours_saved</div>
-      <div class="tt-formula">hours_saved = log&thinsp;&sup2;(messages) &times; hours_factor</div>
+      <h3>Value (last 30 days)</h3>
+      <p>Net <strong>employee time impact</strong> over the trailing 30 days, in dollars at each person's hourly rate. Reported per month so it's apples-to-apples with monthly subscription cost.</p>
+      <div class="tt-formula">value = hourly_rate &times; log&thinsp;&sup2;(messages) &times; hours_factor &times; discount</div>
       <p>
-        <strong>hours_factor</strong> by utility class:
-        useful = 0.25 (a 2-message session &asymp; 15 min),
-        trivial = 0.05 (a 2-message session &asymp; 3 min),
-        non-work = 0.
+        <strong>hours_factor:</strong>
+        useful = 0.25,
+        trivial = 0.05,
+        non-work = 0,
+        <span style="color:#ef4444">harmful = &minus;0.30</span>.
+      </p>
+      <p>
+        <strong>discount = 0.5 on positive contributions only</strong>:
+        saved time isn't 1:1 fungible with paid hourly rate (the alternative might have been faster, or not strictly necessary). Harmful sessions skip the discount &mdash; cleanup time after a hallucination is real wall-clock time spent recovering.
+      </p>
+      <p>
+        <strong>Harmful sessions</strong> aren't tagged at ingest. A post-hoc QA pass (stronger model + user feedback) re-reviews sessions and re-classifies the ones where AI sent the user down the wrong path. This drags total value down on teams where AI is being misused or trusted too readily.
       </p>
       <p>This is a directional estimate &mdash; absolute numbers are rough, but <strong>relative comparisons</strong> across users and teams are meaningful.</p>
       ${context}
@@ -215,8 +222,8 @@
 
     return `
       <h3>Return on Investment</h3>
-      <p>Measures whether AI subscriptions <strong>pay for themselves</strong> in estimated time savings.</p>
-      <div class="tt-formula">ROI = estimated value &divide; subscription cost</div>
+      <p>Measures whether AI subscriptions <strong>pay for themselves</strong> in estimated time savings. Both numerator and denominator are per-month figures.</p>
+      <div class="tt-formula">ROI = value (last 30d) &divide; subscription cost (per month)</div>
       <p>Above 1.0 means the company is getting more in time savings than it spends on subscriptions. Below 1.0 suggests the investment isn't yet paying off.</p>
       ${verdict}
     `;
@@ -232,8 +239,8 @@
    * Attach hover tooltips to all elements with data-metric="..." in the page.
    * @param {Object} vals - {efficiency_ratio, estimated_value, subscription, roi}
    */
-  window.attachMetricTooltips = function (vals) {
-    document.querySelectorAll('[data-metric]').forEach(card => {
+  window.attachMetricTooltips = function (vals, container) {
+    (container || document).querySelectorAll('[data-metric]').forEach(card => {
       const metric = card.dataset.metric;
       const gen = generators[metric];
       if (!gen) return;
