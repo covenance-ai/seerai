@@ -54,8 +54,10 @@
 
         let links = '';
         if (isExec) {
-            const cls = path.startsWith('/exec') ? linkActive : linkInactive;
-            links += `<a href="/exec" class="${linkBase} ${cls}">Dashboard</a>`;
+            const dashCls = (path.startsWith('/exec') && !path.startsWith('/exec/costs')) ? linkActive : linkInactive;
+            links += `<a href="/exec" class="${linkBase} ${dashCls}">Dashboard</a>`;
+            const costCls = path.startsWith('/exec/costs') ? linkActive : linkInactive;
+            links += `<a href="/exec/costs" class="${linkBase} ${costCls}">Costs</a>`;
         }
         if (user) {
             const myHref = `/my/${encodeURIComponent(user.user_id)}`;

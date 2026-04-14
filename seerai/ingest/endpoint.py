@@ -44,6 +44,10 @@ def _write_event(event: IngestEvent) -> StoredEvent:
     }
     if event.event_type == "error":
         session_data["error_count"] = Increment(1)
+    if event.provider:
+        session_data["provider"] = event.provider
+    if event.platform:
+        session_data["platform"] = event.platform
     batch.set(session_ref, session_data, merge=True)
 
     batch.set(event_ref, stored_event.model_dump())

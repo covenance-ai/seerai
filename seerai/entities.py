@@ -8,6 +8,7 @@ Collection hierarchy:
     users/{user_id}
     users/{user_id}/sessions/{session_id}
     users/{user_id}/sessions/{session_id}/events/{event_id}
+    subscriptions/{subscription_id}
 """
 
 from __future__ import annotations
@@ -58,6 +59,8 @@ class Session(FirestoreModel):
     last_event_type: EventType | None = None
     event_count: int = 0
     error_count: int = 0
+    provider: str | None = None
+    platform: str | None = None
 
     @classmethod
     def parent_path(cls, user_id: str) -> str:
@@ -96,3 +99,19 @@ class Event(FirestoreModel):
             direction="ASCENDING",
             limit=0,  # no limit
         )
+
+
+class Subscription(FirestoreModel):
+    """subscriptions/{subscription_id} — an AI subscription paid by the company."""
+
+    __collection__: ClassVar[str] = "subscriptions"
+    __id_field__: ClassVar[str] = "subscription_id"
+
+    subscription_id: str
+    user_id: str
+    provider: str  # e.g. "anthropic", "openai", "google"
+    plan: str  # e.g. "Claude Pro", "ChatGPT Plus"
+    monthly_cost_cents: int  # 2000 = $20.00
+    currency: str = "USD"
+    started_at: datetime
+    ended_at: datetime | None = None  # None = active

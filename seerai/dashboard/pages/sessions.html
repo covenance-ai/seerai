@@ -36,6 +36,8 @@
                     <table class="w-full text-sm">
                     <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
                         <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Session</th>
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Provider</th>
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Platform</th>
                         <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Events</th>
                         <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Event</th>
                         <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
@@ -49,8 +51,12 @@
                         : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
                     const badge = s.last_event_type ? `<span class="text-xs px-1.5 py-0.5 rounded font-medium ${badgeCls}">${s.last_event_type}</span>` : '';
                     const shortId = s.session_id.length > 20 ? s.session_id.slice(0, 20) + '...' : s.session_id;
+                    const provider = s.provider ? `<span class="text-xs px-1.5 py-0.5 rounded font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">${esc(s.provider)}</span>` : '';
+                    const platform = s.platform ? `<span class="text-xs px-1.5 py-0.5 rounded font-medium bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300">${esc(s.platform)}</span>` : '';
                     html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                         <td class="px-4 py-2.5"><a href="/session/${encodeURIComponent(userId)}/${encodeURIComponent(s.session_id)}" class="text-blue-600 dark:text-blue-400 hover:underline" title="${esc(s.session_id)}">${esc(shortId)}</a></td>
+                        <td class="px-4 py-2.5">${provider}</td>
+                        <td class="px-4 py-2.5">${platform}</td>
                         <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">${s.event_count}</td>
                         <td class="px-4 py-2.5">${badge}</td>
                         <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">${t}</td>

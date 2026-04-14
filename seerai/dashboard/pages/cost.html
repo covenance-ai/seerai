@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>seerai — cost efficiency</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
+    <script src="/static/nav.js" defer></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+            <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a>
+            <span class="mx-1">/</span>
+            <span class="text-gray-700 dark:text-gray-300">cost efficiency</span>
+        </p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Subscription Cost Efficiency</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Compares flat-rate subscription spend against API-equivalent cost from actual token usage.</p>
+        <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
+    </div>
+    <script>
+        const user = JSON.parse(localStorage.getItem('seerai_user') || 'null');
+        if (!user || !user.org_id) {
+            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">Select an exec user to view cost data.</p>';
+        } else {
+            // Walk up to root org
+            fetch(`/api/orgs/${encodeURIComponent(user.org_id)}`)
+                .then(r => r.json())
+                .then(org => {
+                    const rootId = org.path[0];
+                    return fetch(`/api/cost/org/${encodeURIComponent(rootId)}`);
+                })
+                .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
+                .then(render)
+                .catch(e => {
+                    document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + esc(e.message) + '</p>';
+                });
+        }
+
+        function render(data) {
+            const ratio = data.efficiency_ratio;
+            const ratioColor = ratio === null ? 'text-gray-400' : ratio >= 1 ? 'text-emerald-500' : 'text-amber-500';
+            const ratioLabel = ratio === null ? '—' : ratio.toFixed(2) + 'x';
+
+            let html = `
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">$${data.total_monthly_subscription.toFixed(0)}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Subscriptions / mo</div>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">$${data.total_api_equivalent.toFixed(2)}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">API Equivalent</div>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div class="text-2xl font-bold ${ratioColor}">${ratioLabel}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Efficiency Ratio</div>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">${data.users.filter(u => u.plans.length > 0).length}<span class="text-base font-normal text-gray-400"> / ${data.user_count}</span></div>
+                    <div class="text-xs text-gray-400 mt-0.5">Subscribed / Total</div>
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-6">
+                Efficiency ratio = API-equivalent cost &div; subscription cost.
+                Above 1.0 means subscriptions save money. Below 1.0 means API would be cheaper.
+                API cost is a lower-bound estimate (output tokens only).
+            </p>`;
+
+            // Per-user table
+            if (data.users.length) {
+                html += `<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Per-User Breakdown</h2>`;
+                html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+                    <table class="w-full text-sm">
+                    <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">User</th>
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Plans</th>
+                        <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sub $/mo</th>
+                        <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">API Equiv</th>
+                        <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Ratio</th>
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Top Model</th>
+                    </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
+
+                for (const u of data.users) {
+                    const ur = u.efficiency_ratio;
+                    const uColor = ur === null ? 'text-gray-400' : ur >= 1 ? 'text-emerald-500' : 'text-amber-500';
+                    const uLabel = ur === null ? '—' : ur.toFixed(2) + 'x';
+                    const plans = u.plans.length ? u.plans.join(', ') : '—';
+                    const topModel = u.models.length
+                        ? u.models.reduce((a, b) => a.token_count > b.token_count ? a : b).model
+                        : '—';
+
+                    html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                        <td class="px-4 py-2.5">
+                            <a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a>
+                        </td>
+                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${esc(plans)}</td>
+                        <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">$${u.monthly_subscription.toFixed(0)}</td>
+                        <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">$${u.api_equivalent.toFixed(2)}</td>
+                        <td class="px-4 py-2.5 text-right font-medium ${uColor}">${uLabel}</td>
+                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${esc(topModel)}</td>
+                    </tr>`;
+                }
+
+                html += '</tbody></table></div>';
+            }
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    </script>
+</body>
+</html>

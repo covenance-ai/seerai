@@ -79,10 +79,10 @@ USERS = {
 
 # Users with exec role (can see org dashboard)
 EXECS = {
-    "alice.johnson",   # Acme backend lead
-    "kate.davis",      # Acme product design lead
-    "peter.white",     # Acme sales lead
-    "tina.clark",      # Initech ML lead
+    "alice.johnson",  # Acme backend lead
+    "kate.davis",  # Acme product design lead
+    "peter.white",  # Acme sales lead
+    "tina.clark",  # Initech ML lead
 }
 
 # Realistic conversation snippets
@@ -120,6 +120,16 @@ AI_RESPONSES = [
     "Post-Schrems II, transfers outside the EEA require: adequacy decisions, Standard Contractual Clauses with supplementary measures, or Binding Corporate Rules. Transfer Impact Assessments are recommended.",
     "Article 35 requires a DPIA when processing involves: systematic profiling with significant effects, large-scale processing of special categories, or large-scale systematic monitoring of public areas.",
     "A Record of Processing Activities (ROPA) under Article 30 must include: purposes, data categories, recipients, transfers, retention periods, and technical/organizational security measures.",
+]
+
+PROVIDERS = ["anthropic", "openai", "google", "mistral"]
+PLATFORMS = ["chrome", "firefox", "vscode", "cli", "slack", "safari"]
+
+# Subscription plans — (provider, plan_name, monthly_cost_cents)
+SUBSCRIPTION_PLANS = [
+    ("anthropic", "Claude Pro", 2000),
+    ("openai", "ChatGPT Plus", 2000),
+    ("google", "Gemini Advanced", 2000),
 ]
 
 ERROR_MESSAGES = [
@@ -162,7 +172,10 @@ def clear_collection(collection_path: str):
 
 
 def clear_all():
-    """Delete all orgs, users (with subcollections), from the seerai database."""
+    """Delete all orgs, users (with subcollections), and subscriptions."""
+    print("Clearing subscriptions...")
+    clear_collection("subscriptions")
+
     print("Clearing orgs...")
     clear_collection("orgs")
 
@@ -234,7 +247,11 @@ def create_users_and_data():
             for session_start in session_starts:
                 total_sessions += 1
                 session_id = str(uuid.uuid4())
-                num_events = random.randrange(4, 21, 2)  # always even → ends on ai_message
+                provider = random.choice(PROVIDERS)
+                platform = random.choice(PLATFORMS)
+                num_events = random.randrange(
+                    4, 21, 2
+                )  # always even → ends on ai_message
                 event_count = 0
                 error_count = 0
 
@@ -308,6 +325,8 @@ def create_users_and_data():
                     "last_event_at": event_times[-1],
                     "last_event_type": last_event_type,
                     "event_count": event_count,
+                    "provider": provider,
+                    "platform": platform,
                 }
                 if error_count > 0:
                     session_data["error_count"] = error_count
@@ -326,6 +345,47 @@ def create_users_and_data():
     )
 
 
+def create_subscriptions():
+    """Assign 1-2 AI subscriptions per user, with some users having none."""
+    now = datetime.now(UTC)
+    total = 0
+    batch = DB.batch()
+
+    all_users = []
+    for user_list in USERS.values():
+        all_users.extend(user_list)
+
+    for user_id in all_users:
+        # ~80% of users get at least one subscription
+        if random.random() < 0.2:
+            continue
+
+        # Pick 1-2 random plans
+        num_plans = random.choices([1, 2], weights=[0.6, 0.4])[0]
+        plans = random.sample(SUBSCRIPTION_PLANS, num_plans)
+
+        for provider, plan_name, cost_cents in plans:
+            sub_id = str(uuid.uuid4())
+            started_at = now - timedelta(days=random.randint(30, 180))
+            batch.set(
+                DB.collection("subscriptions").document(sub_id),
+                {
+                    "subscription_id": sub_id,
+                    "user_id": user_id,
+                    "provider": provider,
+                    "plan": plan_name,
+                    "monthly_cost_cents": cost_cents,
+                    "currency": "USD",
+                    "started_at": started_at,
+                    "ended_at": None,
+                },
+            )
+            total += 1
+
+    batch.commit()
+    print(f"Created {total} subscriptions.")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Populate seerai with mock data")
     parser.add_argument(
@@ -338,6 +398,7 @@ def main():
 
     create_orgs()
     create_users_and_data()
+    create_subscriptions()
     print("Done.")
 
 

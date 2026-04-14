@@ -28,6 +28,11 @@ def org_index():
     return HTMLResponse(_PAGES.joinpath("org_index.html").read_text())
 
 
+@router.get("/exec/costs", response_class=HTMLResponse)
+def cost_page():
+    return HTMLResponse(_PAGES.joinpath("cost.html").read_text())
+
+
 @router.get("/exec/{org_id}", response_class=HTMLResponse)
 def org_detail_page(org_id: str):
     return HTMLResponse(_PAGES.joinpath("org_detail.html").read_text())

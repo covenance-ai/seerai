@@ -118,6 +118,49 @@ class TestIngestEndpoint:
         assert data["metadata"]["model"] == "claude-3"
         assert data["metadata"]["tokens"] == 150
 
+    def test_provider_and_platform_written_to_session(self, client):
+        """provider and platform from the payload are included in the session batch write."""
+        tc, mock_db, mock_batch = client
+        tc.post(
+            "/api/ingest",
+            json={
+                "user_id": "u",
+                "session_id": "s",
+                "event_type": "user_message",
+                "content": "hi",
+                "provider": "anthropic",
+                "platform": "vscode",
+            },
+        )
+        # Find the session set() call — the one whose data dict has "session_id"
+        for call in mock_batch.set.call_args_list:
+            data = call[0][1]
+            if "session_id" in data:
+                assert data["provider"] == "anthropic"
+                assert data["platform"] == "vscode"
+                break
+        else:
+            pytest.fail("No session batch.set call found")
+
+    def test_provider_and_platform_omitted_when_absent(self, client):
+        """When provider/platform are not sent, they don't appear in the session write."""
+        tc, mock_db, mock_batch = client
+        tc.post(
+            "/api/ingest",
+            json={
+                "user_id": "u",
+                "session_id": "s",
+                "event_type": "user_message",
+                "content": "hi",
+            },
+        )
+        for call in mock_batch.set.call_args_list:
+            data = call[0][1]
+            if "session_id" in data:
+                assert "provider" not in data
+                assert "platform" not in data
+                break
+
 
 class TestQueryEndpoints:
     def test_list_users_empty(self, client):

@@ -13,6 +13,7 @@ from seerai.entities import (  # noqa: F401
     EventType,
     OrgNode,
     Session,
+    Subscription,
     User,
     UserRole,
 )
@@ -27,6 +28,8 @@ class IngestEvent(BaseModel):
     content: str
     timestamp: datetime | None = None
     metadata: dict | None = None
+    provider: str | None = None
+    platform: str | None = None
 
 
 class StoredEvent(IngestEvent):

@@ -24,6 +24,8 @@ class TestIngestEvent:
         )
         assert e.user_id == "alice"
         assert e.metadata is None
+        assert e.provider is None
+        assert e.platform is None
 
     def test_valid_with_metadata(self):
         """Metadata dict is preserved as-is."""
@@ -99,6 +101,22 @@ class TestSession:
                 last_event_type=t,
             )
             assert s.last_event_type == t
+
+    def test_provider_and_platform_optional(self):
+        """provider and platform default to None and accept strings."""
+        s = Session(session_id="s", user_id="u", last_event_at=datetime.now(UTC))
+        assert s.provider is None
+        assert s.platform is None
+
+        s2 = Session(
+            session_id="s",
+            user_id="u",
+            last_event_at=datetime.now(UTC),
+            provider="anthropic",
+            platform="vscode",
+        )
+        assert s2.provider == "anthropic"
+        assert s2.platform == "vscode"
 
 
 class TestSessionDetail:
