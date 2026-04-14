@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>seerai — organizations</title>
+    <title>seerai — dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
@@ -11,50 +11,24 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-            <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a>
-            <span class="mx-1">/</span> organizations
-        </p>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Organizations</h1>
         <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
     <script>
-        fetch('/api/orgs')
-            .then(r => r.json())
-            .then(orgs => {
-                if (!orgs.length) {
-                    document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">No organizations yet.</p>';
-                    return;
-                }
-                return Promise.all(orgs.map(o =>
-                    fetch(`/api/orgs/${encodeURIComponent(o.org_id)}/tree`).then(r => r.json())
-                ));
-            })
-            .then(trees => {
-                if (!trees) return;
-                const el = document.getElementById('content');
-                let html = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">';
-                for (const t of trees) {
-                    const n = t.node;
-                    const errRate = n.message_count > 0 ? ((n.error_count / n.message_count) * 100).toFixed(1) + '%' : '—';
-                    html += `<a href="/exec/${encodeURIComponent(n.org_id)}" class="block rounded-xl border border-gray-200 dark:border-gray-700/60 p-5 transition-all hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg bg-white dark:bg-gray-900">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">${esc(n.name)}</h2>
-                        <div class="grid grid-cols-4 gap-2 text-center">
-                            <div><div class="text-lg font-bold text-gray-900 dark:text-white">${n.user_count}</div><div class="text-xs text-gray-400">users</div></div>
-                            <div><div class="text-lg font-bold text-gray-900 dark:text-white">${n.session_count}</div><div class="text-xs text-gray-400">sessions</div></div>
-                            <div><div class="text-lg font-bold text-gray-900 dark:text-white">${n.message_count}</div><div class="text-xs text-gray-400">messages</div></div>
-                            <div><div class="text-lg font-bold ${n.error_count > 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'}">${errRate}</div><div class="text-xs text-gray-400">errors</div></div>
-                        </div>
-                    </a>`;
-                }
-                html += '</div>';
-                el.innerHTML = html;
-            })
-            .catch(e => {
-                document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
-            });
-
-        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        // Redirect to the current user's root org
+        const user = (() => { try { return JSON.parse(localStorage.getItem('seerai_user')); } catch { return null; } })();
+        if (!user || !user.org_id) {
+            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">Select a user first to view their organization dashboard.</p>';
+        } else {
+            fetch(`/api/orgs/${encodeURIComponent(user.org_id)}`)
+                .then(r => { if (!r.ok) throw new Error('Org not found'); return r.json(); })
+                .then(org => {
+                    const rootOrgId = org.path[0];
+                    window.location.replace(`/exec/${encodeURIComponent(rootOrgId)}`);
+                })
+                .catch(e => {
+                    document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
+                });
+        }
     </script>
 </body>
 </html>
