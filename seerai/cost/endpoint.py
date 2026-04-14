@@ -146,6 +146,17 @@ def _user_cost(user: User, subs: list[Subscription]) -> UserCost:
     )
 
 
+@router.get("/cost/user/{user_id}")
+def user_cost(user_id: str) -> UserCost:
+    """Cost efficiency and ROI for a single user."""
+    user = User.get(user_id)
+    if not user:
+        raise HTTPException(404, "User not found")
+    all_subs = Subscription.list(order_by=None, limit=0)
+    subs = [s for s in all_subs if s.user_id == user_id and s.ended_at is None]
+    return _user_cost(user, subs)
+
+
 @router.get("/cost/org/{org_id}")
 def org_cost(org_id: str) -> OrgCostSummary:
     """Cost efficiency and ROI for an org and all its descendants."""

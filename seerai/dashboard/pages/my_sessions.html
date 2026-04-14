@@ -8,6 +8,7 @@
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
     <script src="/static/icons.js"></script>
+    <script src="/static/calendar.js"></script>
     <script src="/static/nav.js" defer></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
@@ -17,56 +18,116 @@
             <span class="mx-1">/</span> my sessions
         </p>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Sessions</h1>
+        <div id="cost-cards"></div>
+        <div id="activity" class="mb-6"></div>
         <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
     <script>
         const userId = decodeURIComponent(window.location.pathname.split('/')[2]);
+        let allSessions = [];
+        let activeFilter = null;
+
+        fetch(`/api/cost/user/${encodeURIComponent(userId)}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(costData => {
+                if (!costData) return;
+                const eff = costData.efficiency_ratio;
+                const effColor = eff === null ? 'text-gray-400' : eff >= 1 ? 'text-emerald-500' : 'text-amber-500';
+                const effLabel = eff === null ? '—' : eff.toFixed(2) + 'x';
+                const roi = costData.roi;
+                const roiColor = roi === null ? 'text-gray-400' : roi >= 1 ? 'text-emerald-500' : 'text-amber-500';
+                const roiLabel = roi === null ? '—' : roi.toFixed(1) + 'x';
+                const plans = costData.plans.length ? costData.plans.join(', ') : '—';
+                const rate = costData.hourly_rate !== null ? '$' + costData.hourly_rate.toFixed(0) + '/hr' : '—';
+                document.getElementById('cost-cards').innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-lg font-bold text-gray-900 dark:text-white">${esc(plans)}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Plans</div>
+                    </div>
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white">${rate}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Hourly Rate</div>
+                    </div>
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.monthly_subscription.toFixed(0)}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Sub $/mo</div>
+                    </div>
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.estimated_value.toFixed(0)}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Estimated Value</div>
+                    </div>
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold ${effColor}">${effLabel}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Cost Efficiency</div>
+                    </div>
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold ${roiColor}">${roiLabel}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">ROI</div>
+                    </div>
+                </div>`;
+            }).catch(() => {});
+
+        fetch(`/api/users/${encodeURIComponent(userId)}/heatmap`)
+            .then(r => r.json())
+            .then(days => renderActivityCalendar(days, document.getElementById('activity'), filterByDate));
 
         fetch(`/api/users/${encodeURIComponent(userId)}/sessions`)
             .then(r => r.json())
-            .then(sessions => {
-                const el = document.getElementById('content');
-                if (!sessions.length) {
-                    el.innerHTML = '<p class="text-gray-400 text-center py-8">No sessions yet.</p>';
-                    return;
-                }
-                let html = `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
-                    <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                    <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Session</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Provider</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Platform</th>
-                        <th class="text-center px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Events</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Utility</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Event</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
-                    </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
-                for (const s of sessions) {
-                    const t = new Date(s.last_event_at).toLocaleString();
-                    const badgeCls = s.last_event_type === 'error'
-                        ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-                        : s.last_event_type === 'ai_message'
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                        : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
-                    const badge = s.last_event_type ? `<span class="text-xs px-1.5 py-0.5 rounded font-medium ${badgeCls}">${s.last_event_type}</span>` : '';
-                    const shortId = s.session_id.length > 16 ? s.session_id.slice(0, 16) + '...' : s.session_id;
-                    html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                        <td class="px-4 py-2.5"><a href="/my/${encodeURIComponent(userId)}/${encodeURIComponent(s.session_id)}" class="text-blue-600 dark:text-blue-400 hover:underline font-mono text-xs" title="${esc(s.session_id)}">${esc(shortId)}</a></td>
-                        <td class="px-4 py-2.5">${providerBadge(s.provider)}</td>
-                        <td class="px-4 py-2.5">${platformBadge(s.platform)}</td>
-                        <td class="px-4 py-2.5 text-center text-gray-600 dark:text-gray-400">${s.event_count}</td>
-                        <td class="px-4 py-2.5">${utilityBadge(s.utility)}</td>
-                        <td class="px-4 py-2.5">${badge}</td>
-                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${t}</td>
-                    </tr>`;
-                }
-                html += '</tbody></table></div></div>';
-                el.innerHTML = html;
-            })
+            .then(sessions => { allSessions = sessions; renderSessions(sessions); })
             .catch(e => {
                 document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
             });
+
+        function filterByDate(iso) {
+            if (activeFilter === iso) { activeFilter = null; renderSessions(allSessions); return; }
+            activeFilter = iso;
+            renderSessions(allSessions.filter(s => s.last_event_at.slice(0, 10) === iso));
+        }
+
+        function renderSessions(sessions) {
+            const el = document.getElementById('content');
+            let filterNote = '';
+            if (activeFilter) {
+                filterNote = `<p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Showing sessions from <strong>${activeFilter}</strong> <button onclick="filterByDate('${activeFilter}')" class="text-blue-500 hover:underline ml-1">clear</button></p>`;
+            }
+            if (!sessions.length) {
+                el.innerHTML = filterNote + '<p class="text-gray-400 text-center py-8">' + (activeFilter ? 'No sessions on this date.' : 'No sessions yet.') + '</p>';
+                return;
+            }
+            let html = filterNote + `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+                <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
+                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Session</th>
+                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Provider</th>
+                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Platform</th>
+                    <th class="text-center px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Events</th>
+                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Utility</th>
+                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Event</th>
+                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
+                </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
+            for (const s of sessions) {
+                const t = new Date(s.last_event_at).toLocaleString();
+                const badgeCls = s.last_event_type === 'error'
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                    : s.last_event_type === 'ai_message'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
+                const badge = s.last_event_type ? `<span class="text-xs px-1.5 py-0.5 rounded font-medium ${badgeCls}">${s.last_event_type}</span>` : '';
+                const shortId = s.session_id.length > 16 ? s.session_id.slice(0, 16) + '...' : s.session_id;
+                html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                    <td class="px-4 py-2.5"><a href="/my/${encodeURIComponent(userId)}/${encodeURIComponent(s.session_id)}" class="text-blue-600 dark:text-blue-400 hover:underline font-mono text-xs" title="${esc(s.session_id)}">${esc(shortId)}</a></td>
+                    <td class="px-4 py-2.5">${providerBadge(s.provider)}</td>
+                    <td class="px-4 py-2.5">${platformBadge(s.platform)}</td>
+                    <td class="px-4 py-2.5 text-center text-gray-600 dark:text-gray-400">${s.event_count}</td>
+                    <td class="px-4 py-2.5">${utilityBadge(s.utility)}</td>
+                    <td class="px-4 py-2.5">${badge}</td>
+                    <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${t}</td>
+                </tr>`;
+            }
+            html += '</tbody></table></div></div>';
+            el.innerHTML = html;
+        }
 
         function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     </script>

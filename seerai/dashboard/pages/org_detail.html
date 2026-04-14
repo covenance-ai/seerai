@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
+    <script src="/static/icons.js"></script>
     <script src="/static/nav.js" defer></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
@@ -25,8 +26,9 @@
         Promise.all([
             fetch(`/api/orgs/${encodeURIComponent(orgId)}/tree`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
             fetch(`/api/orgs/${encodeURIComponent(orgId)}`).then(r => r.json()),
+            fetch(`/api/cost/org/${encodeURIComponent(orgId)}`).then(r => r.ok ? r.json() : null),
         ])
-        .then(([tree, orgNode]) => {
+        .then(([tree, orgNode, costData]) => {
             document.getElementById('title').textContent = orgNode.name;
 
             // Breadcrumb
@@ -45,7 +47,8 @@
             const n = tree.node;
             const errRate = n.message_count > 0 ? ((n.error_count / n.message_count) * 100).toFixed(1) + '%' : '—';
 
-            let html = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            // Activity cards
+            let html = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                     <div class="text-2xl font-bold text-gray-900 dark:text-white">${n.user_count}</div>
                     <div class="text-xs text-gray-400 mt-0.5">Users</div>
@@ -64,58 +67,145 @@
                 </div>
             </div>`;
 
-            // Children
-            if (tree.children.length) {
-                html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Sub-organizations</h2>';
-                html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden mb-8">
-                    <table class="w-full text-sm">
-                    <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Users</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sessions</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Messages</th>
-                    </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
-                for (const child of tree.children) {
-                    const c = child.node;
-                    html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                        <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a></td>
-                        <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">${c.user_count}</td>
-                        <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">${c.session_count}</td>
-                        <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">${c.message_count}</td>
-                    </tr>`;
-                }
-                html += '</tbody></table></div>';
+            // Cost/ROI cards
+            if (costData) {
+                const eff = costData.efficiency_ratio;
+                const effColor = eff === null ? 'text-gray-400' : eff >= 1 ? 'text-emerald-500' : 'text-amber-500';
+                const effLabel = eff === null ? '—' : eff.toFixed(2) + 'x';
+                const roi = costData.roi;
+                const roiColor = roi === null ? 'text-gray-400' : roi >= 1 ? 'text-emerald-500' : 'text-amber-500';
+                const roiLabel = roi === null ? '—' : roi.toFixed(1) + 'x';
+
+                html += `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.total_monthly_subscription.toFixed(0)}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Subscriptions / mo</div>
+                    </div>
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.total_estimated_value.toFixed(0)}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Estimated Value</div>
+                    </div>
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold ${effColor}">${effLabel}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">Cost Efficiency</div>
+                    </div>
+                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                        <div class="text-2xl font-bold ${roiColor}">${roiLabel}</div>
+                        <div class="text-xs text-gray-400 mt-0.5">ROI</div>
+                    </div>
+                </div>`;
+            } else {
+                html += '<div class="mb-8"></div>';
             }
 
-            // Users
-            return fetch(`/api/orgs/${encodeURIComponent(orgId)}/users`)
-                .then(r => r.json())
-                .then(users => {
-                    if (users.length) {
-                        html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Users</h2>';
-                        html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
-                            <table class="w-full text-sm">
-                            <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
-                                <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">User</th>
-                                <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
-                            </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
-                        for (const u of users) {
-                            const t = new Date(u.last_active).toLocaleString();
-                            html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                                <td class="px-4 py-2.5"><a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a></td>
-                                <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">${t}</td>
-                            </tr>`;
-                        }
-                        html += '</tbody></table></div>';
-                    } else if (!tree.children.length) {
-                        html += '<p class="text-gray-400 text-center py-8">No sub-organizations or users.</p>';
+            // Index cost data by user_id for lookup
+            const userCostMap = {};
+            if (costData) {
+                for (const uc of costData.users) userCostMap[uc.user_id] = uc;
+            }
+
+            // Children — fetch cost per child org in parallel
+            const childCostPromise = tree.children.length
+                ? Promise.all(tree.children.map(ch =>
+                    fetch(`/api/cost/org/${encodeURIComponent(ch.node.org_id)}`)
+                        .then(r => r.ok ? r.json() : null)
+                        .catch(() => null)
+                  ))
+                : Promise.resolve([]);
+
+            return childCostPromise.then(childCosts => {
+                if (tree.children.length) {
+                    html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Sub-organizations</h2>';
+                    html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden mb-8">
+                        <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                        <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
+                            <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Users</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sessions</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sub $/mo</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">ROI</th>
+                        </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
+                    for (let i = 0; i < tree.children.length; i++) {
+                        const c = tree.children[i].node;
+                        const cc = childCosts[i];
+                        const subCost = cc ? '$' + cc.total_monthly_subscription.toFixed(0) : '—';
+                        const value = cc ? '$' + cc.total_estimated_value.toFixed(0) : '—';
+                        const cRoi = cc ? cc.roi : null;
+                        const cRoiColor = cRoi === null ? 'text-gray-400' : cRoi >= 1 ? 'text-emerald-500' : 'text-amber-500';
+                        const cRoiLabel = cRoi === null ? '—' : cRoi.toFixed(1) + 'x';
+                        html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                            <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a></td>
+                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.user_count}</td>
+                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.session_count}</td>
+                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${subCost}</td>
+                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${value}</td>
+                            <td class="px-4 py-2.5 text-right font-medium ${cRoiColor}">${cRoiLabel}</td>
+                        </tr>`;
                     }
-                    document.getElementById('content').innerHTML = html;
-                });
+                    html += '</tbody></table></div></div>';
+                }
+
+                // Users
+                return fetch(`/api/orgs/${encodeURIComponent(orgId)}/users`)
+                    .then(r => r.json())
+                    .then(users => {
+                        if (users.length) {
+                            html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Users</h2>';
+                            html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
+                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">User</th>
+                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sub $/mo</th>
+                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">ROI</th>
+                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Utility</th>
+                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
+                                </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
+                            for (const u of users) {
+                                const t = new Date(u.last_active).toLocaleString();
+                                const uc = userCostMap[u.user_id];
+                                const uSub = uc ? '$' + uc.monthly_subscription.toFixed(0) : '—';
+                                const uVal = uc ? '$' + uc.estimated_value.toFixed(0) : '—';
+                                const uRoi = uc ? uc.roi : null;
+                                const uRoiColor = uRoi === null ? 'text-gray-400' : uRoi >= 1 ? 'text-emerald-500' : 'text-amber-500';
+                                const uRoiLabel = uRoi === null ? '—' : uRoi.toFixed(1) + 'x';
+                                const utilBar = uc ? miniBar(uc.utility_breakdown) : '<span class="text-gray-400 text-xs">—</span>';
+                                html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                                    <td class="px-4 py-2.5"><a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a></td>
+                                    <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${uSub}</td>
+                                    <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${uVal}</td>
+                                    <td class="px-4 py-2.5 text-right font-medium ${uRoiColor}">${uRoiLabel}</td>
+                                    <td class="px-4 py-2.5">${utilBar}</td>
+                                    <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${t}</td>
+                                </tr>`;
+                            }
+                            html += '</tbody></table></div></div>';
+                        } else if (!tree.children.length) {
+                            html += '<p class="text-gray-400 text-center py-8">No sub-organizations or users.</p>';
+                        }
+                        document.getElementById('content').innerHTML = html;
+                    });
+            });
         })
         .catch(e => {
             document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
         });
+
+        function miniBar(ub) {
+            const total = ub.non_work + ub.trivial + ub.useful + (ub.unclassified || 0);
+            if (total === 0) return '<span class="text-gray-400 text-xs">—</span>';
+            const w = (n) => Math.round(n / total * 100);
+            let bar = '<div class="flex h-2 w-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700" title="' +
+                ub.useful + ' useful, ' + ub.trivial + ' trivial, ' + ub.non_work + ' non-work">';
+            if (ub.useful) bar += `<div class="bg-emerald-500" style="width:${w(ub.useful)}%"></div>`;
+            if (ub.trivial) bar += `<div class="bg-blue-400" style="width:${w(ub.trivial)}%"></div>`;
+            if (ub.non_work) bar += `<div class="bg-gray-400" style="width:${w(ub.non_work)}%"></div>`;
+            bar += '</div>';
+            return bar;
+        }
 
         function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     </script>
