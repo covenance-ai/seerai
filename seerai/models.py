@@ -48,6 +48,9 @@ class SessionDetail(BaseModel):
     session_id: str
     user_id: str
     events: list[StoredEvent]
+    flagged_for_support_at: datetime | None = None
+    flag_note: str | None = None
+    utility: UtilityClass | None = None
 
 
 class OrgNodeStats(BaseModel):

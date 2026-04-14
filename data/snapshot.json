@@ -1401,7 +1401,9 @@
       "last_event_at": "2026-04-06T09:10:35.788833+00:00",
       "event_count": 18,
       "user_id": "bob.martinez",
-      "provider": "anthropic"
+      "provider": "anthropic",
+      "flagged_for_support_at": "2026-04-12T13:48:11.823890+00:00",
+      "flag_note": "Classified as 'non_work' but this is Bob debugging a production incident outside hours \u2014 clearly business-critical. The 'after-hours' signal seems to be over-weighted in the utility model."
     },
     "20d21bef-ade2-4500-91d1-c02f63e5cf40": {
       "session_id": "20d21bef-ade2-4500-91d1-c02f63e5cf40",
@@ -7659,7 +7661,9 @@
       "last_event_at": "2026-03-24T19:23:01.378085+00:00",
       "event_count": 18,
       "user_id": "carol.chen",
-      "provider": "google"
+      "provider": "google",
+      "flagged_for_support_at": "2026-04-12T13:48:11.823890+00:00",
+      "flag_note": "We re-read the conversation: Carol was researching dependency licenses for our compliance audit. 'Non-work' classification is incorrect \u2014 this should be 'useful'. Suggests the model isn't recognizing legal/compliance research as work."
     },
     "b99ab0d1-b15d-4eb5-b1dc-ca7711a7327d": {
       "session_id": "b99ab0d1-b15d-4eb5-b1dc-ca7711a7327d",
@@ -64135,7 +64139,9 @@
         "e80a381f-3fa0-44c8-a66e-56c00bfb4e21",
         "508d67bb-3416-4acf-9466-233d924c35b1",
         "7fe8584d-4689-45f5-bdf9-f19cfcc3e12f"
-      ]
+      ],
+      "flagged_for_support_at": "2026-04-13T13:48:11.823890+00:00",
+      "flag_note": "Frank is on a working group helping our ML team integrate a new evaluation dashboard \u2014 these aren't 'cross-department interest', they're scoped collaboration. Please review how the classifier distinguishes ad-hoc curiosity from sanctioned work."
     },
     "47d8704b-86aa-4e91-b798-c6c700364f92": {
       "insight_id": "47d8704b-86aa-4e91-b798-c6c700364f92",

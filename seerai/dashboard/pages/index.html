@@ -3,48 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>seerai</title>
+    <title>seerai — support review</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
-    <script>/* prevent FOUC */ if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
+    <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
     <script src="/static/nav.js" defer></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Users</h1>
-        <p class="text-gray-500 dark:text-gray-400 mb-6">All observed LLM chat users</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">Support Review Queue</h1>
+        <p class="text-gray-500 dark:text-gray-400 mb-2 text-sm">
+            Items customer companies have explicitly flagged for seer.ai review.
+        </p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mb-6 italic">
+            Platform staff can only see flagged items — never raw user data, sessions, or insights from any company.
+        </p>
         <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
     <script>
-        fetch('/api/users')
-            .then(r => r.json())
-            .then(users => {
+        function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+        function fmtDate(iso) {
+            return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function waitForReady() {
+            return (window.seerai && window.seerai.ready)
+                ? window.seerai.ready
+                : new Promise(r => setTimeout(() => r(waitForReady()), 50));
+        }
+
+        const KIND_LABEL = {
+            cross_department_interest: 'Cross-department',
+            above_paygrade: 'Above paygrade',
+            below_paygrade: 'Below paygrade',
+        };
+
+        function renderInsightCard(ins, companyMap) {
+            const company = companyMap[ins.user_id] || 'unknown';
+            const brand = window.seerai.COMPANY_BRANDS[company];
+            const companyBadge = brand
+                ? '<span class="inline-flex items-center gap-1.5 text-xs"><span class="w-4 h-4 rounded-full inline-flex items-center justify-center text-white font-bold text-[0.6rem]" style="background:' + brand.color + '">' + brand.initial + '</span>' + esc(brand.name) + '</span>'
+                : '<span class="text-xs text-gray-400">' + esc(company) + '</span>';
+            return `
+            <div class="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50/50 dark:bg-amber-900/10 p-5 mb-3">
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <div class="flex items-center gap-2">
+                        ${companyBadge}
+                        <span class="text-gray-300 dark:text-gray-600">·</span>
+                        <span class="px-1.5 py-0.5 rounded text-[0.65rem] font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">Insight</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">${KIND_LABEL[ins.kind] || ins.kind}</span>
+                    </div>
+                    <span class="text-xs text-gray-400">flagged ${fmtDate(ins.flagged_for_support_at)}</span>
+                </div>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">${esc(ins.title)}</h3>
+                <p class="text-sm text-gray-700 dark:text-gray-300 mb-3 leading-relaxed">${esc(ins.description)}</p>
+                ${ins.flag_note ? `
+                <div class="rounded-lg border border-amber-300 dark:border-amber-700/50 bg-white dark:bg-gray-900/60 p-3 mb-3">
+                    <div class="text-[0.65rem] uppercase tracking-wider text-amber-700 dark:text-amber-400 font-semibold mb-1">Customer feedback</div>
+                    <p class="text-sm text-gray-800 dark:text-gray-200">${esc(ins.flag_note)}</p>
+                </div>` : ''}
+                <div class="text-xs text-gray-400">
+                    Subject: <span class="font-mono">${esc(ins.user_id)}</span>
+                </div>
+            </div>`;
+        }
+
+        function renderSessionCard(sess, companyMap) {
+            const company = companyMap[sess.user_id] || 'unknown';
+            const brand = window.seerai.COMPANY_BRANDS[company];
+            const companyBadge = brand
+                ? '<span class="inline-flex items-center gap-1.5 text-xs"><span class="w-4 h-4 rounded-full inline-flex items-center justify-center text-white font-bold text-[0.6rem]" style="background:' + brand.color + '">' + brand.initial + '</span>' + esc(brand.name) + '</span>'
+                : '<span class="text-xs text-gray-400">' + esc(company) + '</span>';
+            const utility = sess.utility
+                ? '<span class="text-xs text-gray-500 dark:text-gray-400">classified as <span class="font-medium">' + esc(sess.utility) + '</span></span>'
+                : '';
+            return `
+            <div class="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50/50 dark:bg-amber-900/10 p-5 mb-3">
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <div class="flex items-center gap-2">
+                        ${companyBadge}
+                        <span class="text-gray-300 dark:text-gray-600">·</span>
+                        <span class="px-1.5 py-0.5 rounded text-[0.65rem] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Conversation</span>
+                        ${utility}
+                    </div>
+                    <span class="text-xs text-gray-400">flagged ${fmtDate(sess.flagged_for_support_at)}</span>
+                </div>
+                ${sess.flag_note ? `
+                <div class="rounded-lg border border-amber-300 dark:border-amber-700/50 bg-white dark:bg-gray-900/60 p-3 mb-3">
+                    <div class="text-[0.65rem] uppercase tracking-wider text-amber-700 dark:text-amber-400 font-semibold mb-1">Customer feedback</div>
+                    <p class="text-sm text-gray-800 dark:text-gray-200">${esc(sess.flag_note)}</p>
+                </div>` : ''}
+                <div class="flex items-center justify-between text-xs text-gray-400">
+                    <span>Subject: <span class="font-mono">${esc(sess.user_id)}</span></span>
+                    <a href="/session/${encodeURIComponent(sess.user_id)}/${encodeURIComponent(sess.session_id)}"
+                       class="text-blue-600 dark:text-blue-400 hover:underline">View conversation &rarr;</a>
+                </div>
+            </div>`;
+        }
+
+        waitForReady().then(() => {
+            const user = window.seerai.getCurrentUser();
+            if (!user || user.role !== 'admin') return;
+
+            return Promise.all([
+                fetch('/api/insights?flagged=true').then(r => r.json()),
+                fetch('/api/sessions/flagged').then(r => r.json()),
+                fetch('/api/users').then(r => r.json()),
+            ]).then(([insights, sessions, users]) => {
+                const companyMap = {};
+                for (const u of users) {
+                    companyMap[u.user_id] = window.seerai.getUserCompany(u.user_id);
+                }
+
                 const el = document.getElementById('content');
-                if (!users.length) {
-                    el.innerHTML = '<p class="text-gray-400 text-center py-8">No users yet. POST events to /api/ingest to get started.</p>';
+                if (!insights.length && !sessions.length) {
+                    el.innerHTML = '<p class="text-gray-400 text-center py-8">Nothing flagged for review.</p>';
                     return;
                 }
-                let html = `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
-                    <table class="w-full text-sm">
-                    <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">User</th>
-                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
-                    </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
-                for (const u of users) {
-                    const t = new Date(u.last_active).toLocaleString();
-                    html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                        <td class="px-4 py-2.5"><a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a></td>
-                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">${t}</td>
-                    </tr>`;
-                }
-                html += '</tbody></table></div>';
-                el.innerHTML = html;
-            })
-            .catch(e => {
-                document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error loading users: ' + e.message + '</p>';
-            });
 
-        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+                let html = '';
+                if (insights.length) {
+                    html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Flagged insights (' + insights.length + ')</h2>';
+                    html += insights.map(i => renderInsightCard(i, companyMap)).join('');
+                }
+                if (sessions.length) {
+                    html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 mt-6">Flagged conversations (' + sessions.length + ')</h2>';
+                    html += sessions.map(s => renderSessionCard(s, companyMap)).join('');
+                }
+                el.innerHTML = html;
+            });
+        }).catch(e => {
+            document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + esc(e.message) + '</p>';
+        });
     </script>
 </body>
 </html>

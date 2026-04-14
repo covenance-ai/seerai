@@ -21,8 +21,21 @@ from seerai.firestore_model import FirestoreModel
 
 EventType = Literal["user_message", "ai_message", "error"]
 UserRole = Literal["admin", "exec", "user"]
-UtilityClass = Literal["non_work", "trivial", "useful"]
-InsightKind = Literal["cross_department_interest", "above_paygrade", "below_paygrade"]
+# Utility classes:
+#   non_work: off-topic chats, casual queries
+#   trivial:  small lookups / drafting (low time savings)
+#   useful:   substantive, time-saving sessions
+#   harmful:  AI hurt productivity (hallucinated, sent user down wrong path,
+#             produced confidently-wrong code that had to be reverted, etc.).
+#             Only assigned by the post-hoc QA pipeline (stronger model + user
+#             feedback) — the cheap ingest classifier never emits "harmful".
+UtilityClass = Literal["non_work", "trivial", "useful", "harmful"]
+InsightKind = Literal[
+    "cross_department_interest",
+    "above_paygrade",
+    "below_paygrade",
+    "negative_roi_pattern",
+]
 
 
 class OrgNode(FirestoreModel):
@@ -67,6 +80,12 @@ class Session(FirestoreModel):
     platform: str | None = None
     utility: UtilityClass | None = None
     token_usage: dict[str, int] | None = None  # {model_name: total_output_tokens}
+    flagged_for_support_at: datetime | None = None  # set by exec to share with seer.ai support
+    flag_note: str | None = None  # exec's reason for flagging (e.g. wrong AI analysis)
+    # QA pipeline metadata: set when the stronger model / user feedback
+    # post-processes a session and overrides the ingest-time utility.
+    utility_qa_reviewed_at: datetime | None = None
+    utility_qa_note: str | None = None  # short reason for the override
 
     @classmethod
     def parent_path(cls, user_id: str) -> str:
@@ -123,6 +142,9 @@ class Insight(FirestoreModel):
     org_id: str  # user's department
     target_org_id: str | None = None  # for cross_department_interest
     evidence_session_ids: list[str]
+    dismissed_at: datetime | None = None  # None = active; set when user archives
+    flagged_for_support_at: datetime | None = None  # exec flagged for seer.ai review
+    flag_note: str | None = None  # reason: typically "wrong AI analysis" feedback
 
 
 class Subscription(FirestoreModel):

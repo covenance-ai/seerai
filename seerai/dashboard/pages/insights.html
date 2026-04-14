@@ -8,6 +8,10 @@
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
     <script src="/static/nav.js" defer></script>
+    <style>
+        .insight-card { transition: opacity 200ms ease, transform 200ms ease; }
+        .insight-card.removing { opacity: 0; transform: translateX(8px); pointer-events: none; }
+    </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
     <div class="max-w-4xl mx-auto px-4 py-8">
@@ -17,10 +21,16 @@
             <span class="text-gray-700 dark:text-gray-300">insights</span>
         </p>
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">AI Insights</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Patterns detected across employee AI usage — cross-department interest, paygrade alignment.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Patterns detected across employee AI usage — cross-department interest, paygrade alignment.</p>
 
-        <!-- Filter bar -->
-        <div class="flex items-center gap-3 mb-6" id="filters">
+        <!-- Active / Archived tabs -->
+        <div id="tabs" class="flex items-center gap-1 border-b border-gray-200 dark:border-gray-800 mb-4"></div>
+
+        <!-- Applied user/org filter pills -->
+        <div id="applied-filters" class="mb-3"></div>
+
+        <!-- Kind filter chips -->
+        <div class="flex items-center gap-2 mb-5 flex-wrap" id="filters">
             <button data-filter="all" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors">All</button>
             <button data-filter="cross_department_interest" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors">Cross-department</button>
             <button data-filter="above_paygrade" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors">Above paygrade</button>
@@ -29,6 +39,7 @@
 
         <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
+
     <script>
         const KIND_STYLES = {
             cross_department_interest: {
@@ -62,11 +73,43 @@
             5: { label: 'Info', cls: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' },
         };
 
-        let allInsights = [];
-        let activeFilter = 'all';
+        let currentInsights = [];
+        let activeKindFilter = 'all';
         let orgNames = {};
+        let activeCount = 0;
+        let archivedCount = 0;
 
-        // Load org names for display
+        function getParams() {
+            const p = new URLSearchParams(window.location.search);
+            return {
+                user_id: p.get('user_id') || null,
+                org_id: p.get('org_id') || null,
+                archived: p.get('archived') === 'true' || p.get('archived') === '1',
+            };
+        }
+
+        function setParams(updates) {
+            const p = new URLSearchParams(window.location.search);
+            for (const [k, v] of Object.entries(updates)) {
+                if (v === null || v === false || v === '') p.delete(k);
+                else p.set(k, v === true ? 'true' : v);
+            }
+            const qs = p.toString();
+            history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+        }
+
+        function buildBackendQuery(overrides) {
+            // Builds query string for /api/insights using current URL params, with overrides.
+            const params = getParams();
+            const q = new URLSearchParams();
+            const merged = { user_id: params.user_id, org_id: params.org_id, archived: params.archived };
+            if (overrides) Object.assign(merged, overrides);
+            if (merged.user_id) q.set('user_id', merged.user_id);
+            if (merged.org_id) q.set('org_id', merged.org_id);
+            if (merged.archived) q.set('archived', 'true');
+            return q.toString();
+        }
+
         async function loadOrgNames() {
             const roots = await fetch('/api/orgs').then(r => r.json());
             const trees = await Promise.all(
@@ -79,10 +122,87 @@
             trees.forEach(walk);
         }
 
-        function renderInsights(insights) {
+        async function loadAll() {
+            // Fetch active + archived in parallel; tab counts always reflect both
+            // for the current user/org filter.
+            const [active, archived] = await Promise.all([
+                fetch('/api/insights?' + buildBackendQuery({ archived: false })).then(r => r.ok ? r.json() : []),
+                fetch('/api/insights?' + buildBackendQuery({ archived: true })).then(r => r.ok ? r.json() : []),
+            ]);
+            activeCount = active.length;
+            archivedCount = archived.length;
+            currentInsights = getParams().archived ? archived : active;
+        }
+
+        function renderTabs() {
+            const archived = getParams().archived;
+            const tabCls = (active) => 'px-3 py-2 -mb-px text-sm font-medium border-b-2 cursor-pointer transition-colors '
+                + (active
+                    ? 'border-blue-500 text-gray-900 dark:text-white'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200');
+
+            document.getElementById('tabs').innerHTML = `
+                <button data-tab="active" class="${tabCls(!archived)}">
+                    Active <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">${activeCount}</span>
+                </button>
+                <button data-tab="archived" class="${tabCls(archived)}">
+                    Archived <span class="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">${archivedCount}</span>
+                </button>
+            `;
+            document.querySelectorAll('[data-tab]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    setParams({ archived: btn.dataset.tab === 'archived' });
+                    await refreshAll();
+                });
+            });
+        }
+
+        function renderAppliedFilters() {
+            const params = getParams();
+            const pills = [];
+            if (params.user_id) pills.push({ label: 'User', value: params.user_id, key: 'user_id' });
+            if (params.org_id) pills.push({ label: 'Org', value: orgNames[params.org_id] || params.org_id, key: 'org_id' });
+
+            const el = document.getElementById('applied-filters');
+            if (!pills.length) { el.innerHTML = ''; return; }
+
+            el.innerHTML = '<div class="flex flex-wrap gap-1.5">' + pills.map(p => `
+                <span class="inline-flex items-center gap-1.5 pl-2 pr-1 py-1 rounded-md text-xs font-medium bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                    <span class="text-blue-500 dark:text-blue-400">${p.label}:</span>
+                    <span>${esc(p.value)}</span>
+                    <button data-clear="${p.key}" class="ml-0.5 p-0.5 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40 cursor-pointer" title="Clear filter">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </span>
+            `).join('') + '</div>';
+
+            el.querySelectorAll('[data-clear]').forEach(b => {
+                b.addEventListener('click', async () => {
+                    setParams({ [b.dataset.clear]: null });
+                    await refreshAll();
+                });
+            });
+        }
+
+        function renderInsights() {
+            const filter = activeKindFilter;
+            const insights = filter === 'all'
+                ? currentInsights
+                : currentInsights.filter(i => i.kind === filter);
+
+            const archived = getParams().archived;
             const container = document.getElementById('content');
+
             if (!insights.length) {
-                container.innerHTML = '<p class="text-gray-400 text-center py-8">No insights found.</p>';
+                let msg;
+                if (currentInsights.length === 0) {
+                    msg = archived
+                        ? 'No archived insights yet. Dismissed ones land here.'
+                        : 'No active insights match these filters.';
+                } else {
+                    msg = 'No insights of this kind. Try a different filter.';
+                }
+                container.innerHTML = '<div class="text-center py-12 rounded-xl border border-dashed border-gray-200 dark:border-gray-800"><p class="text-gray-400 text-sm">' + msg + '</p></div>';
                 return;
             }
 
@@ -93,46 +213,134 @@
                 const date = new Date(ins.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 const deptName = orgNames[ins.org_id] || ins.org_id;
                 const targetName = ins.target_org_id ? (orgNames[ins.target_org_id] || ins.target_org_id) : null;
+                const dismissedDate = ins.dismissed_at
+                    ? new Date(ins.dismissed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    : null;
 
-                // Evidence links
-                const evidenceLinks = ins.evidence_session_ids.map(sid => {
+                const evidenceLinks = (ins.evidence_session_ids || []).map(sid => {
                     const short = sid.slice(0, 8);
                     return `<a href="/session/${encodeURIComponent(ins.user_id)}/${encodeURIComponent(sid)}" class="text-blue-600 dark:text-blue-400 hover:underline text-xs">${short}</a>`;
                 }).join(', ');
 
+                const isFlagged = !!ins.flagged_for_support_at;
+                const flagBtn = isFlagged
+                    ? `<button data-action="unflag" data-id="${esc(ins.insight_id)}" title="Withdraw support flag" class="p-1.5 rounded-md text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors cursor-pointer">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>
+                       </button>`
+                    : `<button data-action="flag" data-id="${esc(ins.insight_id)}" title="Flag for seer.ai support review" class="p-1.5 rounded-md text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-colors cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 2H21l-3 6 3 6h-8.5l-1-2H5a2 2 0 00-2 2zm9-13.5V9"/></svg>
+                       </button>`;
+
+                const dismissBtn = archived
+                    ? `<button data-action="restore" data-id="${esc(ins.insight_id)}" title="Restore to active" class="p-1.5 rounded-md text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg>
+                       </button>`
+                    : `<button data-action="dismiss" data-id="${esc(ins.insight_id)}" title="Dismiss / archive" class="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                       </button>`;
+                const actionBtn = flagBtn + dismissBtn;
+
+                const userFilterHref = '/exec/insights?user_id=' + encodeURIComponent(ins.user_id);
+                const orgFilterHref = '/exec/insights?org_id=' + encodeURIComponent(ins.org_id);
+                const targetFilterHref = ins.target_org_id ? '/exec/insights?org_id=' + encodeURIComponent(ins.target_org_id) : '';
+
                 html += `
-                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-900 p-5 mb-3 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" data-kind="${ins.kind}">
+                <div data-insight-id="${esc(ins.insight_id)}" class="insight-card rounded-xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-900 p-5 mb-3 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" data-kind="${ins.kind}">
                     <div class="flex items-start justify-between gap-3 mb-3">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${kind.bg} ${kind.text}">
                                 ${kind.icon} ${kind.label}
                             </span>
                             <span class="px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${prio.cls}">P${ins.priority}</span>
-                            ${targetName ? `<span class="text-xs text-gray-400"><span class="mx-1">&rarr;</span>${esc(targetName)}</span>` : ''}
+                            ${targetName ? `<a href="${targetFilterHref}" title="Filter to ${esc(targetName)}" class="text-xs text-gray-400 hover:text-purple-600 dark:hover:text-purple-300 hover:underline"><span class="mx-1">&rarr;</span>${esc(targetName)}</a>` : ''}
                         </div>
-                        <span class="text-xs text-gray-400 whitespace-nowrap">${date}</span>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="text-xs text-gray-400 whitespace-nowrap" title="Created ${date}${dismissedDate ? ' · Archived ' + dismissedDate : ''}">${dismissedDate || date}</span>
+                            ${actionBtn}
+                        </div>
                     </div>
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">${esc(ins.title)}</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">${esc(ins.description)}</p>
-                    <div class="flex items-center gap-4 text-xs">
-                        <span class="text-gray-500 dark:text-gray-400">
+                    ${isFlagged ? `
+                    <div class="rounded-lg border border-amber-300 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 mb-3">
+                        <div class="text-[0.65rem] uppercase tracking-wider text-amber-700 dark:text-amber-400 font-semibold mb-0.5">Flagged for seer.ai support</div>
+                        ${ins.flag_note ? `<p class="text-xs text-amber-900 dark:text-amber-100">${esc(ins.flag_note)}</p>` : ''}
+                    </div>` : ''}
+                    <div class="flex items-center gap-3 text-xs flex-wrap">
+                        <span class="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400">
                             <a href="/sessions/${encodeURIComponent(ins.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">${esc(ins.user_id)}</a>
-                            <span class="text-gray-400 mx-1">&middot;</span>
-                            <a href="/exec/${encodeURIComponent(ins.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(deptName)}</a>
+                            <a href="${userFilterHref}" title="See all insights for this user" class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-0.5 rounded">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                            </a>
                         </span>
-                        <span class="text-gray-400">Evidence: ${evidenceLinks}</span>
+                        <span class="text-gray-300 dark:text-gray-700">&middot;</span>
+                        <span class="inline-flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                            <a href="/exec/${encodeURIComponent(ins.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(deptName)}</a>
+                            <a href="${orgFilterHref}" title="See all insights for this org" class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-0.5 rounded">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                            </a>
+                        </span>
+                        ${evidenceLinks ? `<span class="text-gray-300 dark:text-gray-700">&middot;</span><span class="text-gray-400">Evidence: ${evidenceLinks}</span>` : ''}
                     </div>
                 </div>`;
             }
             container.innerHTML = html;
+
+            container.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', () => mutateInsight(btn.dataset.id, btn.dataset.action));
+            });
+        }
+
+        async function mutateInsight(id, action) {
+            // For 'flag', collect a note from the user; other actions are no-body.
+            let body = null;
+            if (action === 'flag') {
+                const note = window.prompt(
+                    "Flag this insight for seer.ai support review.\nWhat's wrong with the analysis? (optional)",
+                    ''
+                );
+                if (note === null) return;  // user cancelled
+                body = JSON.stringify({ note: note || null });
+            }
+
+            // 'flag'/'unflag' update the card in place; 'dismiss'/'restore' remove it from view.
+            const card = document.querySelector('[data-insight-id="' + CSS.escape(id) + '"]');
+            const isVisualRemoval = action === 'dismiss' || action === 'restore';
+            if (card && isVisualRemoval) card.classList.add('removing');
+
+            try {
+                const res = await fetch('/api/insights/' + encodeURIComponent(id) + '/' + action, {
+                    method: 'POST',
+                    headers: body ? { 'Content-Type': 'application/json' } : {},
+                    body: body,
+                });
+                if (!res.ok) throw new Error(String(res.status));
+            } catch (e) {
+                if (card && isVisualRemoval) card.classList.remove('removing');
+                alert('Failed to ' + action + ': ' + e.message);
+                return;
+            }
+
+            setTimeout(refreshAll, isVisualRemoval ? 200 : 0);
+        }
+
+        async function refreshAll() {
+            try {
+                await loadAll();
+            } catch (e) {
+                document.getElementById('content').innerHTML =
+                    '<p class="text-red-400 text-center py-8">Error: ' + esc(e.message) + '</p>';
+                return;
+            }
+            renderTabs();
+            renderAppliedFilters();
+            applyFilter(activeKindFilter);
         }
 
         function applyFilter(filter) {
-            activeFilter = filter;
-            const filtered = filter === 'all' ? allInsights : allInsights.filter(i => i.kind === filter);
-            renderInsights(filtered);
+            activeKindFilter = filter;
+            renderInsights();
 
-            // Update filter button styles
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 const isActive = btn.dataset.filter === filter;
                 btn.className = 'filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors '
@@ -142,23 +350,18 @@
             });
         }
 
-        // Wire up filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
         });
 
-        // Load data
-        Promise.all([
-            fetch('/api/insights').then(r => r.json()),
-            loadOrgNames(),
-        ]).then(([insights]) => {
-            allInsights = insights;
-            applyFilter('all');
-        }).catch(e => {
-            document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
-        });
+        loadOrgNames()
+            .then(refreshAll)
+            .catch(e => {
+                document.getElementById('content').innerHTML =
+                    '<p class="text-red-400 text-center py-8">Error: ' + esc(e.message) + '</p>';
+            });
 
-        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
     </script>
 </body>
 </html>
