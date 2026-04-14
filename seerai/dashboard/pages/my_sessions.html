@@ -131,10 +131,7 @@
                 const hrs = val > 0 ? (Math.log2(Math.max(s.event_count,1)) * (UTILITY_HOURS[s.utility]||0)) : 0;
                 const valTitle = val > 0 ? `${hrs.toFixed(1)}hr saved × $${hourlyRate.toFixed(0)}/hr = $${val.toFixed(0)}` : '';
                 html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                    <td class="px-4 py-2.5">${s.event_count > 0
-                        ? `<a href="/my/${encodeURIComponent(userId)}/${encodeURIComponent(s.session_id)}" class="text-blue-600 dark:text-blue-400 hover:underline font-mono text-xs" title="${esc(s.session_id)}">${esc(shortId)}</a>`
-                        : `<span class="font-mono text-xs text-gray-400" title="${esc(s.session_id)}">${esc(shortId)}</span>`
-                    }</td>
+                    <td class="px-4 py-2.5"><a href="/my/${encodeURIComponent(userId)}/${encodeURIComponent(s.session_id)}" class="text-blue-600 dark:text-blue-400 hover:underline font-mono text-xs" title="${esc(s.session_id)}">${esc(shortId)}</a></td>
                     <td class="px-4 py-2.5">${providerBadge(s.provider)}</td>
                     <td class="px-4 py-2.5">${platformBadge(s.platform)}</td>
                     <td class="px-4 py-2.5 text-center text-gray-600 dark:text-gray-400">${s.event_count}</td>

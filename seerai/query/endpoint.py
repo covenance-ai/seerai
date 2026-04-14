@@ -60,6 +60,13 @@ def get_session(user_id: str, session_id: str) -> SessionDetail:
 
     events = Event.for_session(user_id, session_id)
 
+    # Fall back to archetype events for empty mock sessions
+    if not events:
+        from seerai.archetypes import match_archetype
+
+        ref_uid, ref_sid = match_archetype(session.provider, session.utility)
+        events = Event.for_session(ref_uid, ref_sid)
+
     return SessionDetail(
         session_id=session_id,
         user_id=user_id,
