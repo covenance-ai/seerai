@@ -9,6 +9,8 @@ uvicorn main:app --reload          # local dev server (auto-detects local data)
 pytest                             # run tests
 ruff check . && ruff format .      # lint
 python -m seerai.snapshot          # download Firestore → data/snapshot.json
+python -m seerai.plausibility      # check local data plausibility
+python -m seerai.plausibility --fix # normalize violations in-place
 ```
 
 ## Architecture
