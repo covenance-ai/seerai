@@ -23,11 +23,21 @@ def _default(obj):
     raise TypeError(f"Not JSON serializable: {type(obj)}")
 
 
+def _firestore_client():
+    """Always returns a real Firestore client, ignoring DATA_SOURCE setting."""
+    import os
+
+    from google.cloud.firestore import Client
+
+    return Client(
+        project=os.getenv("GCP_PROJECT", "covenance-469421"),
+        database=os.getenv("FIRESTORE_DATABASE", "seerai"),
+    )
+
+
 def download(output: Path) -> dict[str, int]:
     """Download all Firestore collections to a JSON file. Returns collection counts."""
-    from seerai.firestore_client import get_firestore_client
-
-    db = get_firestore_client()
+    db = _firestore_client()
     data: dict[str, dict] = {}
     counts: dict[str, int] = {}
 

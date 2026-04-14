@@ -7,6 +7,26 @@
     const USER_KEY = 'seerai_user';
     const THEME_KEY = 'seerai_theme';
 
+    // --- Data source ---
+    let _dsInfo = null;
+
+    function fetchDatasource() {
+        return fetch('/api/datasource').then(r => r.json()).then(info => { _dsInfo = info; return info; });
+    }
+
+    function switchDatasource(source) {
+        return fetch('/api/datasource', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({source: source, local_available: false}),
+        }).then(r => r.json()).then(info => { _dsInfo = info; return info; });
+    }
+
+    function downloadSnapshot() {
+        return fetch('/api/datasource/download', {method: 'POST'}).then(r => r.json());
+    }
+
+    fetchDatasource().then(() => renderNav());
+
     // --- Theme ---
     function getTheme() {
         return localStorage.getItem(THEME_KEY)
@@ -91,19 +111,102 @@
             }
         </button>`;
 
+        // Data source indicator
+        const ds = _dsInfo;
+        const dsLabel = ds ? ds.source : '...';
+        const dsColor = dsLabel === 'local'
+            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+            : 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
+        const dsBtn = `<button id="seerai-ds-btn" class="relative text-[0.65rem] px-2 py-1 rounded font-semibold uppercase cursor-pointer transition-colors ${dsColor}" title="Data source: ${dsLabel}">${dsLabel}</button>`;
+
         nav.innerHTML = `
             <a href="/" class="font-semibold text-gray-900 dark:text-white text-base mr-2">seerai</a>
             <div class="flex gap-3 flex-1">${links}</div>
             ${themeBtn}
+            ${dsBtn}
             ${userBtn}
         `;
 
+        document.getElementById('seerai-ds-btn').addEventListener('click', openDatasourceMenu);
         document.getElementById('seerai-user-btn').addEventListener('click', openSwitcher);
         document.getElementById('seerai-theme-btn').addEventListener('click', () => {
             const next = getTheme() === 'dark' ? 'light' : 'dark';
             applyTheme(next);
             renderNav();
         });
+    }
+
+    // --- Data source menu ---
+    function openDatasourceMenu() {
+        // Close any existing menu
+        const old = document.getElementById('seerai-ds-menu');
+        if (old) { old.remove(); return; }
+
+        const btn = document.getElementById('seerai-ds-btn');
+        const rect = btn.getBoundingClientRect();
+
+        const menu = document.createElement('div');
+        menu.id = 'seerai-ds-menu';
+        menu.className = 'fixed z-[2000] w-48 rounded-lg border shadow-xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-sm overflow-hidden';
+        menu.style.top = (rect.bottom + 6) + 'px';
+        menu.style.right = (window.innerWidth - rect.right) + 'px';
+
+        const ds = _dsInfo || { source: 'firestore', local_available: false };
+        const items = [
+            { id: 'local', label: 'Local', desc: ds.local_available ? 'From snapshot' : 'Not downloaded' },
+            { id: 'firestore', label: 'Firestore', desc: 'Live database' },
+        ];
+
+        let html = '';
+        for (const item of items) {
+            const active = ds.source === item.id;
+            const bg = active ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50';
+            const check = active ? '<span class="text-blue-500">&#10003;</span>' : '<span class="w-3"></span>';
+            html += `<div class="flex items-center gap-2 px-3 py-2.5 cursor-pointer ${bg}" data-ds="${item.id}">
+                ${check}
+                <div><div class="font-medium text-gray-800 dark:text-gray-200">${item.label}</div>
+                <div class="text-xs text-gray-400">${item.desc}</div></div>
+            </div>`;
+        }
+        menu.innerHTML = html;
+        document.body.appendChild(menu);
+
+        menu.querySelectorAll('[data-ds]').forEach(el => {
+            el.addEventListener('click', () => {
+                const target = el.dataset.ds;
+                menu.remove();
+                if (target === ds.source) return;
+
+                if (target === 'local' && !ds.local_available) {
+                    // Trigger download
+                    const btn = document.getElementById('seerai-ds-btn');
+                    btn.textContent = '...';
+                    btn.title = 'Downloading snapshot...';
+                    downloadSnapshot().then(result => {
+                        _dsInfo = { source: 'local', local_available: true };
+                        renderNav();
+                        window.location.reload();
+                    }).catch(err => {
+                        btn.textContent = 'ERR';
+                        btn.title = 'Download failed: ' + err.message;
+                    });
+                } else {
+                    switchDatasource(target).then(() => {
+                        renderNav();
+                        window.location.reload();
+                    });
+                }
+            });
+        });
+
+        // Close on outside click
+        const closeMenu = (e) => {
+            if (!menu.contains(e.target) && e.target !== btn) {
+                menu.remove();
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        setTimeout(() => document.addEventListener('click', closeMenu), 0);
     }
 
     // --- Switcher modal ---
