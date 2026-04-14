@@ -234,7 +234,7 @@ def create_users_and_data():
             for session_start in session_starts:
                 total_sessions += 1
                 session_id = str(uuid.uuid4())
-                num_events = random.randint(4, 20)
+                num_events = random.randrange(4, 21, 2)  # always even → ends on ai_message
                 event_count = 0
                 error_count = 0
 
@@ -255,14 +255,15 @@ def create_users_and_data():
                     event_count += 1
                     event_id = str(uuid.uuid4())
 
-                    # ~5% error rate, otherwise alternate user/ai
-                    if random.random() < 0.05:
+                    # Alternate user/ai, with ~5% errors on AI turns (never first/last)
+                    is_user_turn = j % 2 == 0
+                    if is_user_turn:
+                        event_type = "user_message"
+                        content = random.choice(USER_MESSAGES)
+                    elif 0 < j < num_events - 1 and random.random() < 0.10:
                         event_type = "error"
                         content = random.choice(ERROR_MESSAGES)
                         error_count += 1
-                    elif j % 2 == 0:
-                        event_type = "user_message"
-                        content = random.choice(USER_MESSAGES)
                     else:
                         event_type = "ai_message"
                         content = random.choice(AI_RESPONSES)
