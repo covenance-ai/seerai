@@ -2,7 +2,12 @@
 
 Compares flat-rate subscription costs against:
 1. API-equivalent costs computed from actual token usage
-2. Estimated value generated, using: hourly_rate × log2(session_size) × utility_score
+2. Estimated hours saved, converted to dollar value via hourly_rate
+
+Estimated hours saved per session = log2(event_count) × hours_factor
+  - useful:  hours_factor = 0.25  (2 events ≈ 15 min, 64 events ≈ 1.5 hr)
+  - trivial: hours_factor = 0.05  (2 events ≈ 3 min, 64 events ≈ 18 min)
+  - non_work: 0
 """
 
 import math
@@ -16,20 +21,21 @@ from seerai.pricing import token_cost
 
 router = APIRouter(tags=["cost"])
 
-UTILITY_SCORES = {"non_work": 0, "trivial": 1, "useful": 5}
+# Maps utility class to estimated hours-saved per unit of log2(events).
+UTILITY_HOURS_FACTOR = {"non_work": 0.0, "trivial": 0.05, "useful": 0.25}
 
 
 def session_value(hourly_rate: float, event_count: int, utility: str | None) -> float:
-    """Estimated value of a session to the company.
+    """Estimated dollar value of a session = hourly_rate × hours_saved.
 
-    Formula: hourly_rate × log2(event_count) × utility_score
+    hours_saved = log2(event_count) × hours_factor(utility)
     """
-    if not utility or utility not in UTILITY_SCORES:
+    if not utility or utility not in UTILITY_HOURS_FACTOR:
         return 0.0
-    score = UTILITY_SCORES[utility]
-    if score == 0 or event_count < 1:
+    factor = UTILITY_HOURS_FACTOR[utility]
+    if factor == 0 or event_count < 1:
         return 0.0
-    return hourly_rate * math.log2(max(event_count, 1)) * score
+    return hourly_rate * math.log2(max(event_count, 1)) * factor
 
 
 class ModelUsage(BaseModel):

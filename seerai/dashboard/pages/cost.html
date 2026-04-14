@@ -161,14 +161,14 @@
                     </div>
                     <div>
                         <span class="font-medium text-gray-800 dark:text-gray-200">Estimated Value</span> per session =
-                        <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">hourly_rate &times; log<sub>2</sub>(session_size) &times; utility_score</code><br>
+                        <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">hourly_rate &times; hours_saved</code>, where
+                        <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">hours_saved = log<sub>2</sub>(events) &times; hours_factor</code><br>
                         <span class="font-medium">hourly_rate</span>: employee paygrade ($/hr), proxy for the cost of their time.<br>
-                        <span class="font-medium">session_size</span>: number of messages in the conversation. Log scale reflects diminishing returns &mdash; a 64-message session isn't 8&times; more valuable than an 8-message one.<br>
-                        <span class="font-medium">utility_score</span>: work impact classification &mdash;
+                        <span class="font-medium">hours_factor</span>: estimated time saved per unit of log<sub>2</sub>(events) &mdash;
                         <span class="text-gray-400">non-work = 0</span>,
-                        <span class="text-blue-500">trivial = 1</span>,
-                        <span class="text-emerald-500">useful = 5</span>.
-                        Non-work sessions contribute zero value. Useful sessions are weighted 5&times; more than trivial ones.
+                        <span class="text-blue-500">trivial = 0.05</span>,
+                        <span class="text-emerald-500">useful = 0.25</span>.<br>
+                        Example: a useful 2-message session &asymp; 15 min saved; a useful 64-message session &asymp; 1.5 hr saved.
                     </div>
                     <div>
                         <span class="font-medium text-gray-800 dark:text-gray-200">ROI</span> =

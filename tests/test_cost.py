@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from seerai.cost.endpoint import UTILITY_SCORES, session_value
+from seerai.cost.endpoint import UTILITY_HOURS_FACTOR, session_value
 from seerai.entities import Subscription
 from seerai.pricing import API_PRICE_PER_TOKEN, DEFAULT_PRICE_PER_TOKEN, token_cost
 
@@ -97,7 +97,7 @@ class TestSubscriptionEntity:
 
 
 class TestSessionValue:
-    """Tests for the session_value formula: hourly_rate × log2(event_count) × utility_score."""
+    """Tests for session_value: hourly_rate × log2(events) × hours_factor."""
 
     def test_non_work_always_zero(self):
         """Non-work sessions produce zero value regardless of rate or size."""
@@ -107,7 +107,7 @@ class TestSessionValue:
         """Same session classified as useful produces more value than trivial."""
         useful = session_value(50.0, 10, "useful")
         trivial = session_value(50.0, 10, "trivial")
-        assert useful == trivial * UTILITY_SCORES["useful"] / UTILITY_SCORES["trivial"]
+        assert useful == trivial * UTILITY_HOURS_FACTOR["useful"] / UTILITY_HOURS_FACTOR["trivial"]
 
     def test_value_scales_with_rate(self):
         """Doubling hourly rate doubles value."""
@@ -123,10 +123,18 @@ class TestSessionValue:
         assert v64 == pytest.approx(v8 * 2)
 
     def test_formula_matches_direct_computation(self):
-        """Verify the formula produces hourly_rate × log2(n) × score."""
+        """Verify the formula produces hourly_rate × log2(n) × hours_factor."""
         rate, n, utility = 75.0, 16, "useful"
-        expected = rate * math.log2(n) * UTILITY_SCORES[utility]
+        expected = rate * math.log2(n) * UTILITY_HOURS_FACTOR[utility]
         assert session_value(rate, n, utility) == pytest.approx(expected)
+
+    def test_realistic_values(self):
+        """A useful 2-event session at $100/hr ≈ $25 (15 min saved), not $500."""
+        val = session_value(100.0, 2, "useful")
+        assert val == pytest.approx(100.0 * 1.0 * 0.25)  # $25
+        # 64-event useful session at $100/hr ≈ $150 (1.5 hr saved)
+        val64 = session_value(100.0, 64, "useful")
+        assert val64 == pytest.approx(100.0 * 6.0 * 0.25)  # $150
 
     def test_none_utility_zero(self):
         """Unclassified sessions (utility=None) produce zero value."""
