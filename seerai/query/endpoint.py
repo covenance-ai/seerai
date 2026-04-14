@@ -22,7 +22,7 @@ def list_users() -> list[User]:
 
 @router.get("/users/{user_id}/sessions")
 def list_sessions(user_id: str) -> list[Session]:
-    return Session.for_user(user_id)
+    return Session.for_user(user_id, limit=0)
 
 
 @router.get("/users/{user_id}/heatmap")
