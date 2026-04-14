@@ -77,6 +77,14 @@ USERS = {
     "initech-ops": ["wendy.young", "xander.king"],
 }
 
+# Users with exec role (can see org dashboard)
+EXECS = {
+    "alice.johnson",   # Acme backend lead
+    "kate.davis",      # Acme product design lead
+    "peter.white",     # Acme sales lead
+    "tina.clark",      # Initech ML lead
+}
+
 # Realistic conversation snippets
 USER_MESSAGES = [
     "Can you explain how GDPR consent requirements work?",
@@ -213,10 +221,12 @@ def create_users_and_data():
             last_active = session_starts[-1]
 
             # Write user document
+            role = "exec" if user_id in EXECS else "user"
             DB.collection("users").document(user_id).set(
                 {
                     "user_id": user_id,
                     "org_id": org_id,
+                    "role": role,
                     "last_active": last_active,
                 }
             )

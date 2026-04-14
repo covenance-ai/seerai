@@ -1,9 +1,11 @@
 import logging
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 logging.basicConfig(level=logging.INFO)
 
@@ -41,4 +43,5 @@ app.add_middleware(
 app.include_router(ingest_router, prefix="/api")
 app.include_router(query_router, prefix="/api")
 app.include_router(org_router, prefix="/api")
+app.mount("/static", StaticFiles(directory=Path(__file__).parent / "seerai" / "static"), name="static")
 app.include_router(dashboard_router)

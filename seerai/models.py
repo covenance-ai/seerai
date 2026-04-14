@@ -4,6 +4,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 EventType = Literal["user_message", "ai_message", "error"]
+UserRole = Literal["exec", "user"]
 
 
 class IngestEvent(BaseModel):
@@ -48,6 +49,7 @@ class UserSummary(BaseModel):
     user_id: str
     last_active: datetime
     org_id: str | None = None
+    role: UserRole = "user"
 
 
 class OrgNode(BaseModel):
