@@ -95,12 +95,6 @@
                         <div class="text-xs text-gray-400 mt-0.5">ROI</div>
                     </div>
                 </div>`;
-                attachMetricTooltips({
-                    efficiency_ratio: costData.efficiency_ratio,
-                    estimated_value: costData.total_estimated_value,
-                    subscription: costData.total_monthly_subscription,
-                    roi: costData.roi,
-                });
             } else {
                 html += '<div class="mb-8"></div>';
             }
@@ -194,6 +188,14 @@
                             html += '<p class="text-gray-400 text-center py-8">No sub-organizations or users.</p>';
                         }
                         document.getElementById('content').innerHTML = html;
+                        if (costData) {
+                            attachMetricTooltips({
+                                efficiency_ratio: costData.efficiency_ratio,
+                                estimated_value: costData.total_estimated_value,
+                                subscription: costData.total_monthly_subscription,
+                                roi: costData.roi,
+                            });
+                        }
                     });
             });
         })
