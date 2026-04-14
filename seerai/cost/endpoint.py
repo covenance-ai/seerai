@@ -1,9 +1,11 @@
-"""Cost efficiency endpoints.
+"""Cost efficiency and ROI endpoints.
 
-Compares flat-rate subscription costs against API-equivalent costs
-computed from actual token usage.
+Compares flat-rate subscription costs against:
+1. API-equivalent costs computed from actual token usage
+2. Estimated value generated, using: hourly_rate × log2(session_size) × utility_score
 """
 
+import math
 from collections import defaultdict
 
 from fastapi import APIRouter, HTTPException
@@ -14,6 +16,21 @@ from seerai.pricing import token_cost
 
 router = APIRouter(tags=["cost"])
 
+UTILITY_SCORES = {"non_work": 0, "trivial": 1, "useful": 5}
+
+
+def session_value(hourly_rate: float, event_count: int, utility: str | None) -> float:
+    """Estimated value of a session to the company.
+
+    Formula: hourly_rate × log2(event_count) × utility_score
+    """
+    if not utility or utility not in UTILITY_SCORES:
+        return 0.0
+    score = UTILITY_SCORES[utility]
+    if score == 0 or event_count < 1:
+        return 0.0
+    return hourly_rate * math.log2(max(event_count, 1)) * score
+
 
 class ModelUsage(BaseModel):
     model: str
@@ -22,13 +39,25 @@ class ModelUsage(BaseModel):
     api_cost: float
 
 
+class UtilityBreakdown(BaseModel):
+    non_work: int = 0
+    trivial: int = 0
+    useful: int = 0
+    unclassified: int = 0
+
+
 class UserCost(BaseModel):
     user_id: str
     org_id: str | None
+    hourly_rate: float | None
     plans: list[str]
-    monthly_subscription: float  # dollars
-    api_equivalent: float  # dollars
-    efficiency_ratio: float | None  # api/sub, None if no subscriptions
+    monthly_subscription: float
+    api_equivalent: float
+    efficiency_ratio: float | None
+    estimated_value: float
+    roi: float | None  # value / subscription cost
+    session_count: int
+    utility_breakdown: UtilityBreakdown
     models: list[ModelUsage]
 
 
@@ -38,12 +67,15 @@ class OrgCostSummary(BaseModel):
     total_monthly_subscription: float
     total_api_equivalent: float
     efficiency_ratio: float | None
+    total_estimated_value: float
+    roi: float | None
     user_count: int
+    utility_breakdown: UtilityBreakdown
     users: list[UserCost]
 
 
-def _user_api_cost(user_id: str) -> tuple[float, list[ModelUsage]]:
-    """Sum API-equivalent cost from all AI message tokens for a user."""
+def _user_api_cost(user_id: str) -> tuple[float, list[ModelUsage], list[Session]]:
+    """Sum API-equivalent cost and return sessions for value computation."""
     sessions = Session.for_user(user_id, order_by="last_event_at", limit=0)
     by_model: dict[str, dict] = defaultdict(lambda: {"tokens": 0, "messages": 0})
 
@@ -73,27 +105,50 @@ def _user_api_cost(user_id: str) -> tuple[float, list[ModelUsage]]:
             )
         )
 
-    return total_cost, models
+    return total_cost, models, sessions
 
 
 def _user_cost(user: User, subs: list[Subscription]) -> UserCost:
     monthly_sub = sum(s.monthly_cost_cents for s in subs) / 100.0
-    api_equivalent, models = _user_api_cost(user.user_id)
-    ratio = api_equivalent / monthly_sub if monthly_sub > 0 else None
+    api_equivalent, models, sessions = _user_api_cost(user.user_id)
+    eff_ratio = api_equivalent / monthly_sub if monthly_sub > 0 else None
+
+    # Value computation
+    rate = user.hourly_rate or 0.0
+    total_value = 0.0
+    breakdown = UtilityBreakdown()
+    for s in sessions:
+        if s.utility == "non_work":
+            breakdown.non_work += 1
+        elif s.utility == "trivial":
+            breakdown.trivial += 1
+        elif s.utility == "useful":
+            breakdown.useful += 1
+        else:
+            breakdown.unclassified += 1
+        total_value += session_value(rate, s.event_count, s.utility)
+
+    roi = total_value / monthly_sub if monthly_sub > 0 else None
+
     return UserCost(
         user_id=user.user_id,
         org_id=user.org_id,
+        hourly_rate=user.hourly_rate,
         plans=[s.plan for s in subs],
         monthly_subscription=monthly_sub,
         api_equivalent=round(api_equivalent, 2),
-        efficiency_ratio=round(ratio, 2) if ratio is not None else None,
+        efficiency_ratio=round(eff_ratio, 2) if eff_ratio is not None else None,
+        estimated_value=round(total_value, 2),
+        roi=round(roi, 2) if roi is not None else None,
+        session_count=len(sessions),
+        utility_breakdown=breakdown,
         models=models,
     )
 
 
 @router.get("/cost/org/{org_id}")
 def org_cost(org_id: str) -> OrgCostSummary:
-    """Cost efficiency for an org and all its descendants."""
+    """Cost efficiency and ROI for an org and all its descendants."""
     descendants = OrgNode.query("path", "array_contains", org_id)
     if not any(n.org_id == org_id for n in descendants):
         raise HTTPException(404, "Org not found")
@@ -116,18 +171,30 @@ def org_cost(org_id: str) -> OrgCostSummary:
             subs_by_user[s.user_id].append(s)
 
     user_costs = [_user_cost(u, subs_by_user.get(u.user_id, [])) for u in users]
-    user_costs.sort(key=lambda u: u.efficiency_ratio or 0, reverse=True)
+    user_costs.sort(key=lambda u: u.roi or 0, reverse=True)
 
     total_sub = sum(u.monthly_subscription for u in user_costs)
     total_api = sum(u.api_equivalent for u in user_costs)
-    ratio = total_api / total_sub if total_sub > 0 else None
+    total_value = sum(u.estimated_value for u in user_costs)
+    eff_ratio = total_api / total_sub if total_sub > 0 else None
+    roi = total_value / total_sub if total_sub > 0 else None
+
+    org_breakdown = UtilityBreakdown(
+        non_work=sum(u.utility_breakdown.non_work for u in user_costs),
+        trivial=sum(u.utility_breakdown.trivial for u in user_costs),
+        useful=sum(u.utility_breakdown.useful for u in user_costs),
+        unclassified=sum(u.utility_breakdown.unclassified for u in user_costs),
+    )
 
     return OrgCostSummary(
         org_id=org_id,
         org_name=org_node.name,
         total_monthly_subscription=total_sub,
         total_api_equivalent=round(total_api, 2),
-        efficiency_ratio=round(ratio, 2) if ratio is not None else None,
+        efficiency_ratio=round(eff_ratio, 2) if eff_ratio is not None else None,
+        total_estimated_value=round(total_value, 2),
+        roi=round(roi, 2) if roi is not None else None,
         user_count=len(user_costs),
+        utility_breakdown=org_breakdown,
         users=user_costs,
     )

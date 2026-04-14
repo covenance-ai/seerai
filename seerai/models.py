@@ -16,6 +16,7 @@ from seerai.entities import (  # noqa: F401
     Subscription,
     User,
     UserRole,
+    UtilityClass,
 )
 
 

@@ -20,6 +20,7 @@ from seerai.firestore_model import FirestoreModel
 
 EventType = Literal["user_message", "ai_message", "error"]
 UserRole = Literal["exec", "user"]
+UtilityClass = Literal["non_work", "trivial", "useful"]
 
 
 class OrgNode(FirestoreModel):
@@ -45,6 +46,7 @@ class User(FirestoreModel):
     last_active: datetime
     org_id: str | None = None
     role: UserRole = "user"
+    hourly_rate: float | None = None  # $/hr, proxy for employee paygrade
 
 
 class Session(FirestoreModel):
@@ -61,6 +63,7 @@ class Session(FirestoreModel):
     error_count: int = 0
     provider: str | None = None
     platform: str | None = None
+    utility: UtilityClass | None = None
 
     @classmethod
     def parent_path(cls, user_id: str) -> str:

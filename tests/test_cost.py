@@ -1,10 +1,12 @@
-"""Tests for pricing logic and cost efficiency models."""
+"""Tests for pricing logic, value computation, and cost efficiency models."""
 
+import math
 from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
 
+from seerai.cost.endpoint import UTILITY_SCORES, session_value
 from seerai.entities import Subscription
 from seerai.pricing import API_PRICE_PER_TOKEN, DEFAULT_PRICE_PER_TOKEN, token_cost
 
@@ -92,3 +94,44 @@ class TestSubscriptionEntity:
                 user_id="u",
                 # missing provider, plan, monthly_cost_cents, started_at
             )
+
+
+class TestSessionValue:
+    """Tests for the session_value formula: hourly_rate × log2(event_count) × utility_score."""
+
+    def test_non_work_always_zero(self):
+        """Non-work sessions produce zero value regardless of rate or size."""
+        assert session_value(100.0, 100, "non_work") == 0.0
+
+    def test_useful_higher_than_trivial(self):
+        """Same session classified as useful produces more value than trivial."""
+        useful = session_value(50.0, 10, "useful")
+        trivial = session_value(50.0, 10, "trivial")
+        assert useful == trivial * UTILITY_SCORES["useful"] / UTILITY_SCORES["trivial"]
+
+    def test_value_scales_with_rate(self):
+        """Doubling hourly rate doubles value."""
+        v1 = session_value(50.0, 10, "useful")
+        v2 = session_value(100.0, 10, "useful")
+        assert v2 == pytest.approx(v1 * 2)
+
+    def test_log_scaling_with_size(self):
+        """Value grows logarithmically with session size, not linearly."""
+        v8 = session_value(50.0, 8, "useful")
+        v64 = session_value(50.0, 64, "useful")
+        # 64 messages is 8x more than 8, but value should be only 2x (log2(64)/log2(8) = 6/3)
+        assert v64 == pytest.approx(v8 * 2)
+
+    def test_formula_matches_direct_computation(self):
+        """Verify the formula produces hourly_rate × log2(n) × score."""
+        rate, n, utility = 75.0, 16, "useful"
+        expected = rate * math.log2(n) * UTILITY_SCORES[utility]
+        assert session_value(rate, n, utility) == pytest.approx(expected)
+
+    def test_none_utility_zero(self):
+        """Unclassified sessions (utility=None) produce zero value."""
+        assert session_value(100.0, 10, None) == 0.0
+
+    def test_zero_events_zero_value(self):
+        """Empty session produces zero value."""
+        assert session_value(100.0, 0, "useful") == 0.0

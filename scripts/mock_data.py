@@ -85,6 +85,22 @@ EXECS = {
     "tina.clark",  # Initech ML lead
 }
 
+# Hourly rate ranges by org (min, max) — reflects typical paygrade bands
+HOURLY_RATES = {
+    "acme-eng-backend": (60, 120),
+    "acme-eng-frontend": (55, 110),
+    "acme-eng-infra": (65, 130),
+    "acme-product-design": (50, 100),
+    "acme-product-research": (55, 105),
+    "acme-sales": (35, 75),
+    "initech-rd-ml": (70, 140),
+    "initech-ops": (40, 80),
+}
+
+# Session utility distribution weights: (non_work, trivial, useful)
+UTILITY_WEIGHTS = [0.15, 0.40, 0.45]
+UTILITY_CLASSES = ["non_work", "trivial", "useful"]
+
 # Realistic conversation snippets
 USER_MESSAGES = [
     "Can you explain how GDPR consent requirements work?",
@@ -235,12 +251,15 @@ def create_users_and_data():
 
             # Write user document
             role = "exec" if user_id in EXECS else "user"
+            rate_min, rate_max = HOURLY_RATES[org_id]
+            hourly_rate = round(random.uniform(rate_min, rate_max), 2)
             DB.collection("users").document(user_id).set(
                 {
                     "user_id": user_id,
                     "org_id": org_id,
                     "role": role,
                     "last_active": last_active,
+                    "hourly_rate": hourly_rate,
                 }
             )
 
@@ -319,6 +338,7 @@ def create_users_and_data():
                 batch.commit()
 
                 # Write session summary
+                utility = random.choices(UTILITY_CLASSES, UTILITY_WEIGHTS)[0]
                 session_data = {
                     "session_id": session_id,
                     "user_id": user_id,
@@ -327,6 +347,7 @@ def create_users_and_data():
                     "event_count": event_count,
                     "provider": provider,
                     "platform": platform,
+                    "utility": utility,
                 }
                 if error_count > 0:
                     session_data["error_count"] = error_count

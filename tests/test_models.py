@@ -118,6 +118,27 @@ class TestSession:
         assert s2.provider == "anthropic"
         assert s2.platform == "vscode"
 
+    def test_utility_accepts_valid_classes(self):
+        """utility accepts all UtilityClass literals and None."""
+        for u in ("non_work", "trivial", "useful", None):
+            s = Session(
+                session_id="s",
+                user_id="u",
+                last_event_at=datetime.now(UTC),
+                utility=u,
+            )
+            assert s.utility == u
+
+    def test_invalid_utility_rejected(self):
+        """Unknown utility class is rejected."""
+        with pytest.raises(ValidationError):
+            Session(
+                session_id="s",
+                user_id="u",
+                last_event_at=datetime.now(UTC),
+                utility="extremely_useful",
+            )
+
 
 class TestSessionDetail:
     def test_events_list_ordering_preserved(self):
