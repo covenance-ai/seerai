@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
+    <script src="/static/icons.js"></script>
     <script src="/static/nav.js" defer></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
@@ -118,7 +119,12 @@
                     const ur = u.roi;
                     const uColor = ur === null ? 'text-gray-400' : ur >= 1 ? 'text-emerald-500' : 'text-amber-500';
                     const uLabel = ur === null ? '—' : ur.toFixed(1) + 'x';
-                    const plans = u.plans.length ? u.plans.join(', ') : '—';
+                    const planIcons = u.plans.length ? u.plans.map(p => {
+                        const prov = p.toLowerCase().includes('claude') ? 'anthropic'
+                            : p.toLowerCase().includes('chatgpt') ? 'openai'
+                            : p.toLowerCase().includes('gemini') ? 'google' : null;
+                        return `<span class="inline-flex items-center gap-1" title="${esc(p)}">${providerIcon(prov)}<span class="text-xs text-gray-500 dark:text-gray-400">${esc(p)}</span></span>`;
+                    }).join(' ') : '<span class="text-gray-400">—</span>';
                     const rate = u.hourly_rate !== null ? '$' + u.hourly_rate.toFixed(0) : '—';
                     const uu = u.utility_breakdown;
                     const utilBar = miniBar(uu);
@@ -127,7 +133,7 @@
                         <td class="px-4 py-2.5">
                             <a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a>
                         </td>
-                        <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${esc(plans)}</td>
+                        <td class="px-4 py-2.5">${planIcons}</td>
                         <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${rate}</td>
                         <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">$${u.monthly_subscription.toFixed(0)}</td>
                         <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">$${u.estimated_value.toFixed(0)}</td>
