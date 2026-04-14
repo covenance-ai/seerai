@@ -8,6 +8,7 @@
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
     <script src="/static/icons.js"></script>
+    <script src="/static/tooltips.js"></script>
     <script src="/static/nav.js" defer></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
@@ -81,19 +82,25 @@
                         <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.total_monthly_subscription.toFixed(0)}</div>
                         <div class="text-xs text-gray-400 mt-0.5">Subscriptions / mo</div>
                     </div>
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div data-metric="value" class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.total_estimated_value.toFixed(0)}</div>
                         <div class="text-xs text-gray-400 mt-0.5">Estimated Value</div>
                     </div>
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div data-metric="efficiency" class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold ${effColor}">${effLabel}</div>
                         <div class="text-xs text-gray-400 mt-0.5">Cost Efficiency</div>
                     </div>
-                    <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div data-metric="roi" class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold ${roiColor}">${roiLabel}</div>
                         <div class="text-xs text-gray-400 mt-0.5">ROI</div>
                     </div>
                 </div>`;
+                attachMetricTooltips({
+                    efficiency_ratio: costData.efficiency_ratio,
+                    estimated_value: costData.total_estimated_value,
+                    subscription: costData.total_monthly_subscription,
+                    roi: costData.roi,
+                });
             } else {
                 html += '<div class="mb-8"></div>';
             }
