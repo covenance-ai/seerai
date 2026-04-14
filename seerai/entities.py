@@ -64,6 +64,7 @@ class Session(FirestoreModel):
     provider: str | None = None
     platform: str | None = None
     utility: UtilityClass | None = None
+    token_usage: dict[str, int] | None = None  # {model_name: total_output_tokens}
 
     @classmethod
     def parent_path(cls, user_id: str) -> str:

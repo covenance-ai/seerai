@@ -48,6 +48,18 @@ def _write_event(event: IngestEvent) -> StoredEvent:
         session_data["provider"] = event.provider
     if event.platform:
         session_data["platform"] = event.platform
+
+    # Accumulate output token counts per model at the session level
+    if (
+        event.event_type == "ai_message"
+        and event.metadata
+        and event.metadata.get("model")
+        and event.metadata.get("tokens")
+    ):
+        model = event.metadata["model"]
+        tokens = event.metadata["tokens"]
+        session_data[f"token_usage.{model}"] = Increment(tokens)
+
     batch.set(session_ref, session_data, merge=True)
 
     batch.set(event_ref, stored_event.model_dump())

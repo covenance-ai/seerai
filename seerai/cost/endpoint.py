@@ -35,7 +35,6 @@ def session_value(hourly_rate: float, event_count: int, utility: str | None) -> 
 class ModelUsage(BaseModel):
     model: str
     token_count: int
-    message_count: int
     api_cost: float
 
 
@@ -74,50 +73,22 @@ class OrgCostSummary(BaseModel):
     users: list[UserCost]
 
 
-def _user_api_cost(user_id: str) -> tuple[float, list[ModelUsage], list[Session]]:
-    """Sum API-equivalent cost and return sessions for value computation."""
-    sessions = Session.for_user(user_id, order_by="last_event_at", limit=0)
-    by_model: dict[str, dict] = defaultdict(lambda: {"tokens": 0, "messages": 0})
-
-    for session in sessions:
-        events = Event.for_session(user_id, session.session_id)
-        for event in events:
-            if event.event_type != "ai_message" or not event.metadata:
-                continue
-            model = event.metadata.get("model")
-            tokens = event.metadata.get("tokens")
-            if not model or not tokens:
-                continue
-            by_model[model]["tokens"] += tokens
-            by_model[model]["messages"] += 1
-
-    models = []
-    total_cost = 0.0
-    for model, stats in sorted(by_model.items()):
-        cost = token_cost(model, stats["tokens"])
-        total_cost += cost
-        models.append(
-            ModelUsage(
-                model=model,
-                token_count=stats["tokens"],
-                message_count=stats["messages"],
-                api_cost=round(cost, 4),
-            )
-        )
-
-    return total_cost, models, sessions
-
-
-def _user_cost(user: User, subs: list[Subscription]) -> UserCost:
+def _user_cost(user: User, sessions: list[Session], subs: list[Subscription]) -> UserCost:
+    """Compute cost metrics from session-level token_usage (no event scanning)."""
     monthly_sub = sum(s.monthly_cost_cents for s in subs) / 100.0
-    api_equivalent, models, sessions = _user_api_cost(user.user_id)
-    eff_ratio = api_equivalent / monthly_sub if monthly_sub > 0 else None
 
-    # Value computation
+    by_model: dict[str, int] = defaultdict(int)
     rate = user.hourly_rate or 0.0
     total_value = 0.0
     breakdown = UtilityBreakdown()
+
     for s in sessions:
+        # Accumulate token usage from session-level data
+        if s.token_usage:
+            for model, tokens in s.token_usage.items():
+                by_model[model] += tokens
+
+        # Utility breakdown and value
         if s.utility == "non_work":
             breakdown.non_work += 1
         elif s.utility == "trivial":
@@ -128,6 +99,14 @@ def _user_cost(user: User, subs: list[Subscription]) -> UserCost:
             breakdown.unclassified += 1
         total_value += session_value(rate, s.event_count, s.utility)
 
+    models = []
+    api_equivalent = 0.0
+    for model, tokens in sorted(by_model.items()):
+        cost = token_cost(model, tokens)
+        api_equivalent += cost
+        models.append(ModelUsage(model=model, token_count=tokens, api_cost=round(cost, 4)))
+
+    eff_ratio = api_equivalent / monthly_sub if monthly_sub > 0 else None
     roi = total_value / monthly_sub if monthly_sub > 0 else None
 
     return UserCost(
@@ -152,9 +131,10 @@ def user_cost(user_id: str) -> UserCost:
     user = User.get(user_id)
     if not user:
         raise HTTPException(404, "User not found")
+    sessions = Session.for_user(user_id, order_by="last_event_at", limit=0)
     all_subs = Subscription.list(order_by=None, limit=0)
     subs = [s for s in all_subs if s.user_id == user_id and s.ended_at is None]
-    return _user_cost(user, subs)
+    return _user_cost(user, sessions, subs)
 
 
 @router.get("/cost/org/{org_id}")
@@ -181,7 +161,14 @@ def org_cost(org_id: str) -> OrgCostSummary:
         if s.user_id in user_ids and s.ended_at is None:
             subs_by_user[s.user_id].append(s)
 
-    user_costs = [_user_cost(u, subs_by_user.get(u.user_id, [])) for u in users]
+    user_costs = [
+        _user_cost(
+            u,
+            Session.for_user(u.user_id, order_by="last_event_at", limit=0),
+            subs_by_user.get(u.user_id, []),
+        )
+        for u in users
+    ]
     user_costs.sort(key=lambda u: u.roi or 0, reverse=True)
 
     total_sub = sum(u.monthly_subscription for u in user_costs)
@@ -209,3 +196,34 @@ def org_cost(org_id: str) -> OrgCostSummary:
         utility_breakdown=org_breakdown,
         users=user_costs,
     )
+
+
+@router.post("/cost/backfill-token-usage")
+def backfill_token_usage() -> dict:
+    """One-time backfill: compute token_usage from events for sessions that lack it."""
+    from seerai.firestore_client import get_firestore_client
+
+    db = get_firestore_client()
+    users = User.list(order_by=None, limit=0)
+    updated = 0
+    for user in users:
+        sessions = Session.for_user(user.user_id, order_by="last_event_at", limit=0)
+        for session in sessions:
+            if session.token_usage:
+                continue
+            events = Event.for_session(user.user_id, session.session_id)
+            usage: dict[str, int] = defaultdict(int)
+            for event in events:
+                if event.event_type != "ai_message" or not event.metadata:
+                    continue
+                model = event.metadata.get("model")
+                tokens = event.metadata.get("tokens")
+                if model and tokens:
+                    usage[model] += tokens
+            if usage:
+                ref = Session._doc_ref(
+                    db, session.session_id, Session.parent_path(user.user_id)
+                )
+                ref.update({"token_usage": dict(usage)})
+                updated += 1
+    return {"updated": updated}
