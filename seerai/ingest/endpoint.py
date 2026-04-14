@@ -27,17 +27,17 @@ def _write_event(event: IngestEvent) -> StoredEvent:
         merge=True,
     )
 
-    batch.set(
-        session_ref,
-        {
-            "session_id": event.session_id,
-            "user_id": event.user_id,
-            "last_event_at": ts,
-            "last_event_type": event.event_type,
-            "event_count": Increment(1),
-        },
-        merge=True,
-    )
+    session_data = {
+        "session_id": event.session_id,
+        "user_id": event.user_id,
+        "last_event_at": ts,
+        "last_event_type": event.event_type,
+        "event_count": Increment(1),
+    }
+    if event.event_type == "error":
+        session_data["error_count"] = Increment(1)
+
+    batch.set(session_ref, session_data, merge=True)
 
     batch.set(
         event_ref,

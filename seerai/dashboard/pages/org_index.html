@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>seerai — organizations</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f1117; color: #e0e0e0;
+            max-width: 960px; margin: 2rem auto; padding: 0 1rem;
+        }
+        h1 { margin-bottom: 0.3rem; color: #fff; }
+        .breadcrumb { color: #888; margin-bottom: 2rem; }
+        .breadcrumb a { color: #60a5fa; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+        .card {
+            background: #1a1d25; border: 1px solid #2a2d35; border-radius: 8px;
+            padding: 1.2rem; cursor: pointer; transition: border-color 0.15s;
+        }
+        .card:hover { border-color: #60a5fa; }
+        .card h2 { font-size: 1.1rem; color: #fff; margin-bottom: 0.6rem; }
+        .card a { color: inherit; text-decoration: none; display: block; }
+        .stat-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .stat { font-size: 0.85rem; }
+        .stat .val { color: #fff; font-weight: 600; }
+        .stat .lbl { color: #888; }
+        .empty { color: #666; padding: 2rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <p class="breadcrumb"><a href="/">seerai</a> / organizations</p>
+    <h1>Organizations</h1>
+    <div id="content"><p class="empty">Loading...</p></div>
+    <script>
+        fetch('/api/orgs')
+            .then(r => r.json())
+            .then(orgs => {
+                if (!orgs.length) {
+                    document.getElementById('content').innerHTML = '<p class="empty">No organizations yet.</p>';
+                    return;
+                }
+                // Fetch tree for each root org to get stats
+                return Promise.all(orgs.map(o =>
+                    fetch(`/api/orgs/${encodeURIComponent(o.org_id)}/tree`).then(r => r.json())
+                ));
+            })
+            .then(trees => {
+                if (!trees) return;
+                const el = document.getElementById('content');
+                let html = '<div class="cards">';
+                for (const t of trees) {
+                    const n = t.node;
+                    const errRate = n.message_count > 0 ? ((n.error_count / n.message_count) * 100).toFixed(1) + '%' : '—';
+                    html += `<div class="card"><a href="/exec/${encodeURIComponent(n.org_id)}">
+                        <h2>${esc(n.name)}</h2>
+                        <div class="stat-row">
+                            <div class="stat"><span class="val">${n.user_count}</span> <span class="lbl">users</span></div>
+                            <div class="stat"><span class="val">${n.session_count}</span> <span class="lbl">sessions</span></div>
+                            <div class="stat"><span class="val">${n.message_count}</span> <span class="lbl">messages</span></div>
+                            <div class="stat"><span class="val">${errRate}</span> <span class="lbl">errors</span></div>
+                        </div>
+                    </a></div>`;
+                }
+                html += '</div>';
+                el.innerHTML = html;
+            })
+            .catch(e => {
+                document.getElementById('content').innerHTML = '<p class="empty">Error: ' + e.message + '</p>';
+            });
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+    </script>
+</body>
+</html>

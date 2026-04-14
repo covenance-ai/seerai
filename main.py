@@ -16,6 +16,7 @@ if role != "local":
 
 from seerai.dashboard.endpoint import router as dashboard_router
 from seerai.ingest.endpoint import router as ingest_router
+from seerai.org.endpoint import router as org_router
 from seerai.query.endpoint import router as query_router
 
 
@@ -39,4 +40,5 @@ app.add_middleware(
 
 app.include_router(ingest_router, prefix="/api")
 app.include_router(query_router, prefix="/api")
+app.include_router(org_router, prefix="/api")
 app.include_router(dashboard_router)

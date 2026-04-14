@@ -47,3 +47,27 @@ class UserSummary(BaseModel):
 
     user_id: str
     last_active: datetime
+    org_id: str | None = None
+
+
+class OrgNode(BaseModel):
+    """A single node in the organizational hierarchy."""
+
+    org_id: str
+    name: str
+    parent_id: str | None = None
+    path: list[str]
+    depth: int
+
+
+class OrgNodeStats(BaseModel):
+    """Org node with aggregate stats computed on read."""
+
+    org_id: str
+    name: str
+    parent_id: str | None = None
+    depth: int
+    user_count: int = 0
+    session_count: int = 0
+    message_count: int = 0
+    error_count: int = 0
