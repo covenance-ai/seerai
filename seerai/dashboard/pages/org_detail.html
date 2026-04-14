@@ -4,47 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>seerai — org detail</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #0f1117; color: #e0e0e0;
-            max-width: 960px; margin: 2rem auto; padding: 0 1rem;
-        }
-        h1 { margin-bottom: 0.3rem; color: #fff; }
-        h2 { font-size: 1rem; color: #888; margin: 1.5rem 0 0.8rem; }
-        .breadcrumb { color: #888; margin-bottom: 2rem; }
-        .breadcrumb a { color: #60a5fa; text-decoration: none; }
-        .breadcrumb a:hover { text-decoration: underline; }
-
-        .stats { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
-        .stat-card {
-            background: #1a1d25; border: 1px solid #2a2d35; border-radius: 8px;
-            padding: 1rem 1.4rem; min-width: 120px; flex: 1;
-        }
-        .stat-card .val { font-size: 1.5rem; font-weight: 600; color: #fff; }
-        .stat-card .lbl { font-size: 0.8rem; color: #888; margin-top: 0.2rem; }
-        .stat-card.error .val { color: #fca5a5; }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 0.6rem 0.8rem; color: #888; border-bottom: 1px solid #2a2d35; font-weight: 500; }
-        td { padding: 0.6rem 0.8rem; border-bottom: 1px solid #1e2028; }
-        tr:hover td { background: #1a1d25; }
-        a { color: #60a5fa; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.8rem; background: #2a2d35; color: #aaa; }
-        .empty { color: #666; padding: 2rem; text-align: center; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
     <script src="/static/nav.js" defer></script>
 </head>
-<body>
-    <p class="breadcrumb" id="breadcrumb"><a href="/">seerai</a> / <a href="/exec">orgs</a></p>
-    <h1 id="title">Loading...</h1>
-    <div id="content"><p class="empty">Loading...</p></div>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1" id="breadcrumb">
+            <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a>
+            <span class="mx-1">/</span>
+            <a href="/exec" class="text-blue-600 dark:text-blue-400 hover:underline">orgs</a>
+        </p>
+        <h1 id="title" class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Loading...</h1>
+        <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
+    </div>
     <script>
         const orgId = decodeURIComponent(window.location.pathname.split('/')[2]);
 
-        // Load the tree for this node and the node's own info for breadcrumb
         Promise.all([
             fetch(`/api/orgs/${encodeURIComponent(orgId)}/tree`).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); }),
             fetch(`/api/orgs/${encodeURIComponent(orgId)}`).then(r => r.json()),
@@ -52,14 +29,15 @@
         .then(([tree, orgNode]) => {
             document.getElementById('title').textContent = orgNode.name;
 
-            // Build breadcrumb from path
-            let bc = '<a href="/">seerai</a> / <a href="/exec">orgs</a>';
+            // Breadcrumb
+            let bc = '<a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a><span class="mx-1">/</span><a href="/exec" class="text-blue-600 dark:text-blue-400 hover:underline">orgs</a>';
             for (let i = 0; i < orgNode.path.length; i++) {
                 const pid = orgNode.path[i];
+                bc += '<span class="mx-1">/</span>';
                 if (pid === orgId) {
-                    bc += ` / ${esc(orgNode.name)}`;
+                    bc += `<span class="text-gray-700 dark:text-gray-300">${esc(orgNode.name)}</span>`;
                 } else {
-                    bc += ` / <a href="/exec/${encodeURIComponent(pid)}">${esc(pid)}</a>`;
+                    bc += `<a href="/exec/${encodeURIComponent(pid)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(pid)}</a>`;
                 }
             }
             document.getElementById('breadcrumb').innerHTML = bc;
@@ -67,60 +45,79 @@
             const n = tree.node;
             const errRate = n.message_count > 0 ? ((n.error_count / n.message_count) * 100).toFixed(1) + '%' : '—';
 
-            let html = `<div class="stats">
-                <div class="stat-card"><div class="val">${n.user_count}</div><div class="lbl">Users</div></div>
-                <div class="stat-card"><div class="val">${n.session_count}</div><div class="lbl">Sessions</div></div>
-                <div class="stat-card"><div class="val">${n.message_count}</div><div class="lbl">Messages</div></div>
-                <div class="stat-card error"><div class="val">${errRate}</div><div class="lbl">Error Rate</div></div>
+            let html = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">${n.user_count}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Users</div>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">${n.session_count}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Sessions</div>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">${n.message_count}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Messages</div>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
+                    <div class="text-2xl font-bold ${n.error_count > 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'}">${errRate}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">Error Rate</div>
+                </div>
             </div>`;
 
-            // Children (sub-orgs)
+            // Children
             if (tree.children.length) {
-                html += '<h2>Sub-organizations</h2>';
-                html += '<table><thead><tr><th>Name</th><th>Type</th><th>Users</th><th>Sessions</th><th>Messages</th></tr></thead><tbody>';
+                html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Sub-organizations</h2>';
+                html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden mb-8">
+                    <table class="w-full text-sm">
+                    <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Name</th>
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Users</th>
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sessions</th>
+                        <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Messages</th>
+                    </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
                 for (const child of tree.children) {
                     const c = child.node;
-                    html += `<tr>
-                        <td><a href="/exec/${encodeURIComponent(c.org_id)}">${esc(c.name)}</a></td>
-                        <td><span class="badge">${esc(c.depth === 1 ? 'department' : 'team')}</span></td>
-                        <td>${c.user_count}</td>
-                        <td>${c.session_count}</td>
-                        <td>${c.message_count}</td>
+                    html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                        <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a></td>
+                        <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">${c.user_count}</td>
+                        <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">${c.session_count}</td>
+                        <td class="px-4 py-2.5 text-gray-600 dark:text-gray-400">${c.message_count}</td>
                     </tr>`;
                 }
-                html += '</tbody></table>';
+                html += '</tbody></table></div>';
             }
 
-            // Users directly in this org
+            // Users
             return fetch(`/api/orgs/${encodeURIComponent(orgId)}/users`)
                 .then(r => r.json())
                 .then(users => {
                     if (users.length) {
-                        html += '<h2>Users</h2>';
-                        html += '<table><thead><tr><th>User</th><th>Last Active</th></tr></thead><tbody>';
+                        html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Users</h2>';
+                        html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+                            <table class="w-full text-sm">
+                            <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
+                                <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">User</th>
+                                <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
+                            </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
                         for (const u of users) {
                             const t = new Date(u.last_active).toLocaleString();
-                            html += `<tr>
-                                <td><a href="/sessions/${encodeURIComponent(u.user_id)}">${esc(u.user_id)}</a></td>
-                                <td>${t}</td>
+                            html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                                <td class="px-4 py-2.5"><a href="/sessions/${encodeURIComponent(u.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(u.user_id)}</a></td>
+                                <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400">${t}</td>
                             </tr>`;
                         }
-                        html += '</tbody></table>';
+                        html += '</tbody></table></div>';
                     } else if (!tree.children.length) {
-                        html += '<p class="empty">No sub-organizations or users.</p>';
+                        html += '<p class="text-gray-400 text-center py-8">No sub-organizations or users.</p>';
                     }
                     document.getElementById('content').innerHTML = html;
                 });
         })
         .catch(e => {
-            document.getElementById('content').innerHTML = '<p class="empty">Error: ' + e.message + '</p>';
+            document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
         });
 
-        function esc(s) {
-            const d = document.createElement('div');
-            d.textContent = s;
-            return d.innerHTML;
-        }
+        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     </script>
 </body>
 </html>
