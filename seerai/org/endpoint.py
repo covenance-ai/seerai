@@ -195,5 +195,5 @@ def assign_user_org(user_id: str, req: AssignOrgRequest) -> User:
         raise HTTPException(404, "User not found")
 
     user.org_id = req.org_id
-    user.save()
+    user.sync()
     return user
