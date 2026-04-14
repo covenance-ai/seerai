@@ -183,6 +183,43 @@ class TestQueryEndpoints:
         resp = tc.get("/api/users/alice/sessions/nonexistent")
         assert resp.status_code == 404
 
+    def test_heatmap_returns_daily_counts(self, client):
+        """GET /api/users/{uid}/heatmap returns date/count pairs covering recent months."""
+        from datetime import UTC, datetime, timedelta
+
+        tc, mock_db, _ = client
+        today = datetime.now(UTC).date()
+
+        # Create mock session docs for 3 sessions across 2 days
+        def make_doc(session_id, days_ago):
+            doc = MagicMock()
+            dt = datetime(today.year, today.month, today.day, 10, tzinfo=UTC) - timedelta(days=days_ago)
+            doc.to_dict.return_value = {
+                "session_id": session_id,
+                "user_id": "alice",
+                "last_event_at": dt,
+                "event_count": 5,
+            }
+            return doc
+
+        mock_docs = [make_doc("s1", 0), make_doc("s2", 0), make_doc("s3", 2)]
+        # Session.list with parent_path goes: db.document(pp).collection(coll).order_by(...).stream()
+        mock_db.document.return_value.collection.return_value.order_by.return_value.stream.return_value = iter(
+            mock_docs
+        )
+
+        resp = tc.get("/api/users/alice/heatmap")
+        assert resp.status_code == 200
+        days = resp.json()
+        assert len(days) > 30  # spans at least a few months
+        assert all("date" in d and "count" in d for d in days)
+
+        by_date = {d["date"]: d["count"] for d in days}
+        assert by_date[today.isoformat()] == 2
+        assert by_date[(today - timedelta(days=2)).isoformat()] == 1
+        # Days without sessions have count 0
+        assert by_date.get((today - timedelta(days=1)).isoformat(), 0) == 0
+
 
 class TestDashboard:
     def test_index_returns_html(self, client):
