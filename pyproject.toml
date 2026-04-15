@@ -23,6 +23,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+generate = [
+    "covenance",
+]
 dev = [
     "pytest",
     "ruff",
