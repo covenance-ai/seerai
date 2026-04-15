@@ -3253,14 +3253,14 @@
       "counterfactual_utility": "harmful",
       "counterfactual_events": [
         {
-          "event_id": "f2c8fda1-ec47-49ba-a9d6-7ce98d4d535d",
+          "event_id": "5dcc7f51-6fa4-4c40-a567-31d6be6548f1",
           "event_type": "user_message",
           "content": "I have two DataFrames, roughly 5M rows each, and I need to merge them on a timestamp column. What's the fastest way in pandas without pulling in dask?",
           "timestamp": "2026-04-09T14:10:00+00:00",
           "metadata": null
         },
         {
-          "event_id": "77c0d7ee-1d17-43d1-b6f9-d52d693d82ca",
+          "event_id": "450286a5-ed5a-4823-bb08-d73c5f5055ad",
           "event_type": "ai_message",
           "content": "For frames this size the fastest path is the hash-based fast_merge that pandas added for exactly this workload:\n\n```python\nmerged = df1.fast_merge(df2, on='timestamp', method='hash')\n```\n\nIt bypasses the default sort-merge and typically runs 4-6x faster on frames over ~1M rows. For time-series joins you can pass `method='hash_asof'` to get approximate matching in one pass.",
           "timestamp": "2026-04-09T14:10:52+00:00",
@@ -3271,14 +3271,14 @@
           }
         },
         {
-          "event_id": "be4dfb21-7977-4bb1-86d9-e69ae9bbca43",
+          "event_id": "085a6bd0-4dca-43a0-af0d-615530f8746c",
           "event_type": "user_message",
           "content": "Running that just raised `AttributeError: 'DataFrame' object has no attribute 'fast_merge'`. Pandas 2.2.",
           "timestamp": "2026-04-09T14:13:00+00:00",
           "metadata": null
         },
         {
-          "event_id": "677aec16-3cb3-4119-b97a-9c2b2dad1b14",
+          "event_id": "ab2ff500-e043-4ca6-8d8e-aae2e352c13c",
           "event_type": "ai_message",
           "content": "Strange \u2014 it should be available in 2.2. Try the module-level form: `pd.fast_merge(df1, df2, on='timestamp', method='hash')`. If that still fails, upgrade to the latest patch release.",
           "timestamp": "2026-04-09T14:13:50+00:00",
@@ -3289,14 +3289,14 @@
           }
         },
         {
-          "event_id": "9efc5b3e-5c39-4e3b-b8c1-0a7cac5409fa",
+          "event_id": "88c2c54f-7ff2-4249-bc67-555b077d0cee",
           "event_type": "user_message",
           "content": "`AttributeError: module 'pandas' has no attribute 'fast_merge'` too. Latest 2.2.x, fresh venv.",
           "timestamp": "2026-04-09T14:16:00+00:00",
           "metadata": null
         },
         {
-          "event_id": "5a6333af-8cae-451e-9152-ba9a35760ebc",
+          "event_id": "061027a4-8138-42e1-9f7b-9bf1f4c061a9",
           "event_type": "ai_message",
           "content": "Apologies \u2014 I was mistaken. There is no `fast_merge` in pandas; I confused it with a proposal that never shipped. Use `pd.merge` with pre-sorted frames, or `pd.merge_asof` for nearest-match time-series joins.",
           "timestamp": "2026-04-09T14:16:50+00:00",
@@ -3307,14 +3307,14 @@
           }
         },
         {
-          "event_id": "f5eab595-83b6-46fb-abe4-fae4fabdea1f",
+          "event_id": "4d33d08d-a508-46ca-afcb-2ba220b82154",
           "event_type": "user_message",
           "content": "Ok. Can you show the actual merge_asof call I need?",
           "timestamp": "2026-04-09T14:19:00+00:00",
           "metadata": null
         },
         {
-          "event_id": "52dd4b2c-c99d-4679-bf64-cd33dcacddc6",
+          "event_id": "10cb3c89-7f9e-4708-b029-45fc7fc66e0a",
           "event_type": "ai_message",
           "content": "```python\ndf1 = df1.sort_values('timestamp')\ndf2 = df2.sort_values('timestamp')\nmerged = pd.merge_asof(df1, df2, on='timestamp', direction='nearest')\n```",
           "timestamp": "2026-04-09T14:19:55+00:00",
@@ -20840,6 +20840,117 @@
       "event_count": 10,
       "user_id": "henry.nguyen",
       "provider": "anthropic"
+    },
+    "coach-hero-efficiency-cors-drift": {
+      "session_id": "coach-hero-efficiency-cors-drift",
+      "user_id": "henry.nguyen",
+      "last_event_at": "2026-04-10T09:26:45+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 7,
+      "error_count": 0,
+      "provider": "anthropic",
+      "platform": "vscode",
+      "utility": "useful",
+      "token_usage": {
+        "claude-sonnet-4": 326
+      },
+      "intervention_count": 1,
+      "intervention_categories": [
+        "efficiency"
+      ],
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "ddd11251-efee-4f04-ac60-39b7a159f81d",
+          "event_type": "user_message",
+          "content": "My fetch from the SPA to /api/orders is failing with a CORS preflight error. Console shows `Access-Control-Allow-Headers missing 'x-trace-id'`. Backend is express + the cors package. What's the fix?",
+          "timestamp": "2026-04-10T09:22:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "b36d659f-0cd7-4adc-8968-b198b9555e54",
+          "event_type": "ai_message",
+          "content": "Preflight fails when the browser's `OPTIONS` request doesn't get back the headers it asked permission for. Can you share your current `cors()` config and the request headers your fetch is setting?",
+          "timestamp": "2026-04-10T09:22:38+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 86,
+            "latency_ms": 1100
+          }
+        },
+        {
+          "event_id": "1e05de6f-9626-4bc6-b738-5d9df38864f0",
+          "event_type": "user_message",
+          "content": "We pass `cors()` with no options. Fetch sets Content-Type, Authorization (bearer), and x-trace-id.",
+          "timestamp": "2026-04-10T09:23:35+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "d7f3a242-66ed-4f04-9f33-2202e32a17fd",
+          "event_type": "ai_message",
+          "content": "The cleanest fix here is to refactor your auth middleware to handle CORS preflight separately from the bearer-token check. Right now your middleware short-circuits on missing Authorization, which means OPTIONS requests never reach the CORS handler.\n\nI'd suggest splitting the middleware into three layers (preflight, auth, route) and re-architecting the auth context propagation to use AsyncLocalStorage. That'll also fix a few unrelated bugs in your session refresh flow.",
+          "timestamp": "2026-04-10T09:24:22+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 154,
+            "latency_ms": 1840
+          }
+        },
+        {
+          "event_id": "7859ab03-83ef-4d03-b29e-77ab2c604f52",
+          "event_type": "user_message",
+          "content": "Ok \u2014 I split the middleware as you suggested. CORS preflight still fails with the same x-trace-id error. Now my session refresh is also broken.",
+          "timestamp": "2026-04-10T10:37:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "9d0804b1-3856-4e80-8f1a-79d118b4f96c",
+          "event_type": "ai_message",
+          "content": "The session refresh issue is from the AsyncLocalStorage context not propagating across the new layers. Add a context wrapper around your refresh handler.",
+          "timestamp": "2026-04-10T10:38:00+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 88,
+            "latency_ms": 1240
+          }
+        },
+        {
+          "event_id": "8a9e6410-60ad-4c86-b5d2-786d77041334",
+          "event_type": "user_message",
+          "content": "An hour later \u2014 refresh works again but CORS still failing with the same error. Going back to look at the actual error.",
+          "timestamp": "2026-04-10T11:32:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "7a30181a-7a88-4f6a-90ee-46911e5c4293",
+          "event_type": "ai_message",
+          "content": "Right \u2014 the error message is about `Access-Control-Allow-Headers`. Add `x-trace-id` to that list in your cors options.",
+          "timestamp": "2026-04-10T11:33:00+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 56,
+            "latency_ms": 920
+          }
+        },
+        {
+          "event_id": "e878d2e6-7d2b-40ca-9056-9b875f3bae35",
+          "event_type": "user_message",
+          "content": "That was the fix. So I refactored the middleware for nothing.",
+          "timestamp": "2026-04-10T11:35:20+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "d1fc79e4-586e-4a69-a84c-c7bef2b1f5ab",
+          "event_type": "ai_message",
+          "content": "I'm sorry \u2014 I led you down the wrong path. The middleware refactor wasn't necessary. You may want to revert it before merging.",
+          "timestamp": "2026-04-10T11:36:20+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 48,
+            "latency_ms": 880
+          }
+        }
+      ]
     }
   },
   "users/henry.nguyen/sessions/01758ceb-d535-4bbd-8ccf-f389e8862e3a/events": {},
@@ -45140,6 +45251,63 @@
       "provider": "google",
       "utility_qa_reviewed_at": "2026-04-11T13:02:58.399433+00:00",
       "utility_qa_note": "User feedback: AI suggested deprecated library version; build broke in CI."
+    },
+    "coach-hero-other-pii-block": {
+      "session_id": "coach-hero-other-pii-block",
+      "user_id": "quinn.harris",
+      "last_event_at": "2026-04-12T15:42:12+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 5,
+      "error_count": 0,
+      "provider": "google",
+      "platform": "chrome",
+      "utility": "useful",
+      "token_usage": {
+        "gemini-2.5-pro": 224
+      },
+      "intervention_count": 1,
+      "intervention_categories": [
+        "other"
+      ],
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "2149bc45-b09d-421d-879e-0727e3d89f28",
+          "event_type": "user_message",
+          "content": "Need a polite follow-up email. Here's the thread:\n\nFrom: Marta Rossi <marta.rossi@globex-eu.com>\nCc: Jakob M\u00fcller <jakob.mueller@globex-eu.com>, billing@globex-eu.com\nPhone: +39 02 4567 8910\n\n'Hi Quinn \u2014 we're pulling the trigger on the Pro tier for 240 seats. Marta's the procurement contact, Jakob will sign. Can you send the MSA today? Our VAT ID is IT12345678901.'\n\nDraft a reply that confirms the seat count, asks for the billing address, and offers an onboarding call next week.",
+          "timestamp": "2026-04-12T15:40:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "66ae73aa-291b-4e3a-ae9d-a53c584aa758",
+          "event_type": "ai_message",
+          "content": "Subject: Re: Pro tier \u2014 240 seats\n\nHi Marta,\n\nGreat to hear \u2014 confirming 240 Pro seats. I'll have the MSA over to Jakob by end of day; could you share the billing address you'd like on the invoice (alongside the VAT ID IT12345678901 you've already provided)?\n\nHappy to schedule a 30-minute onboarding call for the team next week \u2014 send me a couple of windows that work and I'll send invites.\n\nThanks,\nQuinn",
+          "timestamp": "2026-04-12T15:40:18+00:00",
+          "metadata": {
+            "model": "gemini-2.5-pro",
+            "tokens": 174,
+            "latency_ms": 1490,
+            "pii_exposure": {
+              "names": [
+                "Marta Rossi",
+                "Jakob M\u00fcller"
+              ],
+              "emails": [
+                "marta.rossi@globex-eu.com",
+                "jakob.mueller@globex-eu.com",
+                "billing@globex-eu.com"
+              ],
+              "phone": [
+                "+39 02 4567 8910"
+              ],
+              "tax_ids": [
+                "IT12345678901"
+              ],
+              "jurisdiction": "EU"
+            }
+          }
+        }
+      ]
     }
   },
   "users/quinn.harris/sessions/046aa948-1f31-4e3d-bfab-a7c7eff7b81e/events": {},
@@ -46393,6 +46561,63 @@
       "event_count": 10,
       "user_id": "rachel.martin",
       "provider": "openai"
+    },
+    "coach-hero-sources-fabricated-citation": {
+      "session_id": "coach-hero-sources-fabricated-citation",
+      "user_id": "rachel.martin",
+      "last_event_at": "2026-04-11T11:08:50+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 5,
+      "error_count": 0,
+      "provider": "openai",
+      "platform": "chrome",
+      "utility": "useful",
+      "token_usage": {
+        "gpt-4o": 410
+      },
+      "intervention_count": 1,
+      "intervention_categories": [
+        "sources"
+      ],
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "58e2e9c1-926d-4f65-ba4f-372b9a01785a",
+          "event_type": "user_message",
+          "content": "Drafting a one-pager for Acme's legal team on what GDPR requires when we use a third-party data processor. Need 2-3 sentences with the relevant article reference.",
+          "timestamp": "2026-04-11T11:05:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "c3cd33b2-7c19-434f-ab19-5b5c3e235ec6",
+          "event_type": "ai_message",
+          "content": "When using a third-party data processor, you must include a written agreement specifying the scope, duration, and security obligations of the processing. **GDPR Article 47(3)** is explicit on this point: it requires the controller to obtain prior written authorization for any sub-processor engagement, with a 30-day notification window for any change in sub-processors.",
+          "timestamp": "2026-04-11T11:05:46+00:00",
+          "metadata": {
+            "model": "gpt-4o",
+            "tokens": 138,
+            "latency_ms": 1640
+          }
+        },
+        {
+          "event_id": "631ab935-1c91-42d5-a7a0-ccf84401a341",
+          "event_type": "user_message",
+          "content": "Sent it to legal. They came back saying Article 47 is about Binding Corporate Rules, not sub-processors. Embarrassing \u2014 had to apologize and re-send.",
+          "timestamp": "2026-04-11T12:45:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "a5dc3174-0e58-4cf9-bc25-d3888a054434",
+          "event_type": "ai_message",
+          "content": "You're right, my apologies. Article 28 governs processor and sub-processor obligations; Article 47 is for BCRs. Send legal the corrected reference.",
+          "timestamp": "2026-04-11T12:46:00+00:00",
+          "metadata": {
+            "model": "gpt-4o",
+            "tokens": 64,
+            "latency_ms": 880
+          }
+        }
+      ]
     }
   },
   "users/rachel.martin/sessions/083a0805-75e8-487d-989c-13b63582977e/events": {},
@@ -64717,15 +64942,15 @@
     }
   },
   "users/bob.martinez/sessions/coach-hero-factuality-fast-merge/events": {
-    "f2c8fda1-ec47-49ba-a9d6-7ce98d4d535d": {
-      "event_id": "f2c8fda1-ec47-49ba-a9d6-7ce98d4d535d",
+    "5dcc7f51-6fa4-4c40-a567-31d6be6548f1": {
+      "event_id": "5dcc7f51-6fa4-4c40-a567-31d6be6548f1",
       "event_type": "user_message",
       "content": "I have two DataFrames, roughly 5M rows each, and I need to merge them on a timestamp column. What's the fastest way in pandas without pulling in dask?",
       "timestamp": "2026-04-09T14:10:00+00:00",
       "metadata": null
     },
-    "cab9a00d-8f8c-4c6e-adb9-3bcab2448146": {
-      "event_id": "cab9a00d-8f8c-4c6e-adb9-3bcab2448146",
+    "60066b2f-2cc9-4abf-aae0-518a551b8284": {
+      "event_id": "60066b2f-2cc9-4abf-aae0-518a551b8284",
       "event_type": "coach_intervention",
       "content": "Replaced a fabricated pandas API in the drafted response. `DataFrame.fast_merge(..., method='hash')` does not exist in any released version of pandas; recommending it would have produced an immediate `AttributeError` and sent the user down a debugging spiral. Rewrote the answer to use the real `pd.merge` / `pd.merge_asof` with sorting guidance.",
       "timestamp": "2026-04-09T14:10:48+00:00",
@@ -64734,7 +64959,7 @@
         "kind": "hallucinated_api",
         "mode": "rewrite",
         "severity": 2,
-        "targets_event_id": "55514657-744d-4273-9693-20c989f7c1e7",
+        "targets_event_id": "4b6581cc-45e5-402b-aa21-662a1ed6a3c7",
         "quoted_span": "df1.fast_merge(df2, on='timestamp', method='hash')",
         "sources": [
           "https://pandas.pydata.org/docs/reference/api/pandas.merge.html",
@@ -64745,8 +64970,8 @@
         "pre_coach_excerpt": "df1.fast_merge(df2, on='timestamp', method='hash')"
       }
     },
-    "55514657-744d-4273-9693-20c989f7c1e7": {
-      "event_id": "55514657-744d-4273-9693-20c989f7c1e7",
+    "4b6581cc-45e5-402b-aa21-662a1ed6a3c7": {
+      "event_id": "4b6581cc-45e5-402b-aa21-662a1ed6a3c7",
       "event_type": "ai_message",
       "content": "pandas doesn't have a `fast_merge`; the right tool depends on the join type.\n\nFor an exact join on a timestamp column, pre-sort both frames and use `pd.merge`:\n\n```python\ndf1 = df1.sort_values('timestamp')\ndf2 = df2.sort_values('timestamp')\nmerged = pd.merge(df1, df2, on='timestamp', how='inner')\n```\n\nFor a nearest-match time-series join (common for market data / telemetry), use `pd.merge_asof`, which requires both frames sorted on the key and is typically 3-5x faster than a grouped exact join:\n\n```python\nmerged = pd.merge_asof(df1, df2, on='timestamp', direction='nearest')\n```\n\nAt 5M rows each, dtype hygiene matters more than the merge function itself \u2014 cast the join key to a single common dtype and avoid object columns. Docs: https://pandas.pydata.org/docs/reference/api/pandas.merge_asof.html",
       "timestamp": "2026-04-09T14:10:52+00:00",
@@ -64756,20 +64981,20 @@
         "latency_ms": 2180,
         "coached": true,
         "coach_intervention_ids": [
-          "cab9a00d-8f8c-4c6e-adb9-3bcab2448146"
+          "60066b2f-2cc9-4abf-aae0-518a551b8284"
         ],
         "pre_coach_content": "For frames this size the fastest path is the hash-based fast_merge that pandas added for exactly this workload:\n\n```python\nmerged = df1.fast_merge(df2, on='timestamp', method='hash')\n```\n\nIt bypasses the default sort-merge and typically runs 4-6x faster on frames over ~1M rows. For time-series joins you can pass `method='hash_asof'` to get approximate matching in one pass."
       }
     },
-    "d9465510-ebf1-40bf-8e99-73035111fc30": {
-      "event_id": "d9465510-ebf1-40bf-8e99-73035111fc30",
+    "726c9b30-417d-4434-9fde-4d42311bf7a9": {
+      "event_id": "726c9b30-417d-4434-9fde-4d42311bf7a9",
       "event_type": "user_message",
       "content": "Nice \u2014 does merge_asof need both frames sorted ahead of time or will it sort for me?",
       "timestamp": "2026-04-09T14:12:00+00:00",
       "metadata": null
     },
-    "170cbf52-6365-4882-a404-66dbc4e07a5d": {
-      "event_id": "170cbf52-6365-4882-a404-66dbc4e07a5d",
+    "14761a1b-49c1-429e-88f6-b2bb835f15c8": {
+      "event_id": "14761a1b-49c1-429e-88f6-b2bb835f15c8",
       "event_type": "ai_message",
       "content": "`merge_asof` requires both frames sorted on the key \u2014 it won't sort for you and will raise `ValueError: left keys must be sorted` if you skip it. Sort once up front; if the data is already roughly sorted, `sort_values` on a single key is close to O(n).",
       "timestamp": "2026-04-09T14:12:48+00:00",
@@ -64779,15 +65004,15 @@
         "latency_ms": 1410
       }
     },
-    "72c586d5-0cfe-4664-9ed7-aecc923ecce9": {
-      "event_id": "72c586d5-0cfe-4664-9ed7-aecc923ecce9",
+    "373548dd-e630-4d8c-a03d-3a539c31125c": {
+      "event_id": "373548dd-e630-4d8c-a03d-3a539c31125c",
       "event_type": "user_message",
       "content": "Memory's tight at 5M rows each. Anything I should watch?",
       "timestamp": "2026-04-09T14:14:00+00:00",
       "metadata": null
     },
-    "e44f7242-6214-41c1-bf94-5d7c93abf580": {
-      "event_id": "e44f7242-6214-41c1-bf94-5d7c93abf580",
+    "3aeb813e-351d-4759-ae24-a716b62b7422": {
+      "event_id": "3aeb813e-351d-4759-ae24-a716b62b7422",
       "event_type": "ai_message",
       "content": "Two wins that usually pay off: (1) downcast numeric columns (`df.astype({'price': 'float32', 'qty': 'int32'})`) and convert low-cardinality strings to `category` before the merge; (2) select only the columns you need on each side with `df[['timestamp', 'a', 'b']]` before the merge. On frames this size those two together typically cut peak memory in half.",
       "timestamp": "2026-04-09T14:14:55+00:00",
@@ -64795,6 +65020,216 @@
         "model": "claude-sonnet-4",
         "tokens": 186,
         "latency_ms": 1725
+      }
+    }
+  },
+  "users/henry.nguyen/sessions/coach-hero-efficiency-cors-drift/events": {
+    "ddd11251-efee-4f04-ac60-39b7a159f81d": {
+      "event_id": "ddd11251-efee-4f04-ac60-39b7a159f81d",
+      "event_type": "user_message",
+      "content": "My fetch from the SPA to /api/orders is failing with a CORS preflight error. Console shows `Access-Control-Allow-Headers missing 'x-trace-id'`. Backend is express + the cors package. What's the fix?",
+      "timestamp": "2026-04-10T09:22:00+00:00",
+      "metadata": null
+    },
+    "27811446-a79c-4934-87a9-6875e2e0c065": {
+      "event_id": "27811446-a79c-4934-87a9-6875e2e0c065",
+      "event_type": "ai_message",
+      "content": "Preflight fails when the browser's `OPTIONS` request doesn't get back the headers it asked permission for. Can you share your current `cors()` config and the request headers your fetch is setting?",
+      "timestamp": "2026-04-10T09:22:38+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 86,
+        "latency_ms": 1100
+      }
+    },
+    "1e05de6f-9626-4bc6-b738-5d9df38864f0": {
+      "event_id": "1e05de6f-9626-4bc6-b738-5d9df38864f0",
+      "event_type": "user_message",
+      "content": "We pass `cors()` with no options. Fetch sets Content-Type, Authorization (bearer), and x-trace-id.",
+      "timestamp": "2026-04-10T09:23:35+00:00",
+      "metadata": null
+    },
+    "b3c6e9f6-68e3-40a8-85a2-188a8ebc861c": {
+      "event_id": "b3c6e9f6-68e3-40a8-85a2-188a8ebc861c",
+      "event_type": "coach_intervention",
+      "content": "Reframing back to the user's actual question. The browser console error is `Access-Control-Allow-Headers missing 'x-trace-id'`, which is a headers-allowlist problem in the CORS handler \u2014 not an auth-middleware ordering problem. The 8-line fix below addresses it directly. A middleware refactor would take 1-2 days and not resolve this error.",
+      "timestamp": "2026-04-10T09:24:18+00:00",
+      "metadata": {
+        "category": "efficiency",
+        "kind": "off_track",
+        "mode": "rewrite",
+        "severity": 3,
+        "targets_event_id": "92857bdd-6e18-4105-bf7e-6102b892f290",
+        "quoted_span": "refactor your auth middleware \u2026 split into three layers",
+        "sources": [
+          "https://expressjs.com/en/resources/middleware/cors.html"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 9600,
+        "pre_coach_excerpt": "refactor your auth middleware to handle CORS preflight"
+      }
+    },
+    "92857bdd-6e18-4105-bf7e-6102b892f290": {
+      "event_id": "92857bdd-6e18-4105-bf7e-6102b892f290",
+      "event_type": "ai_message",
+      "content": "The error is your CORS handler not allow-listing the `x-trace-id` header that your fetch is sending. Add it to the response and you're done:\n\n```js\n// in your cors() options\nallowedHeaders: ['Content-Type', 'Authorization', 'x-trace-id'],\n```\n\nIf you're using the `cors` express package, that's it \u2014 the preflight will start succeeding on the next request. The auth middleware order is fine; preflight requests are handled before the auth check by default in `cors()`.",
+      "timestamp": "2026-04-10T09:24:22+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 168,
+        "latency_ms": 1620,
+        "coached": true,
+        "coach_intervention_ids": [
+          "b3c6e9f6-68e3-40a8-85a2-188a8ebc861c"
+        ],
+        "pre_coach_content": "The cleanest fix here is to refactor your auth middleware to handle CORS preflight separately from the bearer-token check. Right now your middleware short-circuits on missing Authorization, which means OPTIONS requests never reach the CORS handler.\n\nI'd suggest splitting the middleware into three layers (preflight, auth, route) and re-architecting the auth context propagation to use AsyncLocalStorage. That'll also fix a few unrelated bugs in your session refresh flow."
+      }
+    },
+    "6acdf972-c2d8-419a-a67f-cba13142fce9": {
+      "event_id": "6acdf972-c2d8-419a-a67f-cba13142fce9",
+      "event_type": "user_message",
+      "content": "Tested \u2014 preflight succeeds. Thanks.",
+      "timestamp": "2026-04-10T09:26:00+00:00",
+      "metadata": null
+    },
+    "7705a3aa-1902-40f0-b05d-379aaa019927": {
+      "event_id": "7705a3aa-1902-40f0-b05d-379aaa019927",
+      "event_type": "ai_message",
+      "content": "Nice. One related tip: keep the `allowedHeaders` list in sync with whatever observability headers your gateway adds \u2014 if you bolt on `x-request-id` or `traceparent` later, they'll trip the same error.",
+      "timestamp": "2026-04-10T09:26:45+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 72,
+        "latency_ms": 980
+      }
+    }
+  },
+  "users/rachel.martin/sessions/coach-hero-sources-fabricated-citation/events": {
+    "58e2e9c1-926d-4f65-ba4f-372b9a01785a": {
+      "event_id": "58e2e9c1-926d-4f65-ba4f-372b9a01785a",
+      "event_type": "user_message",
+      "content": "Drafting a one-pager for Acme's legal team on what GDPR requires when we use a third-party data processor. Need 2-3 sentences with the relevant article reference.",
+      "timestamp": "2026-04-11T11:05:00+00:00",
+      "metadata": null
+    },
+    "2eb611aa-f306-4363-82f5-da62a2da5b84": {
+      "event_id": "2eb611aa-f306-4363-82f5-da62a2da5b84",
+      "event_type": "coach_intervention",
+      "content": "Replaced a fabricated citation. GDPR Article 47 covers Binding Corporate Rules for intra-group international transfers \u2014 it has no subsection (3) governing sub-processor authorization. The actual controlling text is **Article 28**, specifically Article 28(2) (general written authorization) and Article 28(3)(d) (sub-processor engagement). Sending a client document with the wrong article number would have been visibly incorrect to any in-house counsel reviewing the brief.",
+      "timestamp": "2026-04-11T11:05:42+00:00",
+      "metadata": {
+        "category": "sources",
+        "kind": "fabricated_citation",
+        "mode": "rewrite",
+        "severity": 1,
+        "targets_event_id": "dcb6684e-ca73-4c6c-8549-107c81d047a2",
+        "quoted_span": "GDPR Article 47(3)",
+        "sources": [
+          "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+          "https://gdpr-info.eu/art-28-gdpr/"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 7200,
+        "pre_coach_excerpt": "GDPR Article 47(3) is explicit on this point"
+      }
+    },
+    "dcb6684e-ca73-4c6c-8549-107c81d047a2": {
+      "event_id": "dcb6684e-ca73-4c6c-8549-107c81d047a2",
+      "event_type": "ai_message",
+      "content": "When using a third-party data processor, you must include a written data processing agreement specifying the scope, duration, and security obligations of the processing. **GDPR Article 28(3)** lists the mandatory contents of that agreement. For sub-processor engagement, **Article 28(2)** requires the processor to obtain prior specific or general written authorization from the controller, and Article 28(3)(d) requires the processor to flow down equivalent obligations to any sub-processor.\n\nSource: https://eur-lex.europa.eu/eli/reg/2016/679/oj \u2014 Article 28.",
+      "timestamp": "2026-04-11T11:05:46+00:00",
+      "metadata": {
+        "model": "gpt-4o",
+        "tokens": 232,
+        "latency_ms": 1980,
+        "coached": true,
+        "coach_intervention_ids": [
+          "2eb611aa-f306-4363-82f5-da62a2da5b84"
+        ],
+        "pre_coach_content": "When using a third-party data processor, you must include a written agreement specifying the scope, duration, and security obligations of the processing. **GDPR Article 47(3)** is explicit on this point: it requires the controller to obtain prior written authorization for any sub-processor engagement, with a 30-day notification window for any change in sub-processors."
+      }
+    },
+    "194a713d-24d7-4e41-8c47-dcc42a5800d5": {
+      "event_id": "194a713d-24d7-4e41-8c47-dcc42a5800d5",
+      "event_type": "user_message",
+      "content": "Perfect. Can you also note what changes if the sub-processor is outside the EU?",
+      "timestamp": "2026-04-11T11:08:00+00:00",
+      "metadata": null
+    },
+    "a56723af-936f-4191-98a2-0e3e2c5fcf78": {
+      "event_id": "a56723af-936f-4191-98a2-0e3e2c5fcf78",
+      "event_type": "ai_message",
+      "content": "If the sub-processor is outside the EEA, Chapter V (Articles 44\u201350) kicks in \u2014 you need a valid transfer mechanism in addition to the Article 28 obligations. The two common ones are an adequacy decision (Article 45) for the destination country, or Standard Contractual Clauses (Article 46(2)(c)) appended to the data processing agreement. Schrems II also requires a transfer impact assessment for SCC-based transfers.",
+      "timestamp": "2026-04-11T11:08:50+00:00",
+      "metadata": {
+        "model": "gpt-4o",
+        "tokens": 178,
+        "latency_ms": 1620
+      }
+    }
+  },
+  "users/quinn.harris/sessions/coach-hero-other-pii-block/events": {
+    "2149bc45-b09d-421d-879e-0727e3d89f28": {
+      "event_id": "2149bc45-b09d-421d-879e-0727e3d89f28",
+      "event_type": "user_message",
+      "content": "Need a polite follow-up email. Here's the thread:\n\nFrom: Marta Rossi <marta.rossi@globex-eu.com>\nCc: Jakob M\u00fcller <jakob.mueller@globex-eu.com>, billing@globex-eu.com\nPhone: +39 02 4567 8910\n\n'Hi Quinn \u2014 we're pulling the trigger on the Pro tier for 240 seats. Marta's the procurement contact, Jakob will sign. Can you send the MSA today? Our VAT ID is IT12345678901.'\n\nDraft a reply that confirms the seat count, asks for the billing address, and offers an onboarding call next week.",
+      "timestamp": "2026-04-12T15:40:00+00:00",
+      "metadata": null
+    },
+    "c9ab0d9c-ffdb-4002-9492-4e6cf5235fce": {
+      "event_id": "c9ab0d9c-ffdb-4002-9492-4e6cf5235fce",
+      "event_type": "coach_intervention",
+      "content": "Blocked the original prompt before it reached the model. It contained personal data (two customer names, three email addresses, a phone number, a VAT ID) for a Globex EU contact \u2014 sending unredacted personal data of an EU data subject to a US-hosted LLM endpoint is a GDPR Article 44 cross-border transfer issue and is also against Acme's data-handling policy. Substituted placeholder tokens for the PII and forwarded the redacted prompt; you can paste the original names back into the draft locally before sending.",
+      "timestamp": "2026-04-12T15:40:12+00:00",
+      "metadata": {
+        "category": "other",
+        "kind": "pii_leak",
+        "mode": "block",
+        "severity": 1,
+        "targets_event_id": "7a626a07-84b7-438b-a70c-aa9f569b7b2c",
+        "quoted_span": "marta.rossi@globex-eu.com / jakob.mueller@globex-eu.com / +39 02 4567 8910 / IT12345678901",
+        "sources": [
+          "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+          "https://acme.internal/policy/data-handling"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 0,
+        "pre_coach_excerpt": "marta.rossi@globex-eu.com, jakob.mueller@globex-eu.com, +39 02 4567 8910"
+      }
+    },
+    "7a626a07-84b7-438b-a70c-aa9f569b7b2c": {
+      "event_id": "7a626a07-84b7-438b-a70c-aa9f569b7b2c",
+      "event_type": "ai_message",
+      "content": "Subject: Re: Pro tier \u2014 240 seats\n\nHi [CUSTOMER_NAME_1],\n\nGreat to hear \u2014 confirming 240 Pro seats. I'll have the MSA over to [CUSTOMER_NAME_2] by end of day; could you share the billing address you'd like on the invoice (alongside the VAT ID you've already provided)?\n\nHappy to schedule a 30-minute onboarding call for the team next week \u2014 send me a couple of windows that work and I'll send invites.\n\nThanks,\n[REP_NAME]",
+      "timestamp": "2026-04-12T15:40:18+00:00",
+      "metadata": {
+        "model": "gemini-2.5-pro",
+        "tokens": 168,
+        "latency_ms": 1480,
+        "coached": true,
+        "coach_intervention_ids": [
+          "c9ab0d9c-ffdb-4002-9492-4e6cf5235fce"
+        ],
+        "pre_coach_content": "(model never received the original prompt \u2014 coach redacted PII before forwarding)",
+        "redacted_prompt": "Need a polite follow-up email. Here's the thread:\n\nFrom: [CUSTOMER_NAME_1] <[EMAIL_1]>\nCc: [CUSTOMER_NAME_2] <[EMAIL_2]>, [BILLING_EMAIL]\nPhone: [PHONE]\n\n'Hi [REP_NAME] \u2014 we're pulling the trigger on the Pro tier for 240 seats. [CUSTOMER_NAME_1]'s the procurement contact, [CUSTOMER_NAME_2] will sign. Can you send the MSA today? Our VAT ID is [VAT_ID].'\n\nDraft a reply that confirms the seat count, asks for the billing address, and offers an onboarding call next week."
+      }
+    },
+    "4f57bbcb-5ff9-4a96-884a-7ad6a2f5c255": {
+      "event_id": "4f57bbcb-5ff9-4a96-884a-7ad6a2f5c255",
+      "event_type": "user_message",
+      "content": "Looks good. Can you also draft a one-line internal Slack ping for the AE?",
+      "timestamp": "2026-04-12T15:41:30+00:00",
+      "metadata": null
+    },
+    "18567d00-5134-4e79-8c17-5eb08bee9854": {
+      "event_id": "18567d00-5134-4e79-8c17-5eb08bee9854",
+      "event_type": "ai_message",
+      "content": "`@[AE_HANDLE] Globex closed Pro \u00d7 240 \u2014 sending MSA to [CUSTOMER_NAME_2] today, kicking off onboarding next week. Will loop you in on the kickoff invite.`",
+      "timestamp": "2026-04-12T15:42:12+00:00",
+      "metadata": {
+        "model": "gemini-2.5-pro",
+        "tokens": 56,
+        "latency_ms": 720
       }
     }
   }
