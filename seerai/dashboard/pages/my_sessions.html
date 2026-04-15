@@ -25,15 +25,31 @@
     </div>
     <script>
         const userId = decodeURIComponent(window.location.pathname.split('/')[2]);
-        const UTILITY_HOURS = {non_work: 0, trivial: 0.05, useful: 0.25};
+        // Mirrors seerai.cost.endpoint — see the /exec/costs page for the full formula.
+        const UTILITY_HOURS = { non_work: 0, trivial: 0.05, useful: 0.25, harmful: -0.30 };
+        const DISPLACEMENT = 0.5;
         function sessionValue(rate, eventCount, utility) {
             const factor = UTILITY_HOURS[utility];
-            if (!factor || eventCount < 1) return 0;
-            return rate * Math.log2(Math.max(eventCount, 1)) * factor;
+            if (factor == null || factor === 0 || eventCount < 1) return 0;
+            const raw = rate * Math.log2(Math.max(eventCount, 1)) * factor;
+            return factor > 0 ? raw * DISPLACEMENT : raw;
         }
 
+        const UTILITY_FILTERS = [
+            { key: 'all',          label: 'All' },
+            { key: 'useful',       label: 'Useful',       dot: 'bg-emerald-500' },
+            { key: 'trivial',      label: 'Trivial',      dot: 'bg-blue-400' },
+            { key: 'non_work',     label: 'Non-work',     dot: 'bg-gray-400' },
+            { key: 'harmful',      label: 'Harmful',      dot: 'bg-red-500' },
+            { key: 'unclassified', label: 'Unclassified', dot: 'bg-gray-300 dark:bg-gray-600' },
+        ];
+        const UTILITY_ORDER = { useful: 4, trivial: 3, non_work: 2, harmful: 1, null: 0, undefined: 0 };
+        const urlParams = new URLSearchParams(location.search);
+
         let allSessions = [];
-        let activeFilter = null;
+        let dateFilter = null;
+        let utilityFilter = urlParams.get('utility') || 'all';
+        let sortKey = urlParams.get('sort') || 'last_event_at-desc';
         let hourlyRate = 0;
 
         fetch(`/api/users/${encodeURIComponent(userId)}/heatmap`)
@@ -89,40 +105,132 @@
                 });
             }
             allSessions = sessions;
-            renderSessions(sessions);
+            renderSessions();
         })
         .catch(e => {
             document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
         });
 
         function filterByDate(iso) {
-            if (activeFilter === iso) { activeFilter = null; renderSessions(allSessions); return; }
-            activeFilter = iso;
-            renderSessions(allSessions.filter(s => s.last_event_at.slice(0, 10) === iso));
+            if (dateFilter === iso) { dateFilter = null; renderSessions(); return; }
+            dateFilter = iso;
+            renderSessions();
         }
 
-        function renderSessions(sessions) {
-            const el = document.getElementById('content');
-            let filterNote = '';
-            if (activeFilter) {
-                filterNote = `<p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Showing sessions from <strong>${activeFilter}</strong> <button onclick="filterByDate('${activeFilter}')" class="text-blue-500 hover:underline ml-1">clear</button></p>`;
+        function setUtilityFilter(key) {
+            utilityFilter = key;
+            syncUrl();
+            renderSessions();
+        }
+
+        function setSort(key) {
+            const [curKey, curDir] = sortKey.split('-');
+            if (curKey === key) {
+                sortKey = `${key}-${curDir === 'asc' ? 'desc' : 'asc'}`;
+            } else {
+                const defaults = { last_event_at: 'desc', event_count: 'desc', value: 'desc', utility: 'desc' };
+                sortKey = `${key}-${defaults[key] || 'desc'}`;
             }
+            syncUrl();
+            renderSessions();
+        }
+
+        function syncUrl() {
+            const p = new URLSearchParams();
+            if (utilityFilter !== 'all') p.set('utility', utilityFilter);
+            if (sortKey !== 'last_event_at-desc') p.set('sort', sortKey);
+            const q = p.toString();
+            history.replaceState(null, '', location.pathname + (q ? '?' + q : ''));
+        }
+
+        function compareSessions(a, b, key) {
+            if (key === 'event_count') return a.event_count - b.event_count;
+            if (key === 'value') {
+                return sessionValue(hourlyRate, a.event_count, a.utility)
+                     - sessionValue(hourlyRate, b.event_count, b.utility);
+            }
+            if (key === 'utility') return (UTILITY_ORDER[a.utility] ?? 0) - (UTILITY_ORDER[b.utility] ?? 0);
+            return a.last_event_at.localeCompare(b.last_event_at);
+        }
+
+        function applyFiltersAndSort(sessions) {
+            let out = sessions;
+            if (dateFilter) out = out.filter(s => s.last_event_at.slice(0, 10) === dateFilter);
+            if (utilityFilter !== 'all') out = out.filter(s => (s.utility || 'unclassified') === utilityFilter);
+            const [key, dir] = sortKey.split('-');
+            out = [...out].sort((a, b) => compareSessions(a, b, key));
+            if (dir === 'desc') out.reverse();
+            return out;
+        }
+
+        function utilityFilterBar() {
+            const counts = { all: allSessions.length };
+            for (const s of allSessions) {
+                const k = s.utility || 'unclassified';
+                counts[k] = (counts[k] || 0) + 1;
+            }
+            return '<div class="flex flex-wrap gap-1.5 mb-3">'
+                + UTILITY_FILTERS.map(f => {
+                    const n = counts[f.key] || 0;
+                    if (f.key !== 'all' && n === 0) return '';
+                    const active = utilityFilter === f.key;
+                    const bg = active
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500';
+                    const dot = f.dot ? `<span class="inline-block w-2 h-2 rounded-full ${f.dot} mr-1.5"></span>` : '';
+                    return `<button onclick="setUtilityFilter('${f.key}')" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${bg}">${dot}${esc(f.label)}<span class="ml-1.5 text-[0.65rem] ${active ? 'text-white/80' : 'text-gray-400'}">${n}</span></button>`;
+                }).join('')
+                + '</div>';
+        }
+
+        function sortArrow(forKey) {
+            const [key, dir] = sortKey.split('-');
+            if (key !== forKey) return '<span class="text-gray-300 dark:text-gray-600 ml-1">↕</span>';
+            return dir === 'asc'
+                ? '<span class="text-blue-500 ml-1">↑</span>'
+                : '<span class="text-blue-500 ml-1">↓</span>';
+        }
+
+        function sortableTh(forKey, label, align) {
+            const a = align || 'left';
+            return `<th class="text-${a} px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400 cursor-pointer select-none hover:text-gray-800 dark:hover:text-gray-200" onclick="setSort('${forKey}')">${esc(label)}${sortArrow(forKey)}</th>`;
+        }
+
+        function renderSessions() {
+            const el = document.getElementById('content');
+            const sessions = applyFiltersAndSort(allSessions);
+
+            const filteredValue = sessions.reduce((s, x) => s + sessionValue(hourlyRate, x.event_count, x.utility), 0);
+            const fvColor = filteredValue < 0 ? 'text-red-500' : filteredValue > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400';
+            const fvLabel = filteredValue < 0 ? '−$' + Math.round(-filteredValue) : '$' + Math.round(filteredValue);
+            const impactLine = utilityFilter !== 'all' || dateFilter
+                ? `<p class="text-xs text-gray-500 dark:text-gray-400 mb-2">${sessions.length} session${sessions.length === 1 ? '' : 's'} · combined value <span class="font-semibold ${fvColor}">${fvLabel}</span></p>`
+                : '';
+
+            let html = utilityFilterBar() + impactLine;
+            if (dateFilter) {
+                html += `<p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Date: <strong>${dateFilter}</strong> <button onclick="filterByDate('${dateFilter}')" class="text-blue-500 hover:underline ml-1">clear</button></p>`;
+            }
+
             if (!sessions.length) {
-                el.innerHTML = filterNote + '<p class="text-gray-400 text-center py-8">' + (activeFilter ? 'No sessions on this date.' : 'No sessions yet.') + '</p>';
+                let emptyMsg = 'No sessions yet.';
+                if (dateFilter) emptyMsg = 'No sessions on this date.';
+                else if (utilityFilter !== 'all') emptyMsg = `No ${utilityFilter.replace('_', '-')} sessions.`;
+                el.innerHTML = html + '<p class="text-gray-400 text-center py-8">' + emptyMsg + '</p>';
                 return;
             }
-            let html = filterNote + `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+            html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
                 <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                 <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
                     <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Session</th>
                     <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Provider</th>
                     <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Platform</th>
-                    <th class="text-center px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Events</th>
-                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Utility</th>
-                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value</th>
+                    ${sortableTh('event_count', 'Events', 'center')}
+                    ${sortableTh('utility', 'Utility', 'left')}
+                    ${sortableTh('value', 'Value', 'right')}
                     <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Event</th>
-                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
+                    ${sortableTh('last_event_at', 'Last Active', 'left')}
                 </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
             for (const s of sessions) {
                 const t = new Date(s.last_event_at).toLocaleString();
@@ -134,16 +242,28 @@
                 const badge = s.last_event_type ? `<span class="text-xs px-1.5 py-0.5 rounded font-medium ${badgeCls}">${s.last_event_type}</span>` : '';
                 const shortId = s.session_id.length > 16 ? s.session_id.slice(0, 16) + '...' : s.session_id;
                 const val = sessionValue(hourlyRate, s.event_count, s.utility);
-                const valLabel = val > 0 ? '$' + val.toFixed(0) : '—';
-                const hrs = val > 0 ? (Math.log2(Math.max(s.event_count,1)) * (UTILITY_HOURS[s.utility]||0)) : 0;
-                const valTitle = val > 0 ? `${hrs.toFixed(1)}hr saved × $${hourlyRate.toFixed(0)}/hr = $${val.toFixed(0)}` : '';
+                let valLabel, valCls, valTitle = '';
+                if (val > 0) {
+                    valLabel = '$' + val.toFixed(0);
+                    valCls = 'text-gray-600 dark:text-gray-400';
+                    const hrs = Math.log2(Math.max(s.event_count, 1)) * (UTILITY_HOURS[s.utility] || 0);
+                    valTitle = `${hrs.toFixed(1)}hr saved × $${hourlyRate.toFixed(0)}/hr × 0.5 displacement = $${val.toFixed(0)}`;
+                } else if (val < 0) {
+                    valLabel = '−$' + Math.abs(val).toFixed(0);
+                    valCls = 'text-red-500';
+                    const hrs = Math.log2(Math.max(s.event_count, 1)) * (UTILITY_HOURS[s.utility] || 0);
+                    valTitle = `${hrs.toFixed(1)}hr cost × $${hourlyRate.toFixed(0)}/hr = -$${Math.abs(val).toFixed(0)} (no displacement on harmful)`;
+                } else {
+                    valLabel = '—';
+                    valCls = 'text-gray-400';
+                }
                 html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                     <td class="px-4 py-2.5"><a href="/my/${encodeURIComponent(userId)}/${encodeURIComponent(s.session_id)}" class="text-blue-600 dark:text-blue-400 hover:underline font-mono text-xs" title="${esc(s.session_id)}">${esc(shortId)}</a></td>
                     <td class="px-4 py-2.5">${providerBadge(s.provider)}</td>
                     <td class="px-4 py-2.5">${platformBadge(s.platform)}</td>
                     <td class="px-4 py-2.5 text-center text-gray-600 dark:text-gray-400">${s.event_count}</td>
                     <td class="px-4 py-2.5">${utilityBadge(s.utility)}</td>
-                    <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400" title="${valTitle}">${valLabel}</td>
+                    <td class="px-4 py-2.5 text-right ${valCls} tabular-nums" title="${valTitle}">${valLabel}</td>
                     <td class="px-4 py-2.5">${badge}</td>
                     <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${t}</td>
                 </tr>`;
