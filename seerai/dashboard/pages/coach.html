@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>seerai — coach</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
+    <script src="/static/nav.js" defer></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+            <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a>
+            <span class="mx-1">/</span>
+            <span class="text-gray-700 dark:text-gray-300">coach</span>
+        </p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+            <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v6c0 4.5-3.1 8.4-7 9-3.9-.6-7-4.5-7-9V6l7-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
+            Coach
+        </h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">
+            What an observer LLM caught and corrected during live AI sessions — factuality, efficiency, sources, and other quality dimensions.
+            Counterfactual values are estimated from the without-coach transcript stored at the time of intervention.
+        </p>
+
+        <!-- Category filter chips -->
+        <div class="flex items-center gap-2 mb-5 flex-wrap" id="filters">
+            <button data-filter="" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors">All</button>
+            <button data-filter="factuality" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors">Factuality</button>
+            <button data-filter="efficiency" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors">Efficiency</button>
+            <button data-filter="sources" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors">Sources</button>
+            <button data-filter="other" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors">Other</button>
+        </div>
+
+        <!-- KPI grid: Without · With · Δ for value, turns; plus interventions count and acceptance -->
+        <div id="kpi-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6"></div>
+
+        <!-- Per-category breakdown -->
+        <div id="categories" class="mb-6"></div>
+
+        <!-- Utility shift table -->
+        <div id="utility-shift" class="mb-6"></div>
+
+        <!-- Recent interventions feed -->
+        <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Recent interventions</h2>
+        <div id="feed"></div>
+    </div>
+
+    <script>
+        const COACH_STYLES = {
+            factuality: { label: 'Factuality', dot: 'bg-rose-500', text: 'text-rose-700 dark:text-rose-300', bg: 'bg-rose-50 dark:bg-rose-900/20', border: 'border-rose-300 dark:border-rose-700/50' },
+            efficiency: { label: 'Efficiency', dot: 'bg-sky-500', text: 'text-sky-700 dark:text-sky-300', bg: 'bg-sky-50 dark:bg-sky-900/20', border: 'border-sky-300 dark:border-sky-700/50' },
+            sources:    { label: 'Sources',    dot: 'bg-violet-500', text: 'text-violet-700 dark:text-violet-300', bg: 'bg-violet-50 dark:bg-violet-900/20', border: 'border-violet-300 dark:border-violet-700/50' },
+            other:      { label: 'Other',      dot: 'bg-amber-500', text: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-300 dark:border-amber-700/50' },
+        };
+
+        let activeFilter = '';
+
+        function fmtMoney(cents) {
+            const dollars = (cents || 0) / 100;
+            const sign = dollars < 0 ? '-' : '';
+            const abs = Math.abs(dollars);
+            if (abs >= 1000) return sign + '$' + (abs / 1000).toFixed(1) + 'k';
+            return sign + '$' + abs.toFixed(0);
+        }
+
+        function fmtNum(n) {
+            n = n || 0;
+            if (Math.abs(n) >= 1000) return (n / 1000).toFixed(1) + 'k';
+            return Math.round(n).toLocaleString();
+        }
+
+        function deltaPill(delta, kind) {
+            // kind: 'currency' | 'count'
+            const positive = delta > 0;
+            const cls = positive
+                ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30'
+                : delta < 0
+                ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30'
+                : 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800';
+            const arrow = positive ? '↑' : delta < 0 ? '↓' : '·';
+            const value = kind === 'currency' ? fmtMoney(delta) : fmtNum(delta);
+            return `<span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${cls}">${arrow} ${value}</span>`;
+        }
+
+        function comparedKpi(title, compared, kind) {
+            const fmt = kind === 'currency' ? fmtMoney : fmtNum;
+            return `<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+                <div class="text-[0.7rem] uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">${esc(title)}</div>
+                <div class="grid grid-cols-3 gap-2 items-end">
+                    <div>
+                        <div class="text-[0.65rem] text-gray-400 mb-0.5">Without</div>
+                        <div class="text-base font-medium text-gray-500 dark:text-gray-400 line-through opacity-80">${fmt(compared.without_coach)}</div>
+                    </div>
+                    <div>
+                        <div class="text-[0.65rem] text-gray-400 mb-0.5">With</div>
+                        <div class="text-xl font-bold text-gray-900 dark:text-white">${fmt(compared.with_coach)}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[0.65rem] text-gray-400 mb-0.5">Δ</div>
+                        ${deltaPill(compared.delta, kind)}
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function plainKpi(title, value, sub) {
+            return `<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+                <div class="text-[0.7rem] uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">${esc(title)}</div>
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">${value}</div>
+                ${sub ? `<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${sub}</div>` : ''}
+            </div>`;
+        }
+
+        function renderKpis(s) {
+            const acceptance = s.interventions_accepted && s.interventions_total
+                ? Math.round((s.interventions_accepted / s.interventions_total) * 100) + '%'
+                : '—';
+            document.getElementById('kpi-grid').innerHTML = [
+                comparedKpi('Estimated value', s.value_cents, 'currency'),
+                comparedKpi('Conversation turns', s.turns, 'count'),
+                plainKpi('Interventions',
+                    fmtNum(s.interventions_total),
+                    `across ${s.coached_sessions} of ${s.sessions_observed} sessions`),
+                plainKpi('Acceptance', acceptance,
+                    `${s.interventions_accepted} of ${s.interventions_total} accepted`),
+            ].join('');
+        }
+
+        function renderCategories(s) {
+            if (!s.by_category.length) {
+                document.getElementById('categories').innerHTML =
+                    '<div class="rounded-xl border border-dashed border-gray-200 dark:border-gray-800 p-6 text-center text-sm text-gray-400">No interventions in this scope.</div>';
+                return;
+            }
+            const max = Math.max(...s.by_category.map(c => c.interventions));
+            const cards = s.by_category.map(c => {
+                const st = COACH_STYLES[c.category] || COACH_STYLES.other;
+                const pct = max ? Math.round(100 * c.interventions / max) : 0;
+                const acc = c.interventions ? Math.round(100 * c.accepted / c.interventions) : 0;
+                return `<div class="rounded-xl border ${st.border} ${st.bg} p-4">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="inline-flex items-center gap-1.5 text-sm font-semibold ${st.text}">
+                            <span class="w-2 h-2 rounded-full ${st.dot}"></span>${st.label}
+                        </span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">${fmtMoney(c.estimated_savings_cents)}</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-2xl font-bold text-gray-900 dark:text-white">${c.interventions}</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">interventions · ${acc}% accepted</span>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-white/60 dark:bg-black/30 overflow-hidden">
+                        <div class="h-full ${st.dot}" style="width: ${pct}%"></div>
+                    </div>
+                </div>`;
+            }).join('');
+            document.getElementById('categories').innerHTML =
+                `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">${cards}</div>`;
+        }
+
+        function renderUtilityShift(s) {
+            const el = document.getElementById('utility-shift');
+            if (!s.utility_shifts.length) { el.innerHTML = ''; return; }
+            const rows = s.utility_shifts.map(sh => `
+                <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
+                    <td class="py-2 pr-4 text-sm text-gray-500 dark:text-gray-400">${esc(sh.from_class)}</td>
+                    <td class="py-2 pr-4 text-gray-300 dark:text-gray-700">→</td>
+                    <td class="py-2 pr-4 text-sm font-medium text-gray-900 dark:text-white">${esc(sh.to_class)}</td>
+                    <td class="py-2 text-right text-sm font-semibold text-gray-900 dark:text-white">${sh.sessions}</td>
+                </tr>
+            `).join('');
+            el.innerHTML = `<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+                <div class="text-[0.7rem] uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Utility shifts (counterfactual → actual)</div>
+                <table class="w-full"><tbody>${rows}</tbody></table>
+            </div>`;
+        }
+
+        function renderFeed(items) {
+            const el = document.getElementById('feed');
+            if (!items.length) {
+                el.innerHTML = '<div class="rounded-xl border border-dashed border-gray-200 dark:border-gray-800 p-6 text-center text-sm text-gray-400">No interventions in this scope.</div>';
+                return;
+            }
+            el.innerHTML = items.map(it => {
+                const st = COACH_STYLES[it.category] || COACH_STYLES.other;
+                const date = new Date(it.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const accepted = it.accepted === true
+                    ? '<span class="text-[0.7rem] font-medium text-emerald-700 dark:text-emerald-400">Accepted</span>'
+                    : it.accepted === false
+                    ? '<span class="text-[0.7rem] font-medium text-gray-500 dark:text-gray-400">Ignored</span>'
+                    : '';
+                const savings = it.estimated_savings_cents
+                    ? `<span class="text-[0.7rem] text-gray-500 dark:text-gray-400">${fmtMoney(it.estimated_savings_cents)} saved</span>`
+                    : '';
+                const sources = (it.sources || []).slice(0, 2).map(u =>
+                    `<a href="${esc(u)}" target="_blank" rel="noopener" class="text-[0.7rem] text-blue-600 dark:text-blue-400 hover:underline">${esc(u.replace(/^https?:\/\//, '').slice(0, 40))}</a>`
+                ).join('<span class="mx-1 text-gray-300 dark:text-gray-700">·</span>');
+
+                return `<div class="rounded-xl border ${st.border} ${st.bg} p-4 mb-3">
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold ${st.text}">
+                                <span class="w-2 h-2 rounded-full ${st.dot}"></span>${st.label}
+                            </span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">${esc(it.kind.replace(/_/g, ' '))} · ${esc(it.mode)}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${accepted}${savings}
+                            <span class="text-[0.7rem] text-gray-400">${date}</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-800 dark:text-gray-200 mb-2 leading-relaxed">${esc(it.content)}</p>
+                    ${it.quoted_span ? `<div class="text-xs ${st.text} opacity-80 mb-2">
+                        <span class="font-mono bg-white/60 dark:bg-black/30 px-1.5 py-0.5 rounded">${esc(it.quoted_span)}</span>
+                    </div>` : ''}
+                    <div class="flex items-center justify-between gap-2 flex-wrap text-xs">
+                        <span class="text-gray-500 dark:text-gray-400">
+                            <a href="/sessions/${encodeURIComponent(it.user_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(it.user_id)}</a>
+                            <span class="mx-1 text-gray-300 dark:text-gray-700">·</span>
+                            <a href="/session/${encodeURIComponent(it.user_id)}/${encodeURIComponent(it.session_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">View session</a>
+                        </span>
+                        ${sources ? `<div class="flex items-center gap-1">${sources}</div>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function styleFilters() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const active = btn.dataset.filter === activeFilter;
+                btn.className = 'filter-btn px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors '
+                    + (active
+                        ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500');
+            });
+        }
+
+        async function refresh() {
+            styleFilters();
+            const qs = activeFilter ? '?category=' + encodeURIComponent(activeFilter) : '';
+            const [summary, feed] = await Promise.all([
+                fetch('/api/coach/summary' + qs).then(r => r.json()),
+                fetch('/api/coach/feed' + (qs ? qs + '&limit=50' : '?limit=50')).then(r => r.json()),
+            ]);
+            renderKpis(summary);
+            renderCategories(summary);
+            renderUtilityShift(summary);
+            renderFeed(feed);
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeFilter = btn.dataset.filter;
+                refresh();
+            });
+        });
+
+        refresh();
+
+        function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    </script>
+</body>
+</html>

@@ -17,6 +17,7 @@ if role != "local":
     client.setup_logging()
 
 from seerai.analytics.endpoint import router as analytics_router
+from seerai.coach.endpoint import router as coach_router
 from seerai.cost.endpoint import router as cost_router
 from seerai.dashboard.endpoint import router as dashboard_router
 from seerai.datasource import router as datasource_router
@@ -52,6 +53,7 @@ app.include_router(subscriptions_router, prefix="/api")
 app.include_router(cost_router, prefix="/api")
 app.include_router(insights_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
+app.include_router(coach_router, prefix="/api")
 app.include_router(datasource_router, prefix="/api")
 app.mount(
     "/static",
