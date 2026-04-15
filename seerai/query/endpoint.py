@@ -121,4 +121,8 @@ def get_session(user_id: str, session_id: str) -> SessionDetail:
         flagged_for_support_at=session.flagged_for_support_at,
         flag_note=session.flag_note,
         utility=session.utility,
+        counterfactual_events=session.counterfactual_events,
+        counterfactual_utility=session.counterfactual_utility,
+        intervention_count=session.intervention_count,
+        intervention_categories=session.intervention_categories,
     )

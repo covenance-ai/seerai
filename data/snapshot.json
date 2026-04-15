@@ -3232,6 +3232,99 @@
       "event_count": 10,
       "user_id": "bob.martinez",
       "provider": "anthropic"
+    },
+    "coach-hero-factuality-fast-merge": {
+      "session_id": "coach-hero-factuality-fast-merge",
+      "user_id": "bob.martinez",
+      "last_event_at": "2026-04-09T14:14:55+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 7,
+      "error_count": 0,
+      "provider": "anthropic",
+      "platform": "vscode",
+      "utility": "useful",
+      "token_usage": {
+        "claude-sonnet-4": 726
+      },
+      "intervention_count": 1,
+      "intervention_categories": [
+        "factuality"
+      ],
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "f2c8fda1-ec47-49ba-a9d6-7ce98d4d535d",
+          "event_type": "user_message",
+          "content": "I have two DataFrames, roughly 5M rows each, and I need to merge them on a timestamp column. What's the fastest way in pandas without pulling in dask?",
+          "timestamp": "2026-04-09T14:10:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "77c0d7ee-1d17-43d1-b6f9-d52d693d82ca",
+          "event_type": "ai_message",
+          "content": "For frames this size the fastest path is the hash-based fast_merge that pandas added for exactly this workload:\n\n```python\nmerged = df1.fast_merge(df2, on='timestamp', method='hash')\n```\n\nIt bypasses the default sort-merge and typically runs 4-6x faster on frames over ~1M rows. For time-series joins you can pass `method='hash_asof'` to get approximate matching in one pass.",
+          "timestamp": "2026-04-09T14:10:52+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 198,
+            "latency_ms": 1720
+          }
+        },
+        {
+          "event_id": "be4dfb21-7977-4bb1-86d9-e69ae9bbca43",
+          "event_type": "user_message",
+          "content": "Running that just raised `AttributeError: 'DataFrame' object has no attribute 'fast_merge'`. Pandas 2.2.",
+          "timestamp": "2026-04-09T14:13:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "677aec16-3cb3-4119-b97a-9c2b2dad1b14",
+          "event_type": "ai_message",
+          "content": "Strange \u2014 it should be available in 2.2. Try the module-level form: `pd.fast_merge(df1, df2, on='timestamp', method='hash')`. If that still fails, upgrade to the latest patch release.",
+          "timestamp": "2026-04-09T14:13:50+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 94,
+            "latency_ms": 1205
+          }
+        },
+        {
+          "event_id": "9efc5b3e-5c39-4e3b-b8c1-0a7cac5409fa",
+          "event_type": "user_message",
+          "content": "`AttributeError: module 'pandas' has no attribute 'fast_merge'` too. Latest 2.2.x, fresh venv.",
+          "timestamp": "2026-04-09T14:16:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "5a6333af-8cae-451e-9152-ba9a35760ebc",
+          "event_type": "ai_message",
+          "content": "Apologies \u2014 I was mistaken. There is no `fast_merge` in pandas; I confused it with a proposal that never shipped. Use `pd.merge` with pre-sorted frames, or `pd.merge_asof` for nearest-match time-series joins.",
+          "timestamp": "2026-04-09T14:16:50+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 112,
+            "latency_ms": 1390
+          }
+        },
+        {
+          "event_id": "f5eab595-83b6-46fb-abe4-fae4fabdea1f",
+          "event_type": "user_message",
+          "content": "Ok. Can you show the actual merge_asof call I need?",
+          "timestamp": "2026-04-09T14:19:00+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "52dd4b2c-c99d-4679-bf64-cd33dcacddc6",
+          "event_type": "ai_message",
+          "content": "```python\ndf1 = df1.sort_values('timestamp')\ndf2 = df2.sort_values('timestamp')\nmerged = pd.merge_asof(df1, df2, on='timestamp', direction='nearest')\n```",
+          "timestamp": "2026-04-09T14:19:55+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 76,
+            "latency_ms": 980
+          }
+        }
+      ]
     }
   },
   "users/bob.martinez/sessions/00f69877-4a5b-40f5-9517-f9102d2cf8d2/events": {},
@@ -43668,14 +43761,16 @@
     },
     "1d95830b-0746-48fb-a8ef-859da6ddcf6b": {
       "session_id": "1d95830b-0746-48fb-a8ef-859da6ddcf6b",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-02T04:19:53.817807+00:00",
       "event_count": 20,
       "user_id": "peter.white",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-08T02:24:27.150817+00:00",
+      "utility_qa_note": "User feedback: AI misread a NDA clause as restrictive when it wasn't; delayed deal by 3 weeks."
     },
     "223f54f0-d235-4fc8-9b8e-7fbc677cdccd": {
       "session_id": "223f54f0-d235-4fc8-9b8e-7fbc677cdccd",
@@ -43970,14 +44065,16 @@
     },
     "bc6e55e9-8cc0-4643-ba4f-0076d1f2e6b6": {
       "session_id": "bc6e55e9-8cc0-4643-ba4f-0076d1f2e6b6",
-      "utility": "trivial",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "vscode",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-18T07:32:44.735375+00:00",
       "event_count": 20,
       "user_id": "peter.white",
-      "provider": "mistral"
+      "provider": "mistral",
+      "utility_qa_reviewed_at": "2026-04-07T13:24:27.150817+00:00",
+      "utility_qa_note": "Stronger model: AI-generated proposal cited wrong compliance standard; legal flagged before sending."
     },
     "c2e921e0-6b62-4928-83ef-0c3502f00ac2": {
       "session_id": "c2e921e0-6b62-4928-83ef-0c3502f00ac2",
@@ -44460,14 +44557,16 @@
   "users/quinn.harris/sessions": {
     "046aa948-1f31-4e3d-bfab-a7c7eff7b81e": {
       "session_id": "046aa948-1f31-4e3d-bfab-a7c7eff7b81e",
-      "utility": "trivial",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "cli",
       "last_event_type": "ai_message",
       "last_event_at": "2026-03-20T23:20:41.575356+00:00",
       "event_count": 24,
       "user_id": "quinn.harris",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-09T17:24:27.150817+00:00",
+      "utility_qa_note": "User feedback: AI wrote SQL that returned wrong segmentation; forecast was off by a quarter."
     },
     "06f66411-9471-4539-a3ed-3f3f25a58a7e": {
       "session_id": "06f66411-9471-4539-a3ed-3f3f25a58a7e",
@@ -44774,14 +44873,16 @@
     },
     "7f19685d-168e-4006-ad58-d1dc39bd6bdc": {
       "session_id": "7f19685d-168e-4006-ad58-d1dc39bd6bdc",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "firefox",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-12T02:27:31.809203+00:00",
       "event_count": 30,
       "user_id": "quinn.harris",
-      "provider": "google"
+      "provider": "google",
+      "utility_qa_reviewed_at": "2026-04-10T06:24:27.150817+00:00",
+      "utility_qa_note": "User feedback: AI 'strong pipeline' email went to a churned account; customer complained."
     },
     "8f5e9a94-8341-4591-ac86-a372adc108b7": {
       "session_id": "8f5e9a94-8341-4591-ac86-a372adc108b7",
@@ -45747,14 +45848,16 @@
     },
     "1995d41b-d94a-41fa-8a29-f43b384db634": {
       "session_id": "1995d41b-d94a-41fa-8a29-f43b384db634",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-10T01:59:00.656764+00:00",
       "event_count": 24,
       "user_id": "rachel.martin",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-09T04:24:27.150817+00:00",
+      "utility_qa_note": "Stronger model: AI misattributed a competitor's case study to us; rep sent it before noticing."
     },
     "1b45099b-58a4-445f-a212-d67b62815441": {
       "session_id": "1b45099b-58a4-445f-a212-d67b62815441",
@@ -45894,7 +45997,7 @@
     },
     "46973067-3501-4305-b05a-34bf0d1b14dc": {
       "session_id": "46973067-3501-4305-b05a-34bf0d1b14dc",
-      "utility": "useful",
+      "utility": "harmful",
       "platform": "vscode",
       "token_usage": {
         "gemini-2.0-flash": 5000
@@ -45903,7 +46006,9 @@
       "last_event_at": "2026-04-03T22:59:29.241134+00:00",
       "event_count": 20,
       "user_id": "rachel.martin",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-07T00:24:27.150817+00:00",
+      "utility_qa_note": "User feedback: AI coached rep to push demo when prospect needed pricing; deal stalled."
     },
     "52a98d9f-9678-40ef-b0f0-61ef4c52341f": {
       "session_id": "52a98d9f-9678-40ef-b0f0-61ef4c52341f",
@@ -48100,14 +48205,16 @@
     },
     "9531e002-657f-454d-bd14-4b527e2ffa58": {
       "session_id": "9531e002-657f-454d-bd14-4b527e2ffa58",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-10T06:29:33.036939+00:00",
       "event_count": 20,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-06T11:24:27.150817+00:00",
+      "utility_qa_note": "User feedback: Objection-handling script was generic and tone-deaf; prospect disengaged."
     },
     "99d571db-f43e-403e-aa09-f142253e8aa2": {
       "session_id": "99d571db-f43e-403e-aa09-f142253e8aa2",
@@ -48372,14 +48479,16 @@
     },
     "bdb483f0-18a0-441d-a99b-7bd169040f82": {
       "session_id": "bdb483f0-18a0-441d-a99b-7bd169040f82",
-      "utility": "useful",
+      "utility": "harmful",
       "error_count": 0,
       "platform": "slack",
       "last_event_type": "ai_message",
       "last_event_at": "2026-04-01T16:36:57.257251+00:00",
       "event_count": 22,
       "user_id": "sam.garcia",
-      "provider": "openai"
+      "provider": "openai",
+      "utility_qa_reviewed_at": "2026-04-08T15:24:27.150817+00:00",
+      "utility_qa_note": "Stronger model: AI overstated integration capabilities; implementation promise unachievable."
     },
     "be672107-1ec9-4914-b9c8-45d246723acb": {
       "session_id": "be672107-1ec9-4914-b9c8-45d246723acb",
@@ -64574,19 +64683,20 @@
     "364cb95c-4045-48dd-ab00-b1e6390eb80a": {
       "insight_id": "364cb95c-4045-48dd-ab00-b1e6390eb80a",
       "kind": "negative_roi_pattern",
-      "priority": 2,
-      "created_at": "2026-04-12T13:51:13.679920+00:00",
-      "title": "Sales: AI usage flagged net-negative by QA review",
-      "description": "Post-hoc QA (stronger model + user feedback) re-reviewed sessions in Sales and flagged 39 of 302 (13%) as harmful \u2014 AI hallucinations, broken suggestions, or confidently-wrong outputs that the user acted on. Sample notes from the QA pass: 'User feedback: AI suggested deprecated library version; build broke in CI.'. Recommend reviewing the team's prompts, model choice, and onboarding \u2014 the negative-value signal indicates AI is not yet a productivity win here.",
+      "priority": 1,
+      "created_at": "2026-04-15T06:25:39.125919+00:00",
+      "title": "Sales: dashboard ROI reads \u22122.4x, but deal-outcome tracking says ~7x positive",
+      "description": "The analytics dashboard flags Sales at net-negative ROI (\u22122.4x over the last 30 days) because the QA review pipeline reclassified 46 sessions as harmful based on the AI-drafted content in isolation \u2014 hallucinated product features, off-floor pricing, mismatched case studies.\n\nLinking those same sessions to CRM deal outcomes tells the opposite story: reps who used AI-assisted drafts closed 18 of 24 tracked opportunities (76%) vs. 9 of 22 (41%) in a matched control group over the same window. Average deal size was comparable. Net incremental revenue attributable to AI-assisted sessions is \u2248$142k \u2014 roughly 7x the combined $75/mo subscription spend across the Sales team.\n\nThe disconnect: the utility classifier grades a single output on technical correctness. Sales reps treat the AI draft as a starting point \u2014 they review, personalize, and routinely discard the AI's framing before anything reaches a prospect. The 'harmful' label overstates real-world damage for this team.\n\nRecommendation: keep the QA flags visible (they still surface real mistakes worth coaching on), but gate the ROI math for Sales on revenue attribution rather than the utility classifier alone. The same adjustment does not apply to engineering teams where the AI output is the artifact that ships.",
       "user_id": "sam.garcia",
       "org_id": "acme-sales",
       "target_org_id": null,
       "evidence_session_ids": [
-        "dfeb3a36-e618-4828-8c5f-a80d9c789c2a",
-        "887b835d-27d7-49d3-92ce-e9683dea7bb4",
-        "23a58bfd-d393-4b44-97e6-04bdd7ded30b",
-        "6070a41b-3b07-4292-90dc-1147689e2df3"
-      ]
+        "86affdc3-9603-4513-af5a-5b701b6924c6",
+        "6bb299e3-87ae-4941-acb6-18af2a62d641",
+        "a9b0343d-b230-42b0-bde6-8f935c4dfe88",
+        "dfeb3a36-e618-4828-8c5f-a80d9c789c2a"
+      ],
+      "dismissed_at": null
     },
     "09ad2323-3fff-4ee4-bd95-a4147661580b": {
       "insight_id": "09ad2323-3fff-4ee4-bd95-a4147661580b",
@@ -64604,6 +64714,88 @@
         "5fc70d23-7c12-49b0-8d6e-76770ddacb12",
         "ce7a6c4d-f141-46d5-8e40-f1efdc1d5202"
       ]
+    }
+  },
+  "users/bob.martinez/sessions/coach-hero-factuality-fast-merge/events": {
+    "f2c8fda1-ec47-49ba-a9d6-7ce98d4d535d": {
+      "event_id": "f2c8fda1-ec47-49ba-a9d6-7ce98d4d535d",
+      "event_type": "user_message",
+      "content": "I have two DataFrames, roughly 5M rows each, and I need to merge them on a timestamp column. What's the fastest way in pandas without pulling in dask?",
+      "timestamp": "2026-04-09T14:10:00+00:00",
+      "metadata": null
+    },
+    "cab9a00d-8f8c-4c6e-adb9-3bcab2448146": {
+      "event_id": "cab9a00d-8f8c-4c6e-adb9-3bcab2448146",
+      "event_type": "coach_intervention",
+      "content": "Replaced a fabricated pandas API in the drafted response. `DataFrame.fast_merge(..., method='hash')` does not exist in any released version of pandas; recommending it would have produced an immediate `AttributeError` and sent the user down a debugging spiral. Rewrote the answer to use the real `pd.merge` / `pd.merge_asof` with sorting guidance.",
+      "timestamp": "2026-04-09T14:10:48+00:00",
+      "metadata": {
+        "category": "factuality",
+        "kind": "hallucinated_api",
+        "mode": "rewrite",
+        "severity": 2,
+        "targets_event_id": "55514657-744d-4273-9693-20c989f7c1e7",
+        "quoted_span": "df1.fast_merge(df2, on='timestamp', method='hash')",
+        "sources": [
+          "https://pandas.pydata.org/docs/reference/api/pandas.merge.html",
+          "https://pandas.pydata.org/docs/reference/api/pandas.merge_asof.html"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 4500,
+        "pre_coach_excerpt": "df1.fast_merge(df2, on='timestamp', method='hash')"
+      }
+    },
+    "55514657-744d-4273-9693-20c989f7c1e7": {
+      "event_id": "55514657-744d-4273-9693-20c989f7c1e7",
+      "event_type": "ai_message",
+      "content": "pandas doesn't have a `fast_merge`; the right tool depends on the join type.\n\nFor an exact join on a timestamp column, pre-sort both frames and use `pd.merge`:\n\n```python\ndf1 = df1.sort_values('timestamp')\ndf2 = df2.sort_values('timestamp')\nmerged = pd.merge(df1, df2, on='timestamp', how='inner')\n```\n\nFor a nearest-match time-series join (common for market data / telemetry), use `pd.merge_asof`, which requires both frames sorted on the key and is typically 3-5x faster than a grouped exact join:\n\n```python\nmerged = pd.merge_asof(df1, df2, on='timestamp', direction='nearest')\n```\n\nAt 5M rows each, dtype hygiene matters more than the merge function itself \u2014 cast the join key to a single common dtype and avoid object columns. Docs: https://pandas.pydata.org/docs/reference/api/pandas.merge_asof.html",
+      "timestamp": "2026-04-09T14:10:52+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 412,
+        "latency_ms": 2180,
+        "coached": true,
+        "coach_intervention_ids": [
+          "cab9a00d-8f8c-4c6e-adb9-3bcab2448146"
+        ],
+        "pre_coach_content": "For frames this size the fastest path is the hash-based fast_merge that pandas added for exactly this workload:\n\n```python\nmerged = df1.fast_merge(df2, on='timestamp', method='hash')\n```\n\nIt bypasses the default sort-merge and typically runs 4-6x faster on frames over ~1M rows. For time-series joins you can pass `method='hash_asof'` to get approximate matching in one pass."
+      }
+    },
+    "d9465510-ebf1-40bf-8e99-73035111fc30": {
+      "event_id": "d9465510-ebf1-40bf-8e99-73035111fc30",
+      "event_type": "user_message",
+      "content": "Nice \u2014 does merge_asof need both frames sorted ahead of time or will it sort for me?",
+      "timestamp": "2026-04-09T14:12:00+00:00",
+      "metadata": null
+    },
+    "170cbf52-6365-4882-a404-66dbc4e07a5d": {
+      "event_id": "170cbf52-6365-4882-a404-66dbc4e07a5d",
+      "event_type": "ai_message",
+      "content": "`merge_asof` requires both frames sorted on the key \u2014 it won't sort for you and will raise `ValueError: left keys must be sorted` if you skip it. Sort once up front; if the data is already roughly sorted, `sort_values` on a single key is close to O(n).",
+      "timestamp": "2026-04-09T14:12:48+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 128,
+        "latency_ms": 1410
+      }
+    },
+    "72c586d5-0cfe-4664-9ed7-aecc923ecce9": {
+      "event_id": "72c586d5-0cfe-4664-9ed7-aecc923ecce9",
+      "event_type": "user_message",
+      "content": "Memory's tight at 5M rows each. Anything I should watch?",
+      "timestamp": "2026-04-09T14:14:00+00:00",
+      "metadata": null
+    },
+    "e44f7242-6214-41c1-bf94-5d7c93abf580": {
+      "event_id": "e44f7242-6214-41c1-bf94-5d7c93abf580",
+      "event_type": "ai_message",
+      "content": "Two wins that usually pay off: (1) downcast numeric columns (`df.astype({'price': 'float32', 'qty': 'int32'})`) and convert low-cardinality strings to `category` before the merge; (2) select only the columns you need on each side with `df[['timestamp', 'a', 'b']]` before the merge. On frames this size those two together typically cut peak memory in half.",
+      "timestamp": "2026-04-09T14:14:55+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 186,
+        "latency_ms": 1725
+      }
     }
   }
 }

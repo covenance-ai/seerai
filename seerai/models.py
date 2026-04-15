@@ -9,8 +9,13 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from seerai.entities import (  # noqa: F401
+    CoachCategory,
+    CoachInterventionMetadata,
+    CoachKind,
+    CoachMode,
     Event,
     EventType,
+    InlineEvent,
     Insight,
     InsightKind,
     OrgNode,
@@ -51,6 +56,14 @@ class SessionDetail(BaseModel):
     flagged_for_support_at: datetime | None = None
     flag_note: str | None = None
     utility: UtilityClass | None = None
+    # Coach intervention surface — present only when the session had coach
+    # activity. `counterfactual_events` is what the user would have seen if
+    # coach hadn't intervened (uncoached timeline). `counterfactual_utility`
+    # is the utility class that uncoached timeline would have landed in.
+    counterfactual_events: list[InlineEvent] | None = None
+    counterfactual_utility: UtilityClass | None = None
+    intervention_count: int = 0
+    intervention_categories: list[CoachCategory] | None = None
 
 
 class OrgNodeStats(BaseModel):

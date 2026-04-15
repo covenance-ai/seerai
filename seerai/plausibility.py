@@ -377,6 +377,162 @@ class MinEventCount(Check):
         return fixed
 
 
+class CoachInterventionIntegrity(Check):
+    """Coach interventions must reference a valid AI event in the same session,
+    and the session's counterfactual fields must be consistent with the
+    presence of interventions.
+
+    Invariants checked:
+      - Every `coach_intervention` event has metadata with category + kind + mode.
+      - `metadata.targets_event_id` (if set) points to an event in the same session.
+      - Session's `intervention_count` matches the actual count of coach events.
+      - `counterfactual_events` is present iff `intervention_count > 0`.
+      - `counterfactual_utility` is present iff `counterfactual_events` is set.
+
+    Normalization recomputes session rollups and clears orphan counterfactuals.
+    """
+
+    name = "coach_intervention_integrity"
+
+    VALID_CATEGORIES = {"factuality", "efficiency", "sources", "other"}
+    VALID_MODES = {"rewrite", "amend", "inject", "block"}
+
+    def _coach_events(self, data, uid, sid):
+        ek = _events_key(uid, sid)
+        if ek not in data:
+            return {}
+        return {
+            eid: e
+            for eid, e in data[ek].items()
+            if e.get("event_type") == "coach_intervention"
+        }
+
+    def violations(self, data):
+        out = []
+        for key in _session_keys(data):
+            uid = key.split("/")[1]
+            for sid, session in data[key].items():
+                coach_events = self._coach_events(data, uid, sid)
+                ek = _events_key(uid, sid)
+                event_ids = set(data.get(ek, {}).keys())
+
+                for eid, ev in coach_events.items():
+                    md = ev.get("metadata") or {}
+                    for field in ("category", "kind", "mode"):
+                        if not md.get(field):
+                            out.append(
+                                Violation(
+                                    self.name,
+                                    f"{ek}/{eid}",
+                                    f"missing metadata.{field}",
+                                )
+                            )
+                    if (c := md.get("category")) and c not in self.VALID_CATEGORIES:
+                        out.append(
+                            Violation(
+                                self.name, f"{ek}/{eid}", f"invalid category={c}"
+                            )
+                        )
+                    if (m := md.get("mode")) and m not in self.VALID_MODES:
+                        out.append(
+                            Violation(self.name, f"{ek}/{eid}", f"invalid mode={m}")
+                        )
+                    tgt = md.get("targets_event_id")
+                    if tgt and tgt not in event_ids:
+                        out.append(
+                            Violation(
+                                self.name,
+                                f"{ek}/{eid}",
+                                f"targets_event_id={tgt} not in session",
+                            )
+                        )
+
+                actual_count = len(coach_events)
+                declared = session.get("intervention_count", 0) or 0
+                if actual_count != declared:
+                    out.append(
+                        Violation(
+                            self.name,
+                            f"users/{uid}/sessions/{sid}",
+                            f"intervention_count={declared}, actual={actual_count}",
+                        )
+                    )
+
+                has_cf = bool(session.get("counterfactual_events"))
+                has_cf_util = session.get("counterfactual_utility") is not None
+                if actual_count > 0 and not has_cf:
+                    out.append(
+                        Violation(
+                            self.name,
+                            f"users/{uid}/sessions/{sid}",
+                            "coached but no counterfactual_events",
+                        )
+                    )
+                if actual_count == 0 and has_cf:
+                    out.append(
+                        Violation(
+                            self.name,
+                            f"users/{uid}/sessions/{sid}",
+                            "counterfactual_events without interventions",
+                        )
+                    )
+                if has_cf and not has_cf_util:
+                    out.append(
+                        Violation(
+                            self.name,
+                            f"users/{uid}/sessions/{sid}",
+                            "counterfactual_events without counterfactual_utility",
+                        )
+                    )
+                if has_cf_util and not has_cf:
+                    out.append(
+                        Violation(
+                            self.name,
+                            f"users/{uid}/sessions/{sid}",
+                            "counterfactual_utility without counterfactual_events",
+                        )
+                    )
+        return out
+
+    def normalize(self, data):
+        fixed = 0
+        for key in _session_keys(data):
+            uid = key.split("/")[1]
+            for sid, session in data[key].items():
+                coach_events = self._coach_events(data, uid, sid)
+                actual_count = len(coach_events)
+
+                categories = sorted(
+                    {
+                        (e.get("metadata") or {}).get("category")
+                        for e in coach_events.values()
+                    }
+                    - {None}
+                )
+
+                # Rebuild rollups from the source of truth (events).
+                if session.get("intervention_count", 0) != actual_count:
+                    session["intervention_count"] = actual_count
+                    fixed += 1
+                if categories:
+                    if session.get("intervention_categories") != categories:
+                        session["intervention_categories"] = categories
+                        fixed += 1
+                elif session.get("intervention_categories"):
+                    session["intervention_categories"] = None
+                    fixed += 1
+
+                # Clear counterfactual on uncoached sessions.
+                if actual_count == 0:
+                    if session.get("counterfactual_events"):
+                        session["counterfactual_events"] = None
+                        fixed += 1
+                    if session.get("counterfactual_utility") is not None:
+                        session["counterfactual_utility"] = None
+                        fixed += 1
+        return fixed
+
+
 class EventModelMatchesProvider(Check):
     """AI event model must belong to the session's provider."""
 
@@ -441,6 +597,7 @@ ALL_CHECKS: list[Check] = [
     SingleModelPerSession(),
     MinEventCount(),
     EventModelMatchesProvider(),
+    CoachInterventionIntegrity(),
 ]
 
 

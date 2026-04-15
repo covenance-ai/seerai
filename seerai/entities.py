@@ -17,10 +17,85 @@ from __future__ import annotations
 from datetime import datetime
 from typing import ClassVar, Literal
 
+from pydantic import BaseModel
+
 from seerai.firestore_model import FirestoreModel
 
-EventType = Literal["user_message", "ai_message", "error"]
+EventType = Literal["user_message", "ai_message", "error", "coach_intervention"]
 UserRole = Literal["admin", "exec", "user"]
+
+# Coach intervention taxonomy — four categories of observer value.
+CoachCategory = Literal["factuality", "efficiency", "sources", "other"]
+# Concrete intervention kinds. New kinds can be added freely; UI falls back
+# to the category badge if the kind isn't in its lookup.
+CoachKind = Literal[
+    # factuality
+    "hallucinated_api",
+    "wrong_fact",
+    "math_error",
+    "self_contradiction",
+    # efficiency
+    "off_track",
+    "repeat_failure",
+    "wrong_tool",
+    "redundant_work",
+    # sources
+    "fabricated_citation",
+    "misquoted_source",
+    "weak_source",
+    "missing_source",
+    # other
+    "pii_leak",
+    "scope_confirm",
+    "missing_context",
+    "prompt_nudge",
+    "dangerous_action",
+]
+# How the coach intervened on this turn:
+#   rewrite — replaced the AI's output entirely
+#   amend   — appended/prepended context (caveat, source)
+#   inject  — inserted a coach-only turn into the stream
+#   block   — halted the AI's original output from being shown
+CoachMode = Literal["rewrite", "amend", "inject", "block"]
+
+
+class InlineEvent(BaseModel):
+    """Event shape used when storing events inline on a parent doc.
+
+    Same fields as Event but without the FirestoreModel subcollection
+    machinery — used for counterfactual transcripts, where the events
+    are always read together with the session.
+    """
+
+    event_id: str
+    event_type: EventType
+    content: str
+    timestamp: datetime
+    metadata: dict | None = None
+
+
+class CoachInterventionMetadata(BaseModel):
+    """Shape of `metadata` on a coach_intervention Event.
+
+    Stored as a plain dict on the Event; this model documents and validates
+    the expected keys. The `content` of the Event is the coach's rationale
+    / user-visible correction text.
+    """
+
+    category: CoachCategory
+    kind: CoachKind
+    mode: CoachMode
+    severity: int = 3  # 1 critical .. 5 info
+    targets_event_id: str | None = None  # AI message this acts on
+    quoted_span: str | None = None  # exact text being flagged
+    sources: list[str] | None = None
+    accepted: bool | None = None
+    estimated_savings_cents: int = 0
+    # When mode="rewrite"/"amend"/"block", the coached AI turn should carry
+    # `metadata.pre_coach_content` with the original AI text for per-bubble
+    # diffs. This field captures the same span on the intervention so the
+    # coach feed can render it without cross-referencing.
+    pre_coach_excerpt: str | None = None
 # Utility classes:
 #   non_work: off-topic chats, casual queries
 #   trivial:  small lookups / drafting (low time savings)
@@ -86,6 +161,17 @@ class Session(FirestoreModel):
     # post-processes a session and overrides the ingest-time utility.
     utility_qa_reviewed_at: datetime | None = None
     utility_qa_note: str | None = None  # short reason for the override
+    # Coach intervention rollups — populated when the session's coached
+    # transcript includes coach_intervention events.
+    intervention_count: int = 0
+    intervention_categories: list[CoachCategory] | None = None
+    # Counterfactual utility: the class the session would have landed in
+    # if coach had not intervened. None for uncoached sessions.
+    counterfactual_utility: UtilityClass | None = None
+    # Counterfactual transcript — what the user would have seen if coach
+    # hadn't intervened. None for uncoached sessions. Inlined on the session
+    # doc because we always read it together with the actual events.
+    counterfactual_events: list[InlineEvent] | None = None
 
     @classmethod
     def parent_path(cls, user_id: str) -> str:
