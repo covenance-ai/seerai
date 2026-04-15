@@ -96,6 +96,8 @@ class CoachInterventionMetadata(BaseModel):
     # diffs. This field captures the same span on the intervention so the
     # coach feed can render it without cross-referencing.
     pre_coach_excerpt: str | None = None
+
+
 # Utility classes:
 #   non_work: off-topic chats, casual queries
 #   trivial:  small lookups / drafting (low time savings)
@@ -155,7 +157,9 @@ class Session(FirestoreModel):
     platform: str | None = None
     utility: UtilityClass | None = None
     token_usage: dict[str, int] | None = None  # {model_name: total_output_tokens}
-    flagged_for_support_at: datetime | None = None  # set by exec to share with seer.ai support
+    flagged_for_support_at: datetime | None = (
+        None  # set by exec to share with seer.ai support
+    )
     flag_note: str | None = None  # exec's reason for flagging (e.g. wrong AI analysis)
     # QA pipeline metadata: set when the stronger model / user feedback
     # post-processes a session and overrides the ingest-time utility.

@@ -429,9 +429,7 @@ class CoachInterventionIntegrity(Check):
                             )
                     if (c := md.get("category")) and c not in self.VALID_CATEGORIES:
                         out.append(
-                            Violation(
-                                self.name, f"{ek}/{eid}", f"invalid category={c}"
-                            )
+                            Violation(self.name, f"{ek}/{eid}", f"invalid category={c}")
                         )
                     if (m := md.get("mode")) and m not in self.VALID_MODES:
                         out.append(

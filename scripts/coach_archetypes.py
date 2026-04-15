@@ -176,9 +176,7 @@ def hero_factuality_fast_merge() -> dict:
         u3: {
             "event_id": u3,
             "event_type": "user_message",
-            "content": (
-                "Memory's tight at 5M rows each. Anything I should watch?"
-            ),
+            "content": ("Memory's tight at 5M rows each. Anything I should watch?"),
             "timestamp": _ts(start, 240),
             "metadata": None,
         },
