@@ -16,6 +16,7 @@ if role != "local":
     client = google.cloud.logging.Client()
     client.setup_logging()
 
+from seerai.analytics.endpoint import router as analytics_router
 from seerai.cost.endpoint import router as cost_router
 from seerai.dashboard.endpoint import router as dashboard_router
 from seerai.datasource import router as datasource_router
@@ -50,6 +51,7 @@ app.include_router(org_router, prefix="/api")
 app.include_router(subscriptions_router, prefix="/api")
 app.include_router(cost_router, prefix="/api")
 app.include_router(insights_router, prefix="/api")
+app.include_router(analytics_router, prefix="/api")
 app.include_router(datasource_router, prefix="/api")
 app.mount(
     "/static",
