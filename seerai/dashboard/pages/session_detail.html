@@ -47,7 +47,7 @@
             sources:    { label: 'Sources',    dot: 'bg-violet-500', text: 'text-violet-700 dark:text-violet-300', bg: 'bg-violet-50 dark:bg-violet-900/20', border: 'border-violet-300 dark:border-violet-700/50' },
             other:      { label: 'Other',      dot: 'bg-amber-500', text: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-300 dark:border-amber-700/50' },
         };
-        const UTILITY_COLORS = {
+        const UTILITY_TEXT = {
             harmful:  'text-red-600 dark:text-red-400',
             non_work: 'text-gray-500 dark:text-gray-400',
             trivial:  'text-gray-600 dark:text-gray-300',
@@ -129,9 +129,9 @@
             const actual = sessionDetail.utility;
             const cf = sessionDetail.counterfactual_utility;
             const delta = (actual && cf && actual !== cf)
-                ? `<span class="${UTILITY_COLORS[cf] || ''}">${esc(cf)}</span>
+                ? `<span class="${UTILITY_TEXT[cf] || ''}">${esc(cf)}</span>
                    <svg class="w-3 h-3 inline -mt-0.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                   <span class="${UTILITY_COLORS[actual] || ''} font-semibold">${esc(actual)}</span>`
+                   <span class="${UTILITY_TEXT[actual] || ''} font-semibold">${esc(actual)}</span>`
                 : '';
 
             const toggle = sessionDetail.counterfactual_events
