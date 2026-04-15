@@ -14,20 +14,47 @@
         <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
     <script>
-        // Redirect to the current user's root org
         const user = (() => { try { return JSON.parse(localStorage.getItem('seerai_user')); } catch { return null; } })();
-        if (!user || !user.org_id) {
+
+        if (!user) {
             document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">Select a user first to view their organization dashboard.</p>';
-        } else {
-            fetch(`/api/orgs/${encodeURIComponent(user.org_id)}`)
-                .then(r => { if (!r.ok) throw new Error('Org not found'); return r.json(); })
-                .then(org => {
-                    const rootOrgId = org.path[0];
-                    window.location.replace(`/exec/${encodeURIComponent(rootOrgId)}`);
+        } else if (user.role === 'admin') {
+            // Admin: show list of all root orgs
+            fetch('/api/orgs')
+                .then(r => r.json())
+                .then(roots => {
+                    if (roots.length === 1) {
+                        window.location.replace('/exec/' + encodeURIComponent(roots[0].org_id));
+                    } else {
+                        let html = '<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Organizations</h1>';
+                        html += '<div class="grid gap-4">';
+                        for (const org of roots) {
+                            const badge = (window.seerai && window.seerai.companyBadge)
+                                ? window.seerai.companyBadge(org.org_id, { size: 'lg' })
+                                : '<span>' + org.name + '</span>';
+                            html += '<a href="/exec/' + encodeURIComponent(org.org_id) + '" class="block rounded-xl border border-gray-200 dark:border-gray-700/60 p-5 bg-white dark:bg-gray-900 hover:border-blue-400 dark:hover:border-blue-500 transition-colors">'
+                                + '<div class="flex items-center gap-3">' + badge + '</div>'
+                                + '</a>';
+                        }
+                        html += '</div>';
+                        document.getElementById('content').innerHTML = html;
+                    }
                 })
                 .catch(e => {
                     document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
                 });
+        } else if (user.org_id) {
+            // Exec/user: redirect to their root org
+            fetch('/api/orgs/' + encodeURIComponent(user.org_id))
+                .then(r => { if (!r.ok) throw new Error('Org not found'); return r.json(); })
+                .then(org => {
+                    window.location.replace('/exec/' + encodeURIComponent(org.path[0]));
+                })
+                .catch(e => {
+                    document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
+                });
+        } else {
+            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">No organization assigned to this user.</p>';
         }
     </script>
 </body>
