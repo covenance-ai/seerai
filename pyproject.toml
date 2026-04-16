@@ -24,7 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 generate = [
-    "covenance",
+    "pydantic-ai-slim[anthropic,openai,google]",
 ]
 dev = [
     "pytest",

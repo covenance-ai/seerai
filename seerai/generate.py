@@ -1,8 +1,10 @@
 """Generate realistic mock sessions using an LLM.
 
-Uses covenance (multi-provider LLM lib) with structured output to produce
-full conversations from a short description. Results are written to Firestore
-via the existing ingest pipeline by default.
+Uses pydantic-ai directly with structured output to produce full
+conversations from a short description. Install the optional extra to
+get the provider SDKs:
+
+    uv sync --extra generate
 
 Two generation modes:
   - Plain (default): single conversation, no coach activity.
@@ -28,6 +30,9 @@ Usage as CLI:
     uv run python -m seerai.generate "user debugging a CORS issue" --user alice
     uv run python -m seerai.generate "GDPR compliance questions" --user bob \\
         --with-intervention --category sources
+
+Model identifiers use pydantic-ai's `provider:model` syntax, e.g.
+    openai:gpt-4o    google-gla:gemini-2.5-pro    anthropic:claude-sonnet-4-5
 """
 
 from __future__ import annotations
@@ -46,10 +51,32 @@ from seerai.entities import (
     UtilityClass,
 )
 
-try:
-    from covenance import ask_llm
-except ImportError:
-    ask_llm = None
+# Default generator model: openai:gpt-4o. Capable enough for structured
+# transcript generation and available via the standard OpenAI API key.
+DEFAULT_MODEL = "openai:gpt-4o"
+
+
+def ask_llm[T: BaseModel](
+    prompt: str, *, model: str, response_type: type[T], sys_msg: str | None = None
+) -> T:
+    """Thin shim over pydantic-ai's Agent — structured output in one call.
+
+    Raises RuntimeError with install hint if the optional generate extra
+    isn't installed.
+    """
+    try:
+        from pydantic_ai import Agent
+    except ImportError as e:
+        raise RuntimeError(
+            "pydantic-ai not installed. Run: uv sync --extra generate"
+        ) from e
+    agent = Agent(
+        model,
+        output_type=response_type,
+        system_prompt=sys_msg or "",
+    )
+    return agent.run_sync(prompt).output
+
 
 PROVIDERS = ["anthropic", "openai", "google", "mistral"]
 PLATFORMS = ["chrome", "firefox", "vscode", "cli", "slack", "safari"]
@@ -192,9 +219,13 @@ REQUIREMENTS:
 - Counterfactual shows the user acting on the mistake and the
   consequences (wasted time, wrong result, embarrassing rework, or in
   the PII case, PII being sent to the upstream provider).
-- AI messages include metadata with `model` (string), `tokens`
-  (50–800), `latency_ms` (200–3000). Use ONE model for all AI turns in
-  a session.
+- AI messages include metadata with `model`, `tokens` (50–800),
+  `latency_ms` (200–3000). The `model` MUST be a concrete model id
+  like `gpt-4o`, `o3-mini`, `claude-sonnet-4`, `claude-haiku-4`,
+  `gemini-2.5-pro`, `gemini-2.0-flash`, `mistral-large`, or
+  `mistral-small` — not a bare provider name. Pick one matching
+  `provider` and use it on EVERY AI turn in this session (coached
+  and counterfactual alike).
 - The coach_intervention event's `content` is the coach's user-facing
   rationale; keep it under ~400 chars, concrete, and concrete about
   what was wrong. DO NOT include metadata on the coach event — the
@@ -212,7 +243,7 @@ def generate_session(
     description: str,
     *,
     user_id: str,
-    model: str = "claude-sonnet-4",
+    model: str = DEFAULT_MODEL,
     provider: str | None = None,
     platform: str | None = None,
     write: bool = True,
@@ -222,14 +253,11 @@ def generate_session(
     Args:
         description: What the conversation is about.
         user_id: Target user to attach the session to.
-        model: LLM model to use for generation.
+        model: pydantic-ai model id (e.g. "openai:gpt-4o").
         provider: Override the simulated provider (LLM picks if None).
         platform: Override the simulated platform (LLM picks if None).
         write: If True, write the session to Firestore via ingest.
     """
-    if ask_llm is None:
-        raise RuntimeError("Install covenance: pip install covenance")
-
     prompt = description
     if provider:
         prompt += f"\nThe LLM provider is: {provider}"
@@ -257,7 +285,7 @@ def generate_coached_session(
     user_id: str,
     category: CoachCategory | None = None,
     style: InterventionStyle | None = None,
-    model: str = "claude-sonnet-4",
+    model: str = DEFAULT_MODEL,
     provider: str | None = None,
     platform: str | None = None,
     write: bool = True,
@@ -276,10 +304,8 @@ def generate_coached_session(
         category: Pin the intervention category (factuality / efficiency
             / sources / other). LLM picks if None.
         style: "flag" or "correct". LLM picks if None.
+        model: pydantic-ai model id (e.g. "openai:gpt-4o").
     """
-    if ask_llm is None:
-        raise RuntimeError("Install covenance: pip install covenance")
-
     prompt_parts = [description]
     if category:
         prompt_parts.append(f"Intervention category must be: {category}.")
@@ -542,7 +568,11 @@ def main():
     parser = argparse.ArgumentParser(description="Generate a mock session via LLM")
     parser.add_argument("description", help="Short description of the session")
     parser.add_argument("--user", required=True, help="Target user_id")
-    parser.add_argument("--model", default="claude-sonnet-4", help="Generator model")
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help="pydantic-ai model id, e.g. openai:gpt-4o (default)",
+    )
     parser.add_argument("--provider", help="Override simulated provider")
     parser.add_argument("--platform", help="Override simulated platform")
     parser.add_argument(

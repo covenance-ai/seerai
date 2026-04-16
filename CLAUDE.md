@@ -32,3 +32,7 @@ Switchable in the UI navbar (local/firestore toggle). Auto-detects local if `dat
 ## Current focus
 
 Building demo with mock data. Most sessions are generated without events — 5 archetype sessions with real conversations serve as fallback content matched by `(provider, utility)`. See `seerai/archetypes.py`. Work locally first, sync to Firestore when needed.
+
+## LLM client
+
+`seerai/generate.py` uses `pydantic-ai` directly. Do not pull in `covenance-llm` (the PyPI `covenance` package) — it had a version-skew breakage with `pydantic-ai` and adds an abstraction we don't need. If generation breaks, fix it at the `pydantic-ai` layer.
