@@ -129,78 +129,99 @@
     }
 
     // ---------------- Chart 1: Department adoption ----------------
-    // Two bars per dept: dim = total users, bright = active users. Makes "X of Y users
-    // engaged" pop at a glance and shows both raw headcount and engagement.
+    // Bar = adoption RATE (active/total, 0–100%). The track is fixed-width so a
+    // 100%-adoption dept of 5 and a 100%-adoption dept of 50 both draw full bars.
+    // Raw counts (active/total) are shown as the side label so headcount isn't lost.
+    // Sorted by rate desc — the question "who adopted?" reads top-to-bottom.
     function chartAdoption(depts) {
         if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">No departments to display.</p>';
-        const maxUsers = Math.max(...depts.map(d => d.user_count), 1);
+        const sorted = depts.slice().sort((a, b) => {
+            const ra = a.user_count > 0 ? a.active_user_count / a.user_count : 0;
+            const rb = b.user_count > 0 ? b.active_user_count / b.user_count : 0;
+            return rb - ra;
+        });
         let rows = '';
-        for (const d of depts) {
-            const totalPct = d.user_count / maxUsers * 100;
-            const activePct = d.active_user_count / maxUsers * 100;
-            const rate = d.user_count > 0 ? Math.round(d.active_user_count / d.user_count * 100) : 0;
+        for (const d of sorted) {
+            const rate = d.user_count > 0 ? d.active_user_count / d.user_count * 100 : 0;
+            const ratePct = Math.round(rate);
+            // Color shifts amber→emerald as adoption climbs, so the eye can scan
+            // for laggards without reading every label.
+            const barColor = rate >= 75 ? '#10B981' : rate >= 40 ? '#3B82F6' : '#F59E0B';
             rows += `<div class="mb-3 last:mb-0">
                 <div class="flex items-baseline justify-between text-xs mb-1">
                     <span class="font-medium text-gray-700 dark:text-gray-200">${esc(d.name)}</span>
-                    <span class="text-gray-500 dark:text-gray-400">${d.active_user_count}/${d.user_count} · ${rate}%</span>
+                    <span class="text-gray-500 dark:text-gray-400 tabular-nums">${ratePct}% <span class="text-gray-400">· ${d.active_user_count}/${d.user_count}</span></span>
                 </div>
                 <div class="relative h-5 rounded bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                    <div class="absolute top-0 left-0 h-full rounded-r-sm" style="width:${totalPct}%;background:rgba(59,130,246,0.25)"></div>
-                    <div class="absolute top-0 left-0 h-full rounded-r-sm" style="width:${activePct}%;background:#3B82F6"></div>
+                    <div class="absolute top-0 left-0 h-full rounded-r-sm" style="width:${rate}%;background:${barColor}"></div>
                 </div>
             </div>`;
         }
         return rows + legend([
-            { color: '#3B82F6', label: 'Active (30d)' },
-            { color: 'rgba(59,130,246,0.25)', label: 'Total headcount' },
+            { color: '#10B981', label: '≥75% adoption' },
+            { color: '#3B82F6', label: '40–74%' },
+            { color: '#F59E0B', label: '<40%' },
         ]);
     }
 
     // ---------------- Chart 2: Value vs Cost by dept ----------------
-    // Reader should see the gap between "what we paid" and "what we got" per dept.
-    // Value can be negative (harmful sessions dominate) — render those in red so the
-    // reader doesn't mistake a clipped-to-zero positive bar for "no data."
+    // Bars are scaled per-active-user so dept size doesn't dominate the visual:
+    // a small efficient dept and a large inefficient dept are now comparable.
+    // Totals are shown as a faint annotation so absolute $ exposure isn't lost.
+    // Sorted by value-per-user desc.
     function chartValueCost(depts) {
         if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">No data.</p>';
-        // Scale: biggest absolute quantity across value + subscription for all depts.
-        const vmax = Math.max(1, ...depts.map(d => Math.max(Math.abs(d.estimated_value), d.subscription_cost)));
+        const enriched = depts.map(d => {
+            const denom = d.active_user_count || d.user_count || 0;
+            return {
+                d,
+                valPerUser: denom > 0 ? d.estimated_value / denom : 0,
+                subPerUser: denom > 0 ? d.subscription_cost / denom : 0,
+                denom,
+            };
+        });
+        const vmax = Math.max(1, ...enriched.map(e => Math.max(Math.abs(e.valPerUser), e.subPerUser)));
+        const sorted = enriched.slice().sort((a, b) => b.valPerUser - a.valPerUser);
         let rows = '';
-        for (const d of depts) {
+        for (const { d, valPerUser, subPerUser, denom } of sorted) {
             const roi = d.roi;
-            const negative = d.estimated_value < 0;
+            const negative = valPerUser < 0;
             const roiColor = roi === null ? 'text-gray-400'
                 : roi < 0 ? 'text-red-500'
                 : roi >= 1 ? 'text-emerald-500'
                 : 'text-amber-500';
             const roiLabel = roi === null ? '—' : roi.toFixed(1) + 'x';
-            const wSub = (d.subscription_cost / vmax) * 100;
-            const wVal = (Math.abs(d.estimated_value) / vmax) * 100;
+            const wSub = (subPerUser / vmax) * 100;
+            const wVal = (Math.abs(valPerUser) / vmax) * 100;
             const valBg = negative ? '#EF4444' : '#10B981';
             const valLabelCls = negative ? 'text-red-500' : 'text-gray-700 dark:text-gray-200';
+            const denomTag = denom > 0
+                ? `${denom} active user${denom === 1 ? '' : 's'}`
+                : 'no active users';
             rows += `<div class="mb-4 last:mb-0">
                 <div class="flex items-baseline justify-between text-xs mb-1.5">
-                    <span class="font-medium text-gray-700 dark:text-gray-200">${esc(d.name)}</span>
+                    <span class="font-medium text-gray-700 dark:text-gray-200">${esc(d.name)} <span class="text-[0.65rem] text-gray-400 font-normal">· ${denomTag}</span></span>
                     <span class="${roiColor} font-semibold">${roiLabel} <span class="text-[0.65rem] text-gray-400 font-normal">ROI</span></span>
                 </div>
                 <div class="space-y-1">
                     <div class="flex items-center gap-2 text-[0.68rem] text-gray-500 dark:text-gray-400">
-                        <span class="w-10 shrink-0">Value</span>
+                        <span class="w-14 shrink-0">Value/user</span>
                         <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
                             <div class="h-full rounded-r-sm" style="width:${wVal}%;background:${valBg}"></div>
                         </div>
-                        <span class="w-16 text-right ${valLabelCls} tabular-nums">${negative ? '−' : ''}${fmt$(Math.abs(d.estimated_value))}</span>
+                        <span class="w-24 text-right ${valLabelCls} tabular-nums">${negative ? '−' : ''}${fmt$(Math.abs(valPerUser))} <span class="text-[0.6rem] text-gray-400">(${fmt$(d.estimated_value)})</span></span>
                     </div>
                     <div class="flex items-center gap-2 text-[0.68rem] text-gray-500 dark:text-gray-400">
-                        <span class="w-10 shrink-0">Sub $</span>
+                        <span class="w-14 shrink-0">Sub $/user</span>
                         <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
                             <div class="h-full rounded-r-sm" style="width:${wSub}%;background:#94A3B8"></div>
                         </div>
-                        <span class="w-16 text-right text-gray-700 dark:text-gray-200 tabular-nums">${fmt$(d.subscription_cost)}</span>
+                        <span class="w-24 text-right text-gray-700 dark:text-gray-200 tabular-nums">${fmt$(subPerUser)} <span class="text-[0.6rem] text-gray-400">(${fmt$(d.subscription_cost)})</span></span>
                     </div>
                 </div>
             </div>`;
         }
-        return rows;
+        return rows + '<p class="text-[0.65rem] text-gray-400 mt-2">Bars: per active user (30d). Parens: dept totals.</p>';
     }
 
     // ---------------- Chart 3: Utility mix by dept (100% stacked) ----------------
@@ -543,8 +564,8 @@
     function render(container, d) {
         container.innerHTML = kpiStrip(d)
             + '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">'
-                + card('Department adoption', 'Active users (30d) vs total headcount',            chartAdoption(d.departments))
-                + card('Value vs subscription cost', 'Estimated value (30d) compared to $ paid',   chartValueCost(d.departments))
+                + card('Department adoption', '% of headcount with ≥1 session in 30d',           chartAdoption(d.departments))
+                + card('Value vs subscription cost', 'Per active user — comparable across dept sizes', chartValueCost(d.departments))
                 + card('Session utility mix by department', '% of sessions classified useful / trivial / non-work / harmful', chartUtilityMix(d.departments))
                 + card('Provider mix by department',   'Which tools each team reaches for',        chartProviderMix(d.departments))
             + '</div>'

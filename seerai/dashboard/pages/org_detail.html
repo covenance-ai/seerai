@@ -140,27 +140,43 @@
                         <table class="w-full text-sm">
                         <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
                             <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Users</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="Users with ≥1 session in last 30d / total users">Adoption</th>
                             <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sessions</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sub $/mo</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value / mo</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="Per active user · total in parens">Sub $/user</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="Per active user · total in parens">Value/user</th>
                             <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">ROI</th>
                         </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
                     for (let i = 0; i < tree.children.length; i++) {
                         const c = tree.children[i].node;
                         const cc = childCosts[i];
-                        const subCost = cc ? '$' + cc.total_monthly_subscription.toFixed(0) : '—';
-                        const value = cc ? '$' + cc.total_estimated_value.toFixed(0) : '—';
+                        // Active = users in cost response with ≥1 windowed session.
+                        // Per-user denominator uses active users so a half-engaged dept
+                        // doesn't get credited a misleading low per-user cost.
+                        const activeUsers = cc ? cc.users.filter(u => u.session_count > 0).length : 0;
+                        const totalUsers = cc ? cc.user_count : c.user_count;
+                        const adoptionRate = totalUsers > 0 ? Math.round(activeUsers / totalUsers * 100) : 0;
+                        const adoptionColor = adoptionRate >= 75 ? 'text-emerald-500'
+                            : adoptionRate >= 40 ? 'text-gray-600 dark:text-gray-400'
+                            : adoptionRate > 0 ? 'text-amber-500'
+                            : 'text-gray-400';
+                        const adoptionCell = cc
+                            ? `<span class="${adoptionColor} font-medium tabular-nums">${adoptionRate}%</span><div class="text-[0.65rem] text-gray-400">${activeUsers}/${totalUsers}</div>`
+                            : '<span class="text-gray-400">—</span>';
+                        const denom = activeUsers || totalUsers || 0;
+                        const subPerUserStr = cc && denom > 0 ? '$' + (cc.total_monthly_subscription / denom).toFixed(0) : '—';
+                        const valPerUserStr = cc && denom > 0 ? '$' + (cc.total_estimated_value / denom).toFixed(0) : '—';
+                        const subTotalStr = cc ? '$' + cc.total_monthly_subscription.toFixed(0) : '—';
+                        const valTotalStr = cc ? '$' + cc.total_estimated_value.toFixed(0) : '—';
                         const cRoi = cc ? cc.roi : null;
                         const cRoiColor = cRoi === null ? 'text-gray-400' : cRoi >= 1 ? 'text-emerald-500' : 'text-amber-500';
                         const cRoiLabel = cRoi === null ? '—' : cRoi.toFixed(1) + 'x';
                         const orgInsCount = (insightsByOrg[c.org_id] || []).length;
                         html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                             <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a>${insightBadge(orgInsCount, {org_id: c.org_id})}</td>
-                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.user_count}</td>
+                            <td class="px-4 py-2.5 text-right">${adoptionCell}</td>
                             <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.session_count}</td>
-                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${subCost}</td>
-                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${value}</td>
+                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400 tabular-nums">${subPerUserStr}<div class="text-[0.65rem] text-gray-400">${subTotalStr} total</div></td>
+                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400 tabular-nums">${valPerUserStr}<div class="text-[0.65rem] text-gray-400">${valTotalStr} total</div></td>
                             <td class="px-4 py-2.5 text-right font-medium ${cRoiColor}">${cRoiLabel}</td>
                         </tr>`;
                     }

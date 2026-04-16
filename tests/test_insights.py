@@ -98,8 +98,7 @@ class TestArchivedFilter:
         """Active ∪ Archived = all insights, with no overlap."""
         active = {i["insight_id"] for i in client.get("/api/insights").json()}
         archived = {
-            i["insight_id"]
-            for i in client.get("/api/insights?archived=true").json()
+            i["insight_id"] for i in client.get("/api/insights?archived=true").json()
         }
         assert active.isdisjoint(archived)
         assert active | archived == {"i1", "i2"}
@@ -115,8 +114,7 @@ class TestDismissRestore:
 
         active_ids = {i["insight_id"] for i in client.get("/api/insights").json()}
         archived_ids = {
-            i["insight_id"]
-            for i in client.get("/api/insights?archived=true").json()
+            i["insight_id"] for i in client.get("/api/insights?archived=true").json()
         }
         assert "i1" not in active_ids
         assert "i1" in archived_ids
@@ -154,8 +152,7 @@ class TestUserAndOrgFilter:
     def test_user_filter_isolates_one_user(self, client):
         """user_id filter only returns insights about that user."""
         ids = {
-            i["insight_id"]
-            for i in client.get("/api/insights?user_id=alice").json()
+            i["insight_id"] for i in client.get("/api/insights?user_id=alice").json()
         }
         assert ids == {"i1"}
 

@@ -113,7 +113,12 @@ class TestSessionValue:
         """Same session classified as useful produces more value than trivial."""
         useful = session_value(50.0, 10, "useful")
         trivial = session_value(50.0, 10, "trivial")
-        assert useful == trivial * UTILITY_HOURS_FACTOR["useful"] / UTILITY_HOURS_FACTOR["trivial"]
+        assert (
+            useful
+            == trivial
+            * UTILITY_HOURS_FACTOR["useful"]
+            / UTILITY_HOURS_FACTOR["trivial"]
+        )
 
     def test_value_scales_with_rate(self):
         """Doubling hourly rate doubles value."""
@@ -131,7 +136,9 @@ class TestSessionValue:
     def test_formula_matches_direct_computation(self):
         """Positive sessions: rate × log2(n) × hours_factor × displacement."""
         rate, n, utility = 75.0, 16, "useful"
-        expected = rate * math.log2(n) * UTILITY_HOURS_FACTOR[utility] * DISPLACEMENT_FACTOR
+        expected = (
+            rate * math.log2(n) * UTILITY_HOURS_FACTOR[utility] * DISPLACEMENT_FACTOR
+        )
         assert session_value(rate, n, utility) == pytest.approx(expected)
 
     def test_realistic_values(self):
@@ -176,7 +183,9 @@ class TestHarmfulSessionValue:
         useful = session_value(rate, events, "useful")
         harmful = session_value(rate, events, "harmful")
         # Manual direct check: harmful raw = rate × log2 × |factor|; useful raw same × DF
-        assert useful == pytest.approx(rate * math.log2(events) * useful_factor * DISPLACEMENT_FACTOR)
+        assert useful == pytest.approx(
+            rate * math.log2(events) * useful_factor * DISPLACEMENT_FACTOR
+        )
         assert harmful == pytest.approx(rate * math.log2(events) * harmful_factor)
         # The asymmetry is real: harmful is undiscounted
         assert abs(harmful) > useful  # given |harmful_factor| > useful_factor × DF

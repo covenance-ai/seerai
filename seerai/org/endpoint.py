@@ -1,10 +1,15 @@
 from collections import defaultdict
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from seerai.entities import OrgNode, Session, User
 from seerai.models import OrgNodeStats
+from seerai.privacy import (
+    Visibility,
+    _caller_from_request,
+    privacy_surface,
+)
 
 router = APIRouter(tags=["org"])
 
@@ -19,7 +24,13 @@ class AssignOrgRequest(BaseModel):
     org_id: str
 
 
+class PrivacySettings(BaseModel):
+    privacy_mode: bool
+    min_cohort_size: int
+
+
 @router.post("/orgs")
+@privacy_surface(Visibility.PUBLIC)
 def create_org(req: CreateOrgRequest) -> OrgNode:
     if req.parent_id:
         parent = OrgNode.get(req.parent_id)
@@ -43,11 +54,13 @@ def create_org(req: CreateOrgRequest) -> OrgNode:
 
 
 @router.get("/orgs")
+@privacy_surface(Visibility.PUBLIC)
 def list_root_orgs() -> list[OrgNode]:
     return OrgNode.query("depth", "==", 0)
 
 
 @router.get("/orgs/{org_id}")
+@privacy_surface(Visibility.PUBLIC)
 def get_org(org_id: str) -> OrgNode:
     node = OrgNode.get(org_id)
     if not node:
@@ -140,6 +153,7 @@ class OrgTreeNode(BaseModel):
 
 
 @router.get("/orgs/{org_id}/tree")
+@privacy_surface(Visibility.AGGREGATE)
 def get_org_tree(org_id: str) -> OrgTreeNode:
     descendants = _get_descendants(org_id)
     if not any(n.org_id == org_id for n in descendants):
@@ -162,6 +176,7 @@ def get_org_tree(org_id: str) -> OrgTreeNode:
 
 
 @router.get("/orgs/{org_id}/children")
+@privacy_surface(Visibility.AGGREGATE)
 def get_org_children(org_id: str) -> list[OrgNodeStats]:
     if not OrgNode.get(org_id):
         raise HTTPException(404, "Org not found")
@@ -172,6 +187,7 @@ def get_org_children(org_id: str) -> list[OrgNodeStats]:
 
 
 @router.get("/orgs/{org_id}/users")
+@privacy_surface(Visibility.INDIVIDUAL)
 def get_org_users(org_id: str) -> list[User]:
     descendants = _get_descendants(org_id)
     if not any(n.org_id == org_id for n in descendants):
@@ -186,6 +202,7 @@ def get_org_users(org_id: str) -> list[User]:
 
 
 @router.put("/users/{user_id}/org")
+@privacy_surface(Visibility.PUBLIC)
 def assign_user_org(user_id: str, req: AssignOrgRequest) -> User:
     if not OrgNode.get(req.org_id):
         raise HTTPException(404, "Org not found")
@@ -197,3 +214,54 @@ def assign_user_org(user_id: str, req: AssignOrgRequest) -> User:
     user.org_id = req.org_id
     user.sync()
     return user
+
+
+# ---------- privacy settings (admin-gated PUT) ----------
+
+
+@router.get("/orgs/{org_id}/privacy")
+@privacy_surface(Visibility.PUBLIC)
+def get_privacy_settings(org_id: str) -> PrivacySettings:
+    node = OrgNode.get(org_id)
+    if not node:
+        raise HTTPException(404, "Org not found")
+    root = OrgNode.get(node.path[0]) if node.path else node
+    return PrivacySettings(
+        privacy_mode=root.privacy_mode,
+        min_cohort_size=root.min_cohort_size,
+    )
+
+
+@router.put("/orgs/{org_id}/privacy")
+@privacy_surface(Visibility.PUBLIC)
+def put_privacy_settings(
+    org_id: str, req: PrivacySettings, request: Request
+) -> PrivacySettings:
+    """Set privacy mode on the org's root. Platform admin or same-company exec."""
+    node = OrgNode.get(org_id)
+    if not node:
+        raise HTTPException(404, "Org not found")
+    root_id = node.path[0] if node.path else node.org_id
+    root = OrgNode.get(root_id)
+    if not root:
+        raise HTTPException(404, "Root org not found")
+
+    caller = _caller_from_request(request)
+    allowed = caller.role == "admin" or (
+        caller.role == "exec" and caller.root_org_id == root_id
+    )
+    if not allowed:
+        raise HTTPException(
+            403, "Only platform admin or same-company exec can change privacy"
+        )
+
+    if req.min_cohort_size < 2:
+        raise HTTPException(400, "min_cohort_size must be >= 2")
+
+    root.privacy_mode = bool(req.privacy_mode)
+    root.min_cohort_size = int(req.min_cohort_size)
+    root.sync()
+    return PrivacySettings(
+        privacy_mode=root.privacy_mode,
+        min_cohort_size=root.min_cohort_size,
+    )

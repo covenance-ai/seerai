@@ -73,8 +73,12 @@
             return Math.round(n).toLocaleString();
         }
 
-        function deltaPill(delta, kind) {
+        function deltaPill(delta, kind, baseline) {
             // kind: 'currency' | 'count'
+            // baseline: optional reference value to compute % change against.
+            // Skip the % when the baseline is too small to be meaningful — a
+            // tiny denominator turns small deltas into nonsensical %s (a $5
+            // delta vs a $0.50 baseline isn't really "+1000%").
             const positive = delta > 0;
             const cls = positive
                 ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30'
@@ -83,11 +87,21 @@
                 : 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800';
             const arrow = positive ? '↑' : delta < 0 ? '↓' : '·';
             const value = kind === 'currency' ? fmtMoney(delta) : fmtNum(delta);
-            return `<span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${cls}">${arrow} ${value}</span>`;
+            let pctSuffix = '';
+            if (baseline !== undefined && baseline !== null && Math.abs(baseline) > 1e-6) {
+                const pct = (delta / Math.abs(baseline)) * 100;
+                if (Math.abs(pct) >= 1 && Math.abs(pct) < 1000) {
+                    pctSuffix = ` <span class="opacity-75">(${pct > 0 ? '+' : ''}${pct.toFixed(0)}%)</span>`;
+                }
+            }
+            return `<span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${cls}">${arrow} ${value}${pctSuffix}</span>`;
         }
 
         function comparedKpi(title, compared, kind) {
             const fmt = kind === 'currency' ? fmtMoney : fmtNum;
+            // Use abs(without) as the baseline so the % reads as "uplift over
+            // baseline magnitude" — when without_coach is negative (harmful
+            // counterfactual), a positive delta is still a positive %.
             return `<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
                 <div class="text-[0.7rem] uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">${esc(title)}</div>
                 <div class="grid grid-cols-3 gap-2 items-end">
@@ -101,7 +115,7 @@
                     </div>
                     <div class="text-right">
                         <div class="text-[0.65rem] text-gray-400 mb-0.5">Δ</div>
-                        ${deltaPill(compared.delta, kind)}
+                        ${deltaPill(compared.delta, kind, compared.without_coach)}
                     </div>
                 </div>
             </div>`;
@@ -119,12 +133,18 @@
             const acceptance = s.interventions_accepted && s.interventions_total
                 ? Math.round((s.interventions_accepted / s.interventions_total) * 100) + '%'
                 : '—';
+            const coverage = s.sessions_observed > 0
+                ? Math.round(s.coached_sessions / s.sessions_observed * 100) + '%'
+                : '—';
+            const intensity = s.coached_sessions > 0
+                ? (s.interventions_total / s.coached_sessions).toFixed(1)
+                : '—';
             document.getElementById('kpi-grid').innerHTML = [
                 comparedKpi('Estimated value', s.value_cents, 'currency'),
                 comparedKpi('Conversation turns', s.turns, 'count'),
                 plainKpi('Interventions',
                     fmtNum(s.interventions_total),
-                    `across ${s.coached_sessions} of ${s.sessions_observed} sessions`),
+                    `${intensity} per coached session · ${coverage} of ${fmtNum(s.sessions_observed)} sessions coached`),
                 plainKpi('Acceptance', acceptance,
                     `${s.interventions_accepted} of ${s.interventions_total} accepted`),
             ].join('');
@@ -164,16 +184,28 @@
         function renderUtilityShift(s) {
             const el = document.getElementById('utility-shift');
             if (!s.utility_shifts.length) { el.innerHTML = ''; return; }
-            const rows = s.utility_shifts.map(sh => `
+            // Shifts are only counted on coached sessions (gated upstream),
+            // so coached_sessions is the right denominator. Show both the raw
+            // count and the share of coached sessions for cross-scope comparison.
+            const denom = s.coached_sessions || 0;
+            const totalShifted = s.utility_shifts.reduce((acc, sh) => acc + sh.sessions, 0);
+            const totalPct = denom > 0 ? Math.round(totalShifted / denom * 100) : 0;
+            const rows = s.utility_shifts.map(sh => {
+                const pct = denom > 0 ? Math.round(sh.sessions / denom * 100) : 0;
+                return `
                 <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0">
                     <td class="py-2 pr-4 text-sm text-gray-500 dark:text-gray-400">${esc(sh.from_class)}</td>
                     <td class="py-2 pr-4 text-gray-300 dark:text-gray-700">→</td>
                     <td class="py-2 pr-4 text-sm font-medium text-gray-900 dark:text-white">${esc(sh.to_class)}</td>
-                    <td class="py-2 text-right text-sm font-semibold text-gray-900 dark:text-white">${sh.sessions}</td>
-                </tr>
-            `).join('');
+                    <td class="py-2 pr-4 text-right text-sm font-semibold text-gray-900 dark:text-white tabular-nums">${sh.sessions}</td>
+                    <td class="py-2 text-right text-sm text-gray-500 dark:text-gray-400 tabular-nums w-16">${pct}%</td>
+                </tr>`;
+            }).join('');
             el.innerHTML = `<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
-                <div class="text-[0.7rem] uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Utility shifts (counterfactual → actual)</div>
+                <div class="flex items-baseline justify-between mb-3">
+                    <div class="text-[0.7rem] uppercase tracking-wider text-gray-500 dark:text-gray-400">Utility shifts (counterfactual → actual)</div>
+                    <div class="text-[0.7rem] text-gray-400">${totalShifted} of ${denom} coached · ${totalPct}%</div>
+                </div>
                 <table class="w-full"><tbody>${rows}</tbody></table>
             </div>`;
         }

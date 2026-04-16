@@ -127,6 +127,12 @@ class OrgNode(FirestoreModel):
     parent_id: str | None = None
     path: list[str]
     depth: int
+    # Privacy mode is a property of the root org (depth=0). Managers can't see
+    # individual-level data when this is True; aggregates are k-anonymized with
+    # `min_cohort_size` as the threshold; only non-personal insights surface.
+    # The privacy module walks OrgNode.path[0] to find the governing setting.
+    privacy_mode: bool = False
+    min_cohort_size: int = 3
 
 
 class User(FirestoreModel):

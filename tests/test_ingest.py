@@ -193,7 +193,9 @@ class TestQueryEndpoints:
         # Create mock session docs for 3 sessions across 2 days
         def make_doc(session_id, days_ago):
             doc = MagicMock()
-            dt = datetime(today.year, today.month, today.day, 10, tzinfo=UTC) - timedelta(days=days_ago)
+            dt = datetime(
+                today.year, today.month, today.day, 10, tzinfo=UTC
+            ) - timedelta(days=days_ago)
             doc.to_dict.return_value = {
                 "session_id": session_id,
                 "user_id": "alice",

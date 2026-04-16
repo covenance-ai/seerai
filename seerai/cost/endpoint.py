@@ -117,7 +117,9 @@ class OrgCostSummary(BaseModel):
     users: list[UserCost]
 
 
-def _user_cost(user: User, sessions: list[Session], subs: list[Subscription]) -> UserCost:
+def _user_cost(
+    user: User, sessions: list[Session], subs: list[Subscription]
+) -> UserCost:
     """Compute per-month cost metrics over the trailing WINDOW_DAYS."""
     monthly_sub = sum(s.monthly_cost_cents for s in subs) / 100.0
 
@@ -153,7 +155,9 @@ def _user_cost(user: User, sessions: list[Session], subs: list[Subscription]) ->
     for model, tokens in sorted(by_model.items()):
         cost = token_cost(model, tokens)
         api_equivalent += cost
-        models.append(ModelUsage(model=model, token_count=tokens, api_cost=round(cost, 4)))
+        models.append(
+            ModelUsage(model=model, token_count=tokens, api_cost=round(cost, 4))
+        )
 
     eff_ratio = api_equivalent / monthly_sub if monthly_sub > 0 else None
     roi = total_value / monthly_sub if monthly_sub > 0 else None

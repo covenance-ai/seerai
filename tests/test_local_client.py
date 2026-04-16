@@ -7,16 +7,10 @@ Verifies that LocalStore duck-types the Firestore Client API correctly:
 - Persistence to/from JSON file
 """
 
-import json
-
 import pytest
 
 from seerai.local_client import (
-    CollectionRef,
-    DocumentRef,
-    DocumentSnapshot,
     LocalStore,
-    WriteBatch,
 )
 
 
@@ -155,17 +149,13 @@ class TestCollectionQuery:
 
     def test_order_by_descending(self, store):
         docs = list(
-            store.collection("items")
-            .order_by("score", direction="DESCENDING")
-            .stream()
+            store.collection("items").order_by("score", direction="DESCENDING").stream()
         )
         scores = [d.to_dict()["score"] for d in docs]
         assert scores == [3, 2, 1]
 
     def test_limit(self, store):
-        docs = list(
-            store.collection("items").order_by("score").limit(2).stream()
-        )
+        docs = list(store.collection("items").order_by("score").limit(2).stream())
         assert len(docs) == 2
 
     def test_chained_where_and_order(self, store):
@@ -215,7 +205,9 @@ class TestPersistence:
         s1.save()
 
         s2 = LocalStore(path)
-        assert s2.collection("users").document("alice").get().to_dict()["name"] == "Alice"
+        assert (
+            s2.collection("users").document("alice").get().to_dict()["name"] == "Alice"
+        )
 
     def test_batch_commit_triggers_save(self, tmp_path):
         """Batch commit auto-saves to disk."""

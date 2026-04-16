@@ -6,8 +6,13 @@ from pydantic import BaseModel
 
 from seerai.entities import Event, Session, User
 from seerai.models import SessionDetail, StoredEvent
+from seerai.privacy import Visibility, privacy_surface
 
 router = APIRouter(tags=["query"])
+
+
+def _user_id(user_id: str, **_) -> str:
+    return user_id
 
 
 class HeatmapDay(BaseModel):
@@ -20,16 +25,19 @@ class FlagRequest(BaseModel):
 
 
 @router.get("/users")
+@privacy_surface(Visibility.INDIVIDUAL)
 def list_users() -> list[User]:
     return User.list(order_by="last_active", limit=100)
 
 
 @router.get("/users/{user_id}/sessions")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_user_id)
 def list_sessions(user_id: str) -> list[Session]:
     return Session.for_user(user_id, limit=0)
 
 
 @router.get("/users/{user_id}/heatmap")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_user_id)
 def user_heatmap(user_id: str) -> list[HeatmapDay]:
     """Session counts per day for the activity calendar."""
     sessions = Session.list(
@@ -57,6 +65,7 @@ def user_heatmap(user_id: str) -> list[HeatmapDay]:
 
 
 @router.get("/sessions/flagged")
+@privacy_surface(Visibility.INDIVIDUAL)
 def list_flagged_sessions() -> list[Session]:
     """Cross-user query: every session flagged for seer.ai support review.
 

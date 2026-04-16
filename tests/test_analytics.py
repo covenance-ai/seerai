@@ -407,3 +407,174 @@ class TestDescendantAggregation:
 
         fc._client = None
         fc._source = None
+
+
+class TestAdoptionRate:
+    """Adoption rate (active_user_count / user_count) must be size-invariant.
+
+    Regression test for the dashboard bug where the dept-adoption chart sized
+    bars by absolute user_count: a 10-person, 100%-adoption dept rendered 2x
+    wider than a 5-person, 100%-adoption dept. The fix keeps the visual on the
+    rate; this test pins the API contract the rate is computed from.
+    """
+
+    def test_active_per_user_invariant_to_dept_size(self, tmp_path, monkeypatch):
+        snap = tmp_path / "snap.json"
+        now = datetime.now(UTC)
+
+        def days_ago(n):
+            return (now - timedelta(days=n)).isoformat()
+
+        # Two depts: small (2 users) and big (5 users), both at 100% adoption.
+        orgs = {
+            "acme": {
+                "org_id": "acme",
+                "name": "Acme",
+                "parent_id": None,
+                "path": ["acme"],
+                "depth": 0,
+            },
+            "small": {
+                "org_id": "small",
+                "name": "Small",
+                "parent_id": "acme",
+                "path": ["acme", "small"],
+                "depth": 1,
+            },
+            "big": {
+                "org_id": "big",
+                "name": "Big",
+                "parent_id": "acme",
+                "path": ["acme", "big"],
+                "depth": 1,
+            },
+        }
+        users = {}
+        sessions: dict[str, dict] = {}
+
+        def add_user(uid: str, dept: str) -> None:
+            users[uid] = {
+                "user_id": uid,
+                "last_active": days_ago(1),
+                "org_id": dept,
+                "role": "user",
+                "hourly_rate": 100.0,
+            }
+            sessions[f"users/{uid}/sessions"] = {
+                f"{uid}_s": {
+                    "session_id": f"{uid}_s",
+                    "user_id": uid,
+                    "last_event_at": days_ago(1),
+                    "event_count": 4,
+                    "error_count": 0,
+                    "provider": "anthropic",
+                    "utility": "useful",
+                    "last_event_type": "ai_message",
+                }
+            }
+
+        for uid in ("s1", "s2"):
+            add_user(uid, "small")
+        for uid in ("b1", "b2", "b3", "b4", "b5"):
+            add_user(uid, "big")
+
+        snap.write_text(json.dumps({"orgs": orgs, "users": users, **sessions}))
+        monkeypatch.setenv("LOCAL_DATA_PATH", str(snap))
+        fc._client = None
+        fc._source = None
+        fc.set_datasource("local")
+        from main import app
+
+        body = TestClient(app).get("/api/analytics/org/acme").json()
+        depts = {d["org_id"]: d for d in body["departments"]}
+
+        # Both fully adopted — rate must be 1.0 regardless of headcount.
+        for dept_id, expected_total in (("small", 2), ("big", 5)):
+            d = depts[dept_id]
+            assert d["user_count"] == expected_total
+            assert d["active_user_count"] == expected_total
+            rate = d["active_user_count"] / d["user_count"]
+            assert rate == 1.0, f"{dept_id} rate {rate} != 1.0"
+
+        # The whole point: rates equal across depts of different sizes.
+        rate_small = depts["small"]["active_user_count"] / depts["small"]["user_count"]
+        rate_big = depts["big"]["active_user_count"] / depts["big"]["user_count"]
+        assert rate_small == rate_big
+
+        fc._client = None
+        fc._source = None
+
+    def test_partial_adoption_rate_below_one(self, tmp_path, monkeypatch):
+        """Half the users active → rate is 0.5, not "5 of 10 vs 2 of 4 = different."""
+        snap = tmp_path / "snap.json"
+        now = datetime.now(UTC)
+
+        def days_ago(n):
+            return (now - timedelta(days=n)).isoformat()
+
+        # Dept with 4 users, 2 of them active in the 30d window.
+        users = {
+            f"u{i}": {
+                "user_id": f"u{i}",
+                "last_active": days_ago(1),
+                "org_id": "d",
+                "role": "user",
+                "hourly_rate": 100.0,
+            }
+            for i in range(4)
+        }
+        # Only u0 and u1 have a recent session; u2, u3 have none.
+        recent_sessions = {
+            f"users/u{i}/sessions": {
+                f"u{i}_s": {
+                    "session_id": f"u{i}_s",
+                    "user_id": f"u{i}",
+                    "last_event_at": days_ago(1),
+                    "event_count": 4,
+                    "error_count": 0,
+                    "provider": "anthropic",
+                    "utility": "useful",
+                    "last_event_type": "ai_message",
+                }
+            }
+            for i in (0, 1)
+        }
+
+        snap.write_text(
+            json.dumps(
+                {
+                    "orgs": {
+                        "acme": {
+                            "org_id": "acme",
+                            "name": "Acme",
+                            "parent_id": None,
+                            "path": ["acme"],
+                            "depth": 0,
+                        },
+                        "d": {
+                            "org_id": "d",
+                            "name": "D",
+                            "parent_id": "acme",
+                            "path": ["acme", "d"],
+                            "depth": 1,
+                        },
+                    },
+                    "users": users,
+                    **recent_sessions,
+                }
+            )
+        )
+        monkeypatch.setenv("LOCAL_DATA_PATH", str(snap))
+        fc._client = None
+        fc._source = None
+        fc.set_datasource("local")
+        from main import app
+
+        body = TestClient(app).get("/api/analytics/org/acme").json()
+        d = next(d for d in body["departments"] if d["org_id"] == "d")
+        assert d["user_count"] == 4
+        assert d["active_user_count"] == 2
+        assert d["active_user_count"] / d["user_count"] == 0.5
+
+        fc._client = None
+        fc._source = None
