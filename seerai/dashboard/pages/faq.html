@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>seerai — FAQ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
+    <script src="/static/i18n.js"></script>
+    <script src="/static/nav.js" defer></script>
+    <style>
+        /* Accordion card — native <details> styled to match the rest of the app. */
+        .faq-card { margin-bottom: 8px; }
+        .faq-card > summary {
+            list-style: none; cursor: pointer; user-select: none;
+            padding: 14px 48px 14px 18px; position: relative;
+            font-weight: 600; font-size: 0.95rem;
+            border-radius: 12px;
+            border: 1px solid rgb(229 231 235);
+            background: rgb(255 255 255);
+            color: rgb(17 24 39);
+            transition: background-color 120ms ease;
+        }
+        .dark .faq-card > summary {
+            border-color: rgb(31 41 55);
+            background: rgb(17 24 39);
+            color: rgb(243 244 246);
+        }
+        .faq-card > summary:hover { background: rgb(249 250 251); }
+        .dark .faq-card > summary:hover { background: rgb(24 32 46); }
+        .faq-card > summary::-webkit-details-marker { display: none; }
+        .faq-card > summary::after {
+            content: "+"; position: absolute; right: 18px; top: 50%;
+            transform: translateY(-50%); font-size: 1.25rem;
+            color: rgb(156 163 175); font-weight: 400; line-height: 1;
+        }
+        .faq-card[open] > summary::after { content: "\2212"; }
+        .faq-card[open] > summary {
+            border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+            border-bottom-color: transparent;
+        }
+        .faq-a {
+            padding: 4px 18px 18px;
+            border: 1px solid rgb(229 231 235);
+            border-top: 0;
+            border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+            background: rgb(255 255 255);
+            color: rgb(55 65 81);
+            font-size: 0.875rem; line-height: 1.65;
+        }
+        .dark .faq-a {
+            border-color: rgb(31 41 55);
+            background: rgb(17 24 39);
+            color: rgb(209 213 219);
+        }
+        .faq-a p { margin: 10px 0; }
+        .faq-a ul { list-style: disc; padding-left: 20px; margin: 10px 0; }
+        .faq-a li { margin: 4px 0; }
+        .faq-a strong { color: rgb(17 24 39); font-weight: 600; }
+        .dark .faq-a strong { color: rgb(243 244 246); }
+        .faq-a a { color: rgb(37 99 235); }
+        .dark .faq-a a { color: rgb(96 165 250); }
+        .faq-a .diagram {
+            margin: 14px -4px; padding: 14px; border-radius: 10px;
+            background: rgb(255 255 255); border: 1px solid rgb(229 231 235);
+            overflow-x: auto;
+        }
+        .dark .faq-a .diagram {
+            /* Keep a white canvas in dark mode — the SVG uses light-mode colors. */
+            background: rgb(249 250 251); border-color: rgb(31 41 55);
+        }
+        /* SVG loaded via <object> so the root width="100%" resolves against
+           the embed box rather than producing no intrinsic size. aspect-ratio
+           tracks the diagram's viewBox so the page reserves vertical space
+           before the SVG document finishes loading. */
+        .faq-a .diagram object {
+            display: block; width: 100%; max-width: 720px; margin: 0 auto;
+            aspect-ratio: 790 / 780;
+        }
+        .section-head {
+            font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; color: rgb(107 114 128);
+            margin: 32px 0 12px;
+        }
+        .dark .section-head { color: rgb(156 163 175); }
+        .section-head:first-of-type { margin-top: 8px; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <h1 data-i18n class="text-2xl font-bold text-gray-900 dark:text-white mb-1">How seerai works</h1>
+        <p data-i18n class="text-sm text-gray-500 dark:text-gray-400 mb-4">The essentials — what it does, what you get from it, and what safeguards sit around your people's AI-assistant data.</p>
+
+        <h2 data-i18n class="section-head">About seerai</h2>
+
+        <details class="faq-card" open>
+            <summary data-i18n>What is seerai?</summary>
+            <div class="faq-a">
+                <p data-i18n>seerai is an observer layer for the AI-assistant conversations happening across your organization — ChatGPT, Claude, Gemini, Copilot, internal LLM apps, any of it. It turns scattered chat logs into organizational insight (which tools pay off, where AI accelerates work, what your people are actually doing with it) without exposing any one employee's conversations to their manager.</p>
+                <p data-i18n>It sits alongside whatever AI tools your people already use. You don't change how they work; you gain visibility into what's happening.</p>
+            </div>
+        </details>
+
+        <h2 data-i18n class="section-head">What you get</h2>
+
+        <details class="faq-card">
+            <summary data-i18n>What decisions does seerai help us make?</summary>
+            <div class="faq-a">
+                <ul>
+                    <li data-i18n-html><strong>Cost &amp; ROI</strong> — which AI subscriptions pay for themselves, which are dead weight, which cost center to charge.</li>
+                    <li data-i18n-html><strong>Analytics</strong> — where across the org AI accelerates work vs. slows it down, which tasks land and which get abandoned.</li>
+                    <li data-i18n-html><strong>Insights</strong> — cross-team signals (who is suddenly asking security's questions?), paygrade alignment, negative-ROI and prevented-harm patterns.</li>
+                    <li data-i18n-html><strong>Company knowledge base</strong> — a living corpus of problems your people have actually solved using AI, useful for onboarding and reference.</li>
+                </ul>
+            </div>
+        </details>
+
+        <details class="faq-card">
+            <summary data-i18n>What do our employees get from it?</summary>
+            <div class="faq-a">
+                <p data-i18n>Every employee has a private view — their own sessions, costs, usage patterns, coaching nudges — visible only to them.</p>
+                <p data-i18n>This matters: it makes seerai something your people benefit from first, not something done to them. Adoption follows.</p>
+            </div>
+        </details>
+
+        <h2 data-i18n class="section-head">Privacy &amp; compliance</h2>
+
+        <details class="faq-card">
+            <summary data-i18n>Who sees what?</summary>
+            <div class="faq-a">
+                <div class="diagram">
+                    <object data="/assets/docs/seer_b2b_privacy_architecture.svg" type="image/svg+xml" aria-label="seerai B2B data architecture — per-user encryption, privacy firewall, aggregate-only employer view"></object>
+                </div>
+                <ul>
+                    <li data-i18n-html><strong>The employee</strong> — their own AI sessions in full.</li>
+                    <li data-i18n-html><strong>Exec / manager in your company</strong> — aggregates, insights, and the company knowledge base. Never an individual's raw session.</li>
+                    <li data-i18n-html><strong>seer.ai platform staff</strong> — only items your company has explicitly flagged for support. No ambient access.</li>
+                </ul>
+            </div>
+        </details>
+
+        <details class="faq-card">
+            <summary data-i18n>Can a manager read an individual employee's AI conversations?</summary>
+            <div class="faq-a">
+                <p data-i18n>Depends on the privacy posture you choose per organization:</p>
+                <ul>
+                    <li data-i18n-html><strong>Privacy mode ON</strong> (default for EU / works-council contexts) — no. Only the employee themselves. Aggregates enforce a minimum cohort size so small teams don't indirectly identify anyone.</li>
+                    <li data-i18n-html><strong>Privacy mode OFF</strong> — managers in the same company can view individual sessions, like any ordinary productivity tool.</li>
+                </ul>
+                <p data-i18n-html>You control this in <a href="/admin/privacy" class="underline">Settings → Privacy</a>. Toggling the setting is itself audited.</p>
+            </div>
+        </details>
+
+        <details class="faq-card">
+            <summary data-i18n>GDPR, data residency, and exit?</summary>
+            <div class="faq-a">
+                <ul>
+                    <li data-i18n-html>seerai acts as <strong>processor</strong> under GDPR Art. 28; your company is the controller. A DPA signed at onboarding defines the scope.</li>
+                    <li data-i18n-html>Data is hosted in GCP <strong>europe-west1</strong> (EU). No cross-border transfers.</li>
+                    <li data-i18n-html>Data subject rights (access, erasure) are supported per employee.</li>
+                    <li data-i18n-html>At contract end, your tenant's data — including the derived knowledge base — is deleted.</li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</body>
+</html>
