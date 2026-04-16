@@ -117,9 +117,10 @@
                 html += renderCoachStrip(orgId, coachData);
             }
 
-            // Index cost data by user_id for lookup
+            // Index cost data by user_id for lookup. `users` is null when the
+            // current org is small-cohort suppressed; treat as empty.
             const userCostMap = {};
-            if (costData) {
+            if (costData && Array.isArray(costData.users)) {
                 for (const uc of costData.users) userCostMap[uc.user_id] = uc;
             }
 
@@ -149,16 +150,29 @@
                     for (let i = 0; i < tree.children.length; i++) {
                         const c = tree.children[i].node;
                         const cc = childCosts[i];
-                        // Active = users in cost response with ≥1 windowed session.
-                        // Per-user denominator uses active users so a half-engaged dept
-                        // doesn't get credited a misleading low per-user cost.
-                        const activeUsers = cc ? cc.users.filter(u => u.session_count > 0).length : 0;
+                        // A "suppressed" cost row (small-cohort under privacy mode)
+                        // keeps user_count + identifiers but nulls everything else,
+                        // including the `users` array. Render a single muted row
+                        // for those, no metrics.
+                        const suppressed = !!(cc && cc.suppressed);
+                        const usersArr = cc && Array.isArray(cc.users) ? cc.users : [];
+                        const activeUsers = usersArr.filter(u => u.session_count > 0).length;
                         const totalUsers = cc ? cc.user_count : c.user_count;
                         const adoptionRate = totalUsers > 0 ? Math.round(activeUsers / totalUsers * 100) : 0;
                         const adoptionColor = adoptionRate >= 75 ? 'text-emerald-500'
                             : adoptionRate >= 40 ? 'text-gray-600 dark:text-gray-400'
                             : adoptionRate > 0 ? 'text-amber-500'
                             : 'text-gray-400';
+                        const orgInsCount = (insightsByOrg[c.org_id] || []).length;
+
+                        if (suppressed) {
+                            html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                                <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a>${insightBadge(orgInsCount, {org_id: c.org_id})}</td>
+                                <td class="px-4 py-2.5 text-right text-[0.7rem] text-gray-400 italic" colspan="5" title="Cohort below ${totalUsers}-user privacy threshold — metrics suppressed">cohort &lt; threshold · suppressed</td>
+                            </tr>`;
+                            continue;
+                        }
+
                         const adoptionCell = cc
                             ? `<span class="${adoptionColor} font-medium tabular-nums">${adoptionRate}%</span><div class="text-[0.65rem] text-gray-400">${activeUsers}/${totalUsers}</div>`
                             : '<span class="text-gray-400">—</span>';
@@ -170,7 +184,6 @@
                         const cRoi = cc ? cc.roi : null;
                         const cRoiColor = cRoi === null ? 'text-gray-400' : cRoi >= 1 ? 'text-emerald-500' : 'text-amber-500';
                         const cRoiLabel = cRoi === null ? '—' : cRoi.toFixed(1) + 'x';
-                        const orgInsCount = (insightsByOrg[c.org_id] || []).length;
                         html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                             <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a>${insightBadge(orgInsCount, {org_id: c.org_id})}</td>
                             <td class="px-4 py-2.5 text-right">${adoptionCell}</td>
