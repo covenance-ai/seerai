@@ -34,13 +34,26 @@ def _serialize(obj: Any) -> Any:
 
 
 def _apply_field(target: dict, key: str, value: Any) -> None:
-    """Set a field, handling Firestore dotted-key notation and Increment."""
+    """Set a field, handling Firestore dotted-key notation and Increment.
+
+    When ``value`` is a dict, recurse so Increment sentinels nested anywhere
+    inside the payload (e.g. ``{"token_usage": {"gpt-4o": Increment(180)}}``)
+    still get unwrapped and deep-merged, matching real Firestore's behaviour
+    for ``set(merge=True)``.
+    """
     parts = key.split(".")
     for part in parts[:-1]:
         target = target.setdefault(part, {})
     leaf = parts[-1]
     if _is_increment(value):
         target[leaf] = (target.get(leaf) or 0) + value.value
+    elif isinstance(value, dict):
+        inner = target.setdefault(leaf, {})
+        if not isinstance(inner, dict):
+            inner = {}
+            target[leaf] = inner
+        for k, v in value.items():
+            _apply_field(inner, k, v)
     else:
         target[leaf] = _serialize(value)
 

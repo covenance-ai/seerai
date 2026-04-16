@@ -12,21 +12,37 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture
 def client():
-    """TestClient with Firestore mocked out via the module-level _client cache."""
+    """TestClient with Firestore mocked out via the module-level _client cache.
+
+    Default: user_ref.get().exists == True — simulates a returning user, so
+    the ingest endpoint skips the first-time org_id seed. Tests that need the
+    new-user branch override this via ``set_user_exists``.
+    """
     mock_db = MagicMock()
     mock_batch = MagicMock()
     mock_db.batch.return_value = mock_batch
 
+    mock_snapshot = MagicMock()
+    mock_snapshot.exists = True
+    # The ingest endpoint calls ``user_ref.get()`` where user_ref came from
+    # ``db.collection("users").document(uid)``. Route that path to our snapshot.
+    mock_db.collection.return_value.document.return_value.get.return_value = (
+        mock_snapshot
+    )
+
+    def set_user_exists(exists: bool) -> None:
+        mock_snapshot.exists = exists
+
     with patch("seerai.firestore_client._client", mock_db):
         from main import app
 
-        yield TestClient(app), mock_db, mock_batch
+        yield TestClient(app), mock_db, mock_batch, set_user_exists
 
 
 class TestIngestEndpoint:
     def test_single_event_returns_stored_event(self, client):
         """POST /api/ingest returns a StoredEvent with generated id and timestamp."""
-        tc, _, _ = client
+        tc, _, _, _ = client
         resp = tc.post(
             "/api/ingest",
             json={
@@ -44,7 +60,7 @@ class TestIngestEndpoint:
 
     def test_single_event_commits_batch(self, client):
         """POST /api/ingest commits exactly one Firestore batch."""
-        tc, _, mock_batch = client
+        tc, _, mock_batch, _ = client
         tc.post(
             "/api/ingest",
             json={
@@ -58,7 +74,7 @@ class TestIngestEndpoint:
 
     def test_batch_ingest(self, client):
         """POST /api/ingest/batch processes multiple events."""
-        tc, _, mock_batch = client
+        tc, _, mock_batch, _ = client
         events = [
             {
                 "user_id": "u",
@@ -76,7 +92,7 @@ class TestIngestEndpoint:
 
     def test_invalid_event_type_rejected(self, client):
         """Invalid event_type gets a 422 from Pydantic validation."""
-        tc, _, _ = client
+        tc, _, _, _ = client
         resp = tc.post(
             "/api/ingest",
             json={
@@ -90,7 +106,7 @@ class TestIngestEndpoint:
 
     def test_missing_content_rejected(self, client):
         """Missing required field gets a 422."""
-        tc, _, _ = client
+        tc, _, _, _ = client
         resp = tc.post(
             "/api/ingest",
             json={
@@ -103,7 +119,7 @@ class TestIngestEndpoint:
 
     def test_metadata_passthrough(self, client):
         """Metadata dict is preserved in the response."""
-        tc, _, _ = client
+        tc, _, _, _ = client
         resp = tc.post(
             "/api/ingest",
             json={
@@ -120,7 +136,7 @@ class TestIngestEndpoint:
 
     def test_provider_and_platform_written_to_session(self, client):
         """provider and platform from the payload are included in the session batch write."""
-        tc, mock_db, mock_batch = client
+        tc, mock_db, mock_batch, _ = client
         tc.post(
             "/api/ingest",
             json={
@@ -144,7 +160,7 @@ class TestIngestEndpoint:
 
     def test_provider_and_platform_omitted_when_absent(self, client):
         """When provider/platform are not sent, they don't appear in the session write."""
-        tc, mock_db, mock_batch = client
+        tc, mock_db, mock_batch, _ = client
         tc.post(
             "/api/ingest",
             json={
@@ -162,10 +178,74 @@ class TestIngestEndpoint:
                 break
 
 
+def _find_user_set_call(mock_batch):
+    """Return the data dict from the batch.set call that wrote the user doc."""
+    for call in mock_batch.set.call_args_list:
+        data = call[0][1]
+        if "user_id" in data and "session_id" not in data:
+            return data
+    raise AssertionError("no user batch.set call found")
+
+
+class TestOrgBootstrap:
+    """The ingest endpoint seeds new users into the 'covenance.ai' org and
+    must never overwrite the org_id of a returning user."""
+
+    def test_new_user_gets_default_org(self, client):
+        """A user that doesn't yet exist in Firestore is initialized under
+        DEFAULT_INGEST_ORG_ID so dashboards can render them straight away."""
+        from seerai.ingest.endpoint import DEFAULT_INGEST_ORG_ID
+
+        tc, _, mock_batch, set_user_exists = client
+        set_user_exists(False)
+
+        tc.post(
+            "/api/ingest",
+            json={
+                "user_id": "brand_new_user",
+                "session_id": "s",
+                "event_type": "user_message",
+                "content": "first ever message",
+            },
+        )
+
+        data = _find_user_set_call(mock_batch)
+        assert data["org_id"] == DEFAULT_INGEST_ORG_ID
+
+    def test_returning_user_org_not_touched(self, client):
+        """If the user already exists, the ingest batch must not write org_id
+        at all — otherwise an existing acme-* mock user would get clobbered
+        on every ingest."""
+        tc, _, mock_batch, set_user_exists = client
+        set_user_exists(True)
+
+        tc.post(
+            "/api/ingest",
+            json={
+                "user_id": "alice.johnson",  # mock user with org_id=acme-eng-backend
+                "session_id": "s",
+                "event_type": "user_message",
+                "content": "returning message",
+            },
+        )
+
+        data = _find_user_set_call(mock_batch)
+        assert "org_id" not in data, (
+            f"returning user batch write must not carry org_id, got {data}"
+        )
+
+    def test_default_org_is_covenance(self):
+        """The default org id is the literal string the user requested.
+        Lock this down so a well-meaning refactor doesn't silently change it."""
+        from seerai.ingest.endpoint import DEFAULT_INGEST_ORG_ID
+
+        assert DEFAULT_INGEST_ORG_ID == "covenance.ai"
+
+
 class TestQueryEndpoints:
     def test_list_users_empty(self, client):
         """GET /api/users returns empty list when no data."""
-        tc, mock_db, _ = client
+        tc, mock_db, _, _ = client
         mock_db.collection.return_value.order_by.return_value.limit.return_value.stream.return_value = iter(
             []
         )
@@ -175,7 +255,7 @@ class TestQueryEndpoints:
 
     def test_session_not_found(self, client):
         """GET /api/users/{uid}/sessions/{sid} returns 404 for missing session."""
-        tc, mock_db, _ = client
+        tc, mock_db, _, _ = client
         # Entity model uses db.document("users/alice").collection("sessions").document("x").get()
         mock_session_doc = MagicMock()
         mock_session_doc.exists = False
@@ -187,7 +267,7 @@ class TestQueryEndpoints:
         """GET /api/users/{uid}/heatmap returns date/count pairs covering recent months."""
         from datetime import UTC, datetime, timedelta
 
-        tc, mock_db, _ = client
+        tc, mock_db, _, _ = client
         today = datetime.now(UTC).date()
 
         # Create mock session docs for 3 sessions across 2 days
@@ -226,7 +306,7 @@ class TestQueryEndpoints:
 class TestDashboard:
     def test_index_returns_html(self, client):
         """GET / returns the dashboard HTML."""
-        tc, _, _ = client
+        tc, _, _, _ = client
         resp = tc.get("/")
         assert resp.status_code == 200
         assert "seerai" in resp.text
@@ -234,14 +314,14 @@ class TestDashboard:
 
     def test_sessions_page_returns_html(self, client):
         """GET /sessions/{uid} returns HTML."""
-        tc, _, _ = client
+        tc, _, _, _ = client
         resp = tc.get("/sessions/alice")
         assert resp.status_code == 200
         assert "text/html" in resp.headers["content-type"]
 
     def test_session_detail_page_returns_html(self, client):
         """GET /session/{uid}/{sid} returns HTML."""
-        tc, _, _ = client
+        tc, _, _, _ = client
         resp = tc.get("/session/alice/s1")
         assert resp.status_code == 200
         assert "text/html" in resp.headers["content-type"]
