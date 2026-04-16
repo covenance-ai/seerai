@@ -18,6 +18,7 @@
         <p class="text-xs text-gray-400 dark:text-gray-500 mb-6 italic">
             Platform staff can only see flagged items — never raw user data, sessions, or insights from any company.
         </p>
+        <div id="coach-pulse"></div>
         <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
     <script>
@@ -102,6 +103,55 @@
             </div>`;
         }
 
+        const COACH_DOT = {
+            factuality: 'bg-rose-500',
+            efficiency: 'bg-sky-500',
+            sources: 'bg-violet-500',
+            other: 'bg-amber-500',
+        };
+
+        function fmtMoneyShort(cents) {
+            const d = (cents || 0) / 100;
+            const a = Math.abs(d);
+            const sign = d < 0 ? '-' : '';
+            return a >= 1000 ? sign + '$' + (a / 1000).toFixed(1) + 'k' : sign + '$' + a.toFixed(0);
+        }
+
+        function renderCoachPulse(s) {
+            const el = document.getElementById('coach-pulse');
+            if (!s || !s.interventions_total) { el.innerHTML = ''; return; }
+            const chips = (s.by_category || []).map(c => {
+                const dot = COACH_DOT[c.category] || COACH_DOT.other;
+                return `<span class="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                    <span class="w-1.5 h-1.5 rounded-full ${dot}"></span>${esc(c.category)} <span class="text-gray-400">${c.interventions}</span>
+                </span>`;
+            }).join('<span class="mx-1.5 text-gray-300 dark:text-gray-700">·</span>');
+            const delta = s.value_cents ? s.value_cents.delta : 0;
+            const deltaSign = delta > 0 ? '+' : '';
+            el.innerHTML = `<div class="rounded-xl border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-900/10 p-4 mb-6">
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v6c0 4.5-3.1 8.4-7 9-3.9-.6-7-4.5-7-9V6l7-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
+                            Coach across customers
+                        </span>
+                        <span class="text-sm text-gray-700 dark:text-gray-200">
+                            <span class="font-semibold">${s.interventions_total}</span>
+                            <span class="text-gray-500 dark:text-gray-400">interventions · ${s.coached_sessions} sessions</span>
+                        </span>
+                        ${chips ? '<span class="text-gray-300 dark:text-gray-700">·</span>' + chips : ''}
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Value Δ</div>
+                            <div class="text-sm font-bold ${delta > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500'}">${deltaSign}${fmtMoneyShort(delta)}</div>
+                        </div>
+                        <a href="/exec/coach" class="text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:underline whitespace-nowrap">Open →</a>
+                    </div>
+                </div>
+            </div>`;
+        }
+
         waitForReady().then(() => {
             const user = window.seerai.getCurrentUser();
             if (!user || user.role !== 'admin') return;
@@ -110,7 +160,9 @@
                 fetch('/api/insights?flagged=true').then(r => r.json()),
                 fetch('/api/sessions/flagged').then(r => r.json()),
                 fetch('/api/users').then(r => r.json()),
-            ]).then(([insights, sessions, users]) => {
+                fetch('/api/coach/summary').then(r => r.ok ? r.json() : null),
+            ]).then(([insights, sessions, users, coachData]) => {
+                renderCoachPulse(coachData);
                 const companyMap = {};
                 for (const u of users) {
                     companyMap[u.user_id] = window.seerai.getUserCompany(u.user_id);

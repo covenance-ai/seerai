@@ -114,7 +114,7 @@
     },
     "quinn.harris": {
       "role": "user",
-      "last_active": "2026-04-16T08:09:20.500137+00:00",
+      "last_active": "2026-04-16T08:24:49.630763+00:00",
       "org_id": "acme-sales",
       "hourly_rate": 52.66,
       "user_id": "quinn.harris"
@@ -46457,6 +46457,45 @@
       "intervention_categories": [
         "sources"
       ]
+    },
+    "b4fa1f66-7474-4c70-8ac7-afc1de0e8815": {
+      "session_id": "b4fa1f66-7474-4c70-8ac7-afc1de0e8815",
+      "user_id": "quinn.harris",
+      "last_event_at": "2026-04-16T08:25:49.630763+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 3,
+      "provider": "google",
+      "platform": "slack",
+      "error_count": 0,
+      "token_usage": {
+        "claude-sonnet-4": 112
+      },
+      "utility": "useful",
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "ff0aae4a-8fa6-45c2-841d-69901dd52d4c",
+          "event_type": "user_message",
+          "content": "Can you draft talking points for a sales discussion based on this org chart? [John Doe, VP of Sales, reports to Jane Smith, CEO]",
+          "timestamp": "2026-04-16T08:24:49.630763+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "0d883e78-b8be-4a65-a6eb-dad15b442e09",
+          "event_type": "ai_message",
+          "content": "Here are some suggested talking points for the sales discussion with John Doe, VP of Sales, who reports to Jane Smith, CEO:\n\n1. Highlight the benefits of your product in enhancing team productivity to John.\n2. Emphasize how the product integrates seamlessly with the existing tools used by Jane's organization.\n3. Discuss cost-saving benefits with John and provide relevant case studies or data for him to consider.\n4. Reassure Jane about potential concerns related to data security and compliance.\n\nThese points are tailored to resonate with John and Jane's strategic priorities.",
+          "timestamp": "2026-04-16T08:25:19.630763+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 135,
+            "latency_ms": 600
+          }
+        }
+      ],
+      "intervention_count": 1,
+      "intervention_categories": [
+        "other"
+      ]
     }
   },
   "users/quinn.harris/sessions/046aa948-1f31-4e3d-bfab-a7c7eff7b81e/events": {},
@@ -66691,13 +66730,13 @@
         "ce7a6c4d-f141-46d5-8e40-f1efdc1d5202"
       ]
     },
-    "72976c17-9139-4ed4-887b-1898659b431c": {
-      "insight_id": "72976c17-9139-4ed4-887b-1898659b431c",
+    "8290c9ae-8c09-4596-8de8-505697aeccc4": {
+      "insight_id": "8290c9ae-8c09-4596-8de8-505697aeccc4",
       "kind": "prevented_harm_pattern",
       "priority": 2,
-      "created_at": "2026-04-13T08:11:05.070520+00:00",
-      "title": "Coach prevented ~$1,480 in likely waste in Acme Corp",
-      "description": "Across 3204 observed sessions in Acme Corp, 26 were coached (26 interventions total). Coach rescued 14 sessions from harmful; rescued 8 sessions from trivial; top interventions: 8x fabricated citation, 5x hallucinated api, 4x off track. Counterfactual value: 69,385 USD without coach vs 70,865 USD with coach (delta +1,480 USD). Review the coach feed to confirm these interventions align with the team's risk appetite.",
+      "created_at": "2026-04-13T08:25:00.147104+00:00",
+      "title": "Coach prevented ~$1,560 in likely waste in Acme Corp",
+      "description": "Across 3205 observed sessions in Acme Corp, 27 were coached (27 interventions total). Coach rescued 15 sessions from harmful; rescued 8 sessions from trivial; top interventions: 8x fabricated citation, 5x hallucinated api, 4x off track. Counterfactual value: 69,355 USD without coach vs 70,915 USD with coach (delta +1,560 USD). Review the coach feed to confirm these interventions align with the team's risk appetite.",
       "user_id": "bob.martinez",
       "org_id": "acme",
       "target_org_id": null,
@@ -66724,17 +66763,18 @@
         "a6c6551c-8d27-4e27-88f0-792128aa1399",
         "coach-hero-other-pii-block",
         "63b87cae-c82d-454e-99cd-814f8b113d0f",
+        "b4fa1f66-7474-4c70-8ac7-afc1de0e8815",
         "coach-hero-sources-fabricated-citation",
         "9fb1cb56-14c9-4724-bdf5-b739b567e273",
         "fe41e10a-3482-4127-9b9b-dbd939d76cf4",
         "164e5a4b-e859-4b44-b7bc-218e3fdb4760"
       ]
     },
-    "69a24552-2cd7-43e6-a580-72113287c8f0": {
-      "insight_id": "69a24552-2cd7-43e6-a580-72113287c8f0",
+    "cc8efc01-709d-494e-abfa-ba46e6553a35": {
+      "insight_id": "cc8efc01-709d-494e-abfa-ba46e6553a35",
       "kind": "prevented_harm_pattern",
       "priority": 2,
-      "created_at": "2026-04-15T08:11:05.070520+00:00",
+      "created_at": "2026-04-15T08:25:00.147104+00:00",
       "title": "Coach prevented ~$460 in likely waste in Initech",
       "description": "Across 1008 observed sessions in Initech, 7 were coached (7 interventions total). Coach rescued 5 sessions from harmful; rescued 1 session from trivial; top interventions: 2x pii leak, 1x fabricated citation, 1x redundant work. Counterfactual value: 20,885 USD without coach vs 21,345 USD with coach (delta +460 USD). Review the coach feed to confirm these interventions align with the team's risk appetite.",
       "user_id": "tina.clark",
@@ -68288,6 +68328,48 @@
         "sources": null,
         "accepted": true,
         "estimated_savings_cents": 50
+      }
+    }
+  },
+  "users/quinn.harris/sessions/b4fa1f66-7474-4c70-8ac7-afc1de0e8815/events": {
+    "cd9d6c23-346b-42fa-8d63-7528b40993b7": {
+      "event_id": "cd9d6c23-346b-42fa-8d63-7528b40993b7",
+      "event_type": "user_message",
+      "content": "Can you draft talking points for a sales discussion based on this org chart? [John Doe, VP of Sales, reports to Jane Smith, CEO]",
+      "timestamp": "2026-04-16T08:24:49.630763+00:00",
+      "metadata": null
+    },
+    "210d3985-74ef-4f4e-981b-f7c8d609d845": {
+      "event_id": "210d3985-74ef-4f4e-981b-f7c8d609d845",
+      "event_type": "coach_intervention",
+      "content": "The original AI response included PII from a customer's internal org chart. It's important to redact names and any sensitive personal data to ensure privacy and adhere to compliance standards.",
+      "timestamp": "2026-04-16T08:25:19.630763+00:00",
+      "metadata": {
+        "category": "other",
+        "kind": "pii_leak",
+        "mode": "rewrite",
+        "severity": 5,
+        "targets_event_id": "4dfc58a8-870e-4a4c-b575-dbc2c70008f0",
+        "quoted_span": "John Doe, VP of Sales",
+        "sources": null,
+        "accepted": true,
+        "estimated_savings_cents": 0
+      }
+    },
+    "4dfc58a8-870e-4a4c-b575-dbc2c70008f0": {
+      "event_id": "4dfc58a8-870e-4a4c-b575-dbc2c70008f0",
+      "event_type": "ai_message",
+      "content": "Here are some suggested talking points for the sales discussion:\n\n1. Highlight the benefits of your product in enhancing team productivity.\n2. Emphasize how the product integrates seamlessly with the existing tools used by the organization.\n3. Discuss cost-saving benefits and provide relevant case studies or data.\n4. Address any potential concerns related to data security and compliance.\n\nThese points are tailored to resonate with leadership and align with their strategic priorities.",
+      "timestamp": "2026-04-16T08:25:49.630763+00:00",
+      "metadata": {
+        "model": "gemini-2.0-flash",
+        "tokens": 112,
+        "latency_ms": 500,
+        "coached": true,
+        "pre_coach_content": "Here are some suggested talking points for the sales discussion with John Doe, VP of Sales, who reports to Jane Smith, CEO:\n\n1. Highlight the benefits of your product in enhancing team productivity to John.\n2. Emphasize how the product integrates seamlessly with the existing tools used by Jane's organization.\n3. Discuss cost-saving benefits with John and provide relevant case studies or data for him to consider.\n4. Reassure Jane about potential concerns related to data security and compliance.\n\nThese points are tailored to resonate with John and Jane's strategic priorities.",
+        "coach_intervention_ids": [
+          "210d3985-74ef-4f4e-981b-f7c8d609d845"
+        ]
       }
     }
   }
