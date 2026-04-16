@@ -564,10 +564,13 @@ def _write_coached_to_firestore(
 
 def main():
     import argparse
+    import sys
 
     parser = argparse.ArgumentParser(description="Generate a mock session via LLM")
-    parser.add_argument("description", help="Short description of the session")
-    parser.add_argument("--user", required=True, help="Target user_id")
+    parser.add_argument(
+        "description", nargs="?", help="Short description of the session"
+    )
+    parser.add_argument("--user", help="Target user_id (required for generation)")
     parser.add_argument(
         "--model",
         default=DEFAULT_MODEL,
@@ -593,7 +596,42 @@ def main():
         choices=["flag", "correct"],
         help="Pin intervention style (coached mode).",
     )
+    parser.add_argument(
+        "--privacy-org",
+        help="Toggle privacy_mode=True on the given root org before anything "
+             "else. Use it standalone (no description/--user) to just flip the "
+             "flag for the demo.",
+    )
+    parser.add_argument(
+        "--cohort",
+        type=int,
+        help="When --privacy-org is set, also override min_cohort_size.",
+    )
     args = parser.parse_args()
+
+    if args.privacy_org:
+        from seerai.entities import OrgNode
+        org = OrgNode.get(args.privacy_org)
+        if org is None:
+            sys.exit(f"unknown org: {args.privacy_org}")
+        # Walk to root — privacy is a property of the root org only.
+        root = org if org.depth == 0 else OrgNode.get(org.path[0])
+        root.privacy_mode = True
+        if args.cohort is not None:
+            root.min_cohort_size = args.cohort
+        root.sync()
+        print(
+            f"privacy_mode=True on {root.org_id} ({root.name}); "
+            f"min_cohort_size={root.min_cohort_size}"
+        )
+
+    if args.description is None:
+        if not args.privacy_org:
+            parser.error("description is required unless only flipping --privacy-org")
+        return
+
+    if not args.user:
+        parser.error("--user is required when generating a session")
 
     if args.with_intervention:
         conversation, session_id = generate_coached_session(

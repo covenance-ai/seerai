@@ -9,6 +9,24 @@
     var THEME_KEY = 'seerai_theme';
     var SIDEBAR_KEY = 'seerai_sidebar';
 
+    // --- Demo auth: attach X-Caller-User-Id to every same-origin fetch so
+    //     the privacy guard on the server sees who's asking.
+    var _origFetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+        try {
+            var user = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+            if (user && user.user_id) {
+                init = init || {};
+                var headers = new Headers(init.headers || (input && input.headers) || {});
+                if (!headers.has('X-Caller-User-Id')) {
+                    headers.set('X-Caller-User-Id', user.user_id);
+                }
+                init.headers = headers;
+            }
+        } catch (e) { /* best effort */ }
+        return _origFetch(input, init);
+    };
+
     // --- Company branding ---
     var COMPANY_BRANDS = {
         'acme': { name: 'Acme Corp', color: '#3B82F6', initial: 'A' },
@@ -20,6 +38,27 @@
     var _orgNames = {};        // org_id -> display name
     var _allUsers = [];
     var _dsInfo = null;
+    var _privacyCtx = null;    // { privacy_mode, min_cohort_size, viewer_user_id, ... }
+
+    // --- Privacy context (server source of truth for viewer posture) ---
+    function fetchPrivacyContext() {
+        return fetch('/api/privacy/context')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (c) {
+                _privacyCtx = c;
+                window.seerai._pendingPrivacyContext = c;
+                if (window.seerai.applyPrivacy) window.seerai.applyPrivacy(c);
+                // Lazy-load the hider once per session if privacy is relevant.
+                if (c && c.any_privacy_on && !document.getElementById('seerai-privacy-js')) {
+                    var s = document.createElement('script');
+                    s.id = 'seerai-privacy-js';
+                    s.src = '/static/privacy.js';
+                    document.head.appendChild(s);
+                }
+                return c;
+            })
+            .catch(function () { return null; });
+    }
 
     // --- Public API ---
     window.seerai = window.seerai || {};
@@ -131,12 +170,23 @@
         if (!user) return;
         var path = window.location.pathname;
         var isAdmin = user.role === 'admin';
+        var priv = _privacyCtx && _privacyCtx.privacy_mode;
 
         if (path === '/') {
             if (!isAdmin) {
                 window.location.replace(user.role === 'exec' ? '/exec' : '/my/' + encodeURIComponent(user.user_id));
             }
             return;
+        }
+
+        // Privacy mode on viewer's org: hitting another user's individual pages
+        // redirects home — the server will also 403 the underlying data fetch.
+        if (priv) {
+            var indivMatch = path.match(/^\/(?:sessions|session)\/([^\/]+)/);
+            if (indivMatch && decodeURIComponent(indivMatch[1]) !== user.user_id) {
+                window.location.replace('/my/' + encodeURIComponent(user.user_id));
+                return;
+            }
         }
         // /exec is exec-only
         if (path.startsWith('/exec') && !isAdmin && user.role !== 'exec') {
@@ -303,6 +353,18 @@
                         active: path.startsWith('/exec/costs'),
                     },
                 ],
+            });
+        }
+
+        // Admin settings — visible to platform admin or a company exec who
+        // can toggle their own org's privacy posture.
+        if (isAdmin || isExec) {
+            sections.push({
+                label: 'Settings',
+                items: [{
+                    icon: ico.shield, label: 'Privacy', href: '/admin/privacy',
+                    active: path.startsWith('/admin/privacy'),
+                }],
             });
         }
 
@@ -715,7 +777,11 @@
     renderSidebar();
     renderMobileBar();
 
-    window.seerai.ready = Promise.all([fetchDatasource(), loadCompanyData()]).then(function () {
+    window.seerai.ready = Promise.all([
+        fetchDatasource(),
+        loadCompanyData(),
+        fetchPrivacyContext(),
+    ]).then(function () {
         var user = getCurrentUser();
         if (user && user.org_id && !user.company) {
             user.company = _companyMap[user.org_id] || null;
@@ -723,6 +789,10 @@
         }
         renderSidebar();
         checkPageAccess();
+        // Re-apply privacy hiding once the sidebar + page are laid out.
+        if (window.seerai.applyPrivacy && _privacyCtx) {
+            window.seerai.applyPrivacy(_privacyCtx);
+        }
     });
 
     if (!getCurrentUser()) openSwitcher();

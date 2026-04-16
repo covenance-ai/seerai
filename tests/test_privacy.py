@@ -478,3 +478,68 @@ class TestPrivacyContextEndpoint:
         # any_privacy_on is still True (initech exists) — the client uses this
         # to hide cross-org data.
         assert body["any_privacy_on"] is True
+
+
+class TestPlausibilityCheck:
+    def test_personal_insight_in_privacy_subtree_is_violation(self):
+        from seerai.plausibility import PrivacyModeIntegrity
+
+        data = {
+            "orgs": {
+                "initech": {"org_id": "initech", "depth": 0,
+                            "path": ["initech"], "privacy_mode": True},
+                "initech-rd": {"org_id": "initech-rd", "depth": 1,
+                               "path": ["initech", "initech-rd"], "privacy_mode": False},
+                "acme": {"org_id": "acme", "depth": 0,
+                         "path": ["acme"], "privacy_mode": False},
+            },
+            "insights": {
+                "i1": {"insight_id": "i1", "kind": "above_paygrade",
+                       "user_id": "r0", "org_id": "initech-rd"},
+                "i2": {"insight_id": "i2", "kind": "prevented_harm_pattern",
+                       "user_id": "r0", "org_id": "initech-rd"},  # OK
+                "i3": {"insight_id": "i3", "kind": "above_paygrade",
+                       "user_id": "a0", "org_id": "acme"},  # OK (acme open)
+            },
+        }
+        check = PrivacyModeIntegrity()
+        violations = check.violations(data)
+        assert len(violations) == 1
+        assert "i1" in violations[0].path
+
+    def test_normalize_drops_offenders_only(self):
+        from seerai.plausibility import PrivacyModeIntegrity
+
+        data = {
+            "orgs": {
+                "initech": {"org_id": "initech", "depth": 0,
+                            "path": ["initech"], "privacy_mode": True},
+            },
+            "insights": {
+                "bad": {"insight_id": "bad", "kind": "below_paygrade",
+                        "org_id": "initech"},
+                "good": {"insight_id": "good", "kind": "prevented_harm_pattern",
+                         "org_id": "initech"},
+            },
+        }
+        check = PrivacyModeIntegrity()
+        fixed = check.normalize(data)
+        assert fixed == 1
+        assert set(data["insights"].keys()) == {"good"}
+        # Idempotent — second normalize is a no-op.
+        assert check.normalize(data) == 0
+
+    def test_no_privacy_orgs_no_violations(self):
+        from seerai.plausibility import PrivacyModeIntegrity
+
+        data = {
+            "orgs": {
+                "acme": {"org_id": "acme", "depth": 0, "path": ["acme"],
+                         "privacy_mode": False},
+            },
+            "insights": {
+                "i1": {"insight_id": "i1", "kind": "above_paygrade",
+                       "org_id": "acme"},
+            },
+        }
+        assert PrivacyModeIntegrity().violations(data) == []

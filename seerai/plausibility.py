@@ -585,6 +585,73 @@ class EventModelMatchesProvider(Check):
         return fixed
 
 
+class PrivacyModeIntegrity(Check):
+    """Snapshot data must honour each org's privacy_mode flag.
+
+    For every root org (depth=0) with privacy_mode=True, no insight with a
+    personal kind (cross_department_interest / above_paygrade / below_paygrade
+    / negative_roi_pattern) may exist for a user belonging to that subtree.
+    Snapshots that violate this would expose individuals at runtime if the
+    privacy guard ever stopped filtering — so the data layer enforces it too.
+    """
+
+    name = "privacy_mode_integrity"
+
+    # Mirror seerai.privacy.PERSONAL_INSIGHT_KINDS — duplicated here to keep
+    # plausibility.py importable without FastAPI deps.
+    _PERSONAL = frozenset({
+        "cross_department_interest",
+        "above_paygrade",
+        "below_paygrade",
+        "negative_roi_pattern",
+    })
+
+    def _privacy_subtree_orgs(self, data: dict) -> set[str]:
+        orgs = data.get("orgs", {})
+        privacy_roots = {
+            oid for oid, o in orgs.items()
+            if o.get("depth") == 0 and o.get("privacy_mode")
+        }
+        if not privacy_roots:
+            return set()
+        return {
+            oid for oid, o in orgs.items()
+            if any(r in (o.get("path") or []) for r in privacy_roots)
+        }
+
+    def violations(self, data: dict) -> list[Violation]:
+        privacy_orgs = self._privacy_subtree_orgs(data)
+        if not privacy_orgs:
+            return []
+        out: list[Violation] = []
+        for iid, insight in data.get("insights", {}).items():
+            if insight.get("kind") not in self._PERSONAL:
+                continue
+            if insight.get("org_id") in privacy_orgs:
+                out.append(Violation(
+                    self.name,
+                    f"insights/{iid}",
+                    f"personal-kind insight ({insight['kind']}) for "
+                    f"org={insight.get('org_id')} in privacy-mode subtree",
+                ))
+        return out
+
+    def normalize(self, data: dict) -> int:
+        """Drop offending personal-kind insights from privacy-mode subtrees."""
+        privacy_orgs = self._privacy_subtree_orgs(data)
+        if not privacy_orgs:
+            return 0
+        insights = data.get("insights", {})
+        to_drop = [
+            iid for iid, insight in insights.items()
+            if insight.get("kind") in self._PERSONAL
+            and insight.get("org_id") in privacy_orgs
+        ]
+        for iid in to_drop:
+            del insights[iid]
+        return len(to_drop)
+
+
 # Ordered: SubscriptionCoverage must precede ProviderMatch so newly-added
 # subscriptions are visible when checking provider consistency.
 ALL_CHECKS: list[Check] = [
@@ -596,6 +663,7 @@ ALL_CHECKS: list[Check] = [
     MinEventCount(),
     EventModelMatchesProvider(),
     CoachInterventionIntegrity(),
+    PrivacyModeIntegrity(),
 ]
 
 
