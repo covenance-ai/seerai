@@ -22,6 +22,11 @@ def _is_increment(val: Any) -> bool:
 
 
 def _serialize(obj: Any) -> Any:
+    if _is_increment(obj):
+        # Resolve Increment sentinels to their delta so they don't leak into
+        # storage as opaque objects; subsequent merge+Increment writes would
+        # otherwise crash with `Increment + int`.
+        return obj.value
     if isinstance(obj, datetime):
         return obj.isoformat()
     if isinstance(obj, date):

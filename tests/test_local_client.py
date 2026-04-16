@@ -106,6 +106,31 @@ class TestIncrement:
         ref.set({"token_usage.claude": Increment(5)}, merge=True)
         assert ref.get().to_dict()["token_usage"]["claude"] == 15
 
+    def test_increment_on_merge_to_new_doc(self, store):
+        """Regression: merge-set with Increment to a nonexistent doc must
+        unwrap the sentinel, not store it raw. Otherwise the next merge-set
+        crashes with `Increment + int`. Reproduces the /api/ingest/batch 500."""
+        from google.cloud.firestore_v1 import Increment
+
+        ref = store.collection("sessions").document("new_sess")
+        # First ingest event: doc doesn't exist yet, but we use merge=True.
+        ref.set({"event_count": Increment(1)}, merge=True)
+        assert ref.get().to_dict()["event_count"] == 1
+        # Second event: must not raise.
+        ref.set({"event_count": Increment(1)}, merge=True)
+        assert ref.get().to_dict()["event_count"] == 2
+
+    def test_increment_nested_in_map_on_new_doc(self, store):
+        """Regression: nested Increment inside a map written via merge=True
+        to a fresh doc (the `token_usage: {model: Increment(n)}` pattern)."""
+        from google.cloud.firestore_v1 import Increment
+
+        ref = store.collection("sessions").document("new_tokens")
+        ref.set({"token_usage": {"claude": Increment(180)}}, merge=True)
+        assert ref.get().to_dict()["token_usage"]["claude"] == 180
+        ref.set({"token_usage": {"claude": Increment(20)}}, merge=True)
+        assert ref.get().to_dict()["token_usage"]["claude"] == 200
+
 
 class TestCollectionQuery:
     @pytest.fixture(autouse=True)
