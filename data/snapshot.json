@@ -64939,6 +64939,23 @@
         "5fc70d23-7c12-49b0-8d6e-76770ddacb12",
         "ce7a6c4d-f141-46d5-8e40-f1efdc1d5202"
       ]
+    },
+    "55ac5e7f-0c67-430a-ae66-6f87b6ac0af3": {
+      "insight_id": "55ac5e7f-0c67-430a-ae66-6f87b6ac0af3",
+      "kind": "prevented_harm_pattern",
+      "priority": 2,
+      "created_at": "2026-04-13T07:27:27.663179+00:00",
+      "title": "Coach prevented ~$320 in likely waste in Acme Corp",
+      "description": "Across 3182 observed sessions in Acme Corp, 4 were coached (4 interventions total). Coach rescued 4 sessions from harmful; top interventions: 1x hallucinated api, 1x off track, 1x pii leak. Counterfactual value: 69,695 USD without coach vs 70,015 USD with coach (delta +320 USD). Review the coach feed to confirm these interventions align with the team's risk appetite.",
+      "user_id": "bob.martinez",
+      "org_id": "acme",
+      "target_org_id": null,
+      "evidence_session_ids": [
+        "coach-hero-factuality-fast-merge",
+        "coach-hero-efficiency-cors-drift",
+        "coach-hero-other-pii-block",
+        "coach-hero-sources-fabricated-citation"
+      ]
     }
   },
   "users/bob.martinez/sessions/coach-hero-factuality-fast-merge/events": {

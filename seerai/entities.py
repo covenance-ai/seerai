@@ -112,6 +112,7 @@ InsightKind = Literal[
     "above_paygrade",
     "below_paygrade",
     "negative_roi_pattern",
+    "prevented_harm_pattern",
 ]
 
 
