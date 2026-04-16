@@ -9,23 +9,16 @@
     var THEME_KEY = 'seerai_theme';
     var SIDEBAR_KEY = 'seerai_sidebar';
 
-    // --- Demo auth: attach X-Caller-User-Id to every same-origin fetch so
-    //     the privacy guard on the server sees who's asking.
-    var _origFetch = window.fetch.bind(window);
-    window.fetch = function (input, init) {
-        try {
-            var user = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
-            if (user && user.user_id) {
-                init = init || {};
-                var headers = new Headers(init.headers || (input && input.headers) || {});
-                if (!headers.has('X-Caller-User-Id')) {
-                    headers.set('X-Caller-User-Id', user.user_id);
-                }
-                init.headers = headers;
-            }
-        } catch (e) { /* best effort */ }
-        return _origFetch(input, init);
-    };
+    // i18n.js loads before nav.js and sets window.t. Fall back to identity
+    // so the sidebar still works if the bundle 404s (e.g. new language).
+    function t(s) { return (window.t ? window.t(s) : s); }
+
+    var LANG_LABELS = { en: 'English', de: 'Deutsch', it: 'Italiano' };
+
+    // Fetch interceptor lives in i18n.js — it's loaded synchronously at the
+    // top of every page so inline scripts that fetch during HTML parsing
+    // pick up X-Caller-User-Id and X-Seerai-Lang. nav.js is deferred and
+    // would miss those early fetches.
 
     // --- Company branding ---
     var COMPANY_BRANDS = {
@@ -291,6 +284,8 @@
         spark: '<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/></svg>',
         bars: '<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>',
         shield: '<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v6c0 4.5-3.1 8.4-7 9-3.9-.6-7-4.5-7-9V6l7-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>',
+        globe: '<svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>',
+        info: '<svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>',
     };
 
     // --- Navigation definition ---
@@ -305,9 +300,9 @@
             // Admin (seer.ai platform staff) only sees flagged items —
             // no global user list, dashboards, or insights.
             sections.push({
-                label: 'Platform',
+                label: t('Platform'),
                 items: [{
-                    icon: ico.users, label: 'Support Review', href: '/',
+                    icon: ico.users, label: t('Support Review'), href: '/',
                     active: path === '/' || path.startsWith('/session/'),
                 }],
             });
@@ -315,9 +310,9 @@
 
         if (user && !isAdmin) {
             sections.push({
-                label: 'Personal',
+                label: t('Personal'),
                 items: [{
-                    icon: ico.chat, label: 'My Sessions',
+                    icon: ico.chat, label: t('My Sessions'),
                     href: '/my/' + encodeURIComponent(user.user_id),
                     active: path.startsWith('/my/'),
                 }],
@@ -326,10 +321,10 @@
 
         if (isExec) {
             sections.push({
-                label: 'Organization',
+                label: t('Organization'),
                 items: [
                     {
-                        icon: ico.grid, label: 'Dashboard', href: '/exec',
+                        icon: ico.grid, label: t('Dashboard'), href: '/exec',
                         active: path.startsWith('/exec')
                             && !path.startsWith('/exec/costs')
                             && !path.startsWith('/exec/insights')
@@ -337,19 +332,19 @@
                             && !path.startsWith('/exec/coach'),
                     },
                     {
-                        icon: ico.bars, label: 'Analytics', href: '/exec/analytics',
+                        icon: ico.bars, label: t('Analytics'), href: '/exec/analytics',
                         active: path.startsWith('/exec/analytics'),
                     },
                     {
-                        icon: ico.spark, label: 'Insights', href: '/exec/insights',
+                        icon: ico.spark, label: t('Insights'), href: '/exec/insights',
                         active: path.startsWith('/exec/insights'),
                     },
                     {
-                        icon: ico.shield, label: 'Coach', href: '/exec/coach',
+                        icon: ico.shield, label: t('Coach'), href: '/exec/coach',
                         active: path.startsWith('/exec/coach'),
                     },
                     {
-                        icon: ico.chart, label: 'Costs & ROI', href: '/exec/costs',
+                        icon: ico.chart, label: t('Costs & ROI'), href: '/exec/costs',
                         active: path.startsWith('/exec/costs'),
                     },
                 ],
@@ -360,13 +355,23 @@
         // can toggle their own org's privacy posture.
         if (isAdmin || isExec) {
             sections.push({
-                label: 'Settings',
+                label: t('Settings'),
                 items: [{
-                    icon: ico.shield, label: 'Privacy', href: '/admin/privacy',
+                    icon: ico.shield, label: t('Privacy'), href: '/admin/privacy',
                     active: path.startsWith('/admin/privacy'),
                 }],
             });
         }
+
+        // About — always visible, including for visitors who haven't picked a
+        // user yet. This is the entry point for "how does seerai work?".
+        sections.push({
+            label: t('About'),
+            items: [{
+                icon: ico.info, label: t('FAQ'), href: '/faq',
+                active: path.startsWith('/faq'),
+            }],
+        });
 
         return sections;
     }
@@ -459,10 +464,14 @@
         var dsLabel = ds ? ds.source : '...';
         var dsIcon = dsLabel === 'local' ? ico.db : ico.cloud;
         var dsDot = dsLabel === 'local' ? 'bg-blue-400' : 'bg-emerald-400';
-        var dsText = dsLabel === 'local' ? 'Local data' : 'Firestore';
+        var dsText = dsLabel === 'local' ? t('Local data') : t('Firestore');
+
+        // Language
+        var currentLang = (window.seerai && window.seerai.getLang) ? window.seerai.getLang() : 'en';
+        var langText = LANG_LABELS[currentLang] || currentLang.toUpperCase();
 
         // User subtitle
-        var userSub = 'Click to choose';
+        var userSub = t('Click to choose');
         if (user) {
             if (user.company && COMPANY_BRANDS[user.company]) {
                 userSub = COMPANY_BRANDS[user.company].name;
@@ -494,17 +503,23 @@
             + '<span class="nav-label text-xs font-medium">' + dsText + '</span>'
             + '<span class="nav-tip bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-lg">' + dsText + '</span>'
             + '</button>'
+            // Language
+            + '<button id="seerai-lang-btn" class="nav-item relative w-full flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200 cursor-pointer">'
+            + ico.globe
+            + '<span class="nav-label text-xs font-medium">' + esc(langText) + '</span>'
+            + '<span class="nav-tip bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-lg">' + esc(langText) + '</span>'
+            + '</button>'
             // Theme
             + '<button id="seerai-theme-btn" class="nav-item relative w-full flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200 cursor-pointer">'
             + (isDark ? ico.sun : ico.moon)
-            + '<span class="nav-label text-xs font-medium">' + (isDark ? 'Light mode' : 'Dark mode') + '</span>'
-            + '<span class="nav-tip bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-lg">' + (isDark ? 'Light mode' : 'Dark mode') + '</span>'
+            + '<span class="nav-label text-xs font-medium">' + (isDark ? t('Light mode') : t('Dark mode')) + '</span>'
+            + '<span class="nav-tip bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-lg">' + (isDark ? t('Light mode') : t('Dark mode')) + '</span>'
             + '</button>'
             // Collapse
             + '<button id="seerai-collapse-btn" class="nav-item relative w-full flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm transition-colors text-gray-500 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200 cursor-pointer">'
             + ico.chevL
-            + '<span class="nav-label text-xs font-medium">Collapse <kbd class="ml-1 text-[0.6rem] px-1 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">&#8984;B</kbd></span>'
-            + '<span class="nav-tip bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-lg">Expand</span>'
+            + '<span class="nav-label text-xs font-medium">' + t('Collapse') + ' <kbd class="ml-1 text-[0.6rem] px-1 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-mono">&#8984;B</kbd></span>'
+            + '<span class="nav-tip bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-lg">' + t('Expand') + '</span>'
             + '</button>'
             + '</div>'
 
@@ -514,12 +529,13 @@
             + '<button id="seerai-user-btn" class="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/60 shrink-0 cursor-pointer">'
             + '<div class="w-8 h-8 rounded-full ' + avatarBg + ' flex items-center justify-center text-xs font-bold text-white shrink-0"' + avatarStyle + '>' + initials + '</div>'
             + '<div class="user-info min-w-0">'
-            + '<div class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate flex items-center">' + (user ? esc(user.user_id) : 'Select user') + ' ' + roleBadge + '</div>'
+            + '<div class="text-sm font-medium text-gray-700 dark:text-gray-200 truncate flex items-center">' + (user ? esc(user.user_id) : t('Select user')) + ' ' + roleBadge + '</div>'
             + '<div class="text-[0.65rem] text-gray-400 truncate">' + esc(userSub) + '</div>'
             + '</div></button>';
 
         // Wire events
         document.getElementById('seerai-ds-btn').addEventListener('click', openDatasourceMenu);
+        document.getElementById('seerai-lang-btn').addEventListener('click', openLanguageMenu);
         document.getElementById('seerai-theme-btn').addEventListener('click', function () {
             applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
             renderSidebar();
@@ -578,8 +594,8 @@
 
         var ds = _dsInfo || { source: 'firestore', local_available: false };
         var items = [
-            { id: 'local', label: 'Local', desc: ds.local_available ? 'From snapshot' : 'Not downloaded' },
-            { id: 'firestore', label: 'Firestore', desc: 'Live database' },
+            { id: 'local', label: t('Local'), desc: ds.local_available ? t('From snapshot') : t('Not downloaded') },
+            { id: 'firestore', label: t('Firestore'), desc: t('Live database') },
         ];
 
         var html = '';
@@ -612,19 +628,71 @@
                 if (target === 'local' && !ds.local_available) {
                     var dsBtn = document.getElementById('seerai-ds-btn');
                     var lbl = dsBtn.querySelector('.nav-label');
-                    if (lbl) lbl.textContent = 'Downloading...';
+                    if (lbl) lbl.textContent = t('Downloading...');
                     downloadSnapshot().then(function () {
                         _dsInfo = { source: 'local', local_available: true };
                         renderSidebar();
                         window.location.reload();
                     }).catch(function () {
-                        if (lbl) lbl.textContent = 'Error';
+                        if (lbl) lbl.textContent = t('Error');
                     });
                 } else {
                     switchDatasource(target).then(function () {
                         renderSidebar();
                         window.location.reload();
                     });
+                }
+            });
+        });
+
+        var closeMenu = function (e) {
+            if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+                menu.remove();
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        setTimeout(function () { document.addEventListener('click', closeMenu); }, 0);
+    }
+
+    // --- Language menu ---
+    function openLanguageMenu() {
+        var old = document.getElementById('seerai-lang-menu');
+        if (old) { old.remove(); return; }
+
+        var btn = document.getElementById('seerai-lang-btn');
+        var rect = btn.getBoundingClientRect();
+        var current = (window.seerai && window.seerai.getLang) ? window.seerai.getLang() : 'en';
+        var supported = (window.seerai && window.seerai.supportedLangs) || ['en'];
+
+        var menu = document.createElement('div');
+        menu.id = 'seerai-lang-menu';
+        menu.className = 'fixed z-[2000] w-40 rounded-lg border shadow-xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-sm overflow-hidden';
+        menu.style.bottom = (window.innerHeight - rect.bottom) + 'px';
+        menu.style.left = (rect.right + 8) + 'px';
+
+        var html = '';
+        for (var i = 0; i < supported.length; i++) {
+            var code = supported[i];
+            var active = current === code;
+            var bg = active ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50';
+            var check = active ? '<span class="text-blue-500">&#10003;</span>' : '<span class="w-4"></span>';
+            html += '<div class="flex items-center gap-2 px-3 py-2.5 cursor-pointer transition-colors ' + bg + '" data-lang="' + code + '">'
+                + check + '<div><div class="font-medium text-gray-800 dark:text-gray-200">' + esc(LANG_LABELS[code] || code) + '</div>'
+                + '<div class="text-xs text-gray-400 uppercase tracking-wide">' + esc(code) + '</div></div></div>';
+        }
+        menu.innerHTML = html;
+        document.body.appendChild(menu);
+
+        var menuRect = menu.getBoundingClientRect();
+        if (menuRect.right > window.innerWidth) { menu.style.left = ''; menu.style.right = '8px'; }
+        if (menuRect.top < 0) { menu.style.bottom = ''; menu.style.top = rect.top + 'px'; }
+
+        menu.querySelectorAll('[data-lang]').forEach(function (el) {
+            el.addEventListener('click', function () {
+                var target = el.dataset.lang;
+                menu.remove();
+                if (target !== current && window.seerai && window.seerai.setLang) {
+                    window.seerai.setLang(target);
                 }
             });
         });
@@ -648,12 +716,12 @@
         modal.className = 'w-[420px] max-w-[90vw] max-h-[70vh] overflow-y-auto rounded-xl border shadow-2xl bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700';
         modal.innerHTML =
             '<div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">'
-            + '<h3 class="text-sm font-semibold text-gray-900 dark:text-white">Switch user</h3>'
+            + '<h3 class="text-sm font-semibold text-gray-900 dark:text-white">' + t('Switch user') + '</h3>'
             + '<button class="seerai-switcher-close text-gray-400 hover:text-gray-700 dark:hover:text-white text-lg px-1 cursor-pointer">&times;</button>'
             + '</div>'
-            + '<input class="w-full px-4 py-2.5 text-sm border-b outline-none bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400" placeholder="Search users..." autofocus />'
+            + '<input class="w-full px-4 py-2.5 text-sm border-b outline-none bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400" placeholder="' + esc(t('Search users...')) + '" autofocus />'
             + '<div class="seerai-switcher-list pb-2">'
-            + '<div class="px-4 py-6 text-center text-gray-400 text-sm">Loading...</div>'
+            + '<div class="px-4 py-6 text-center text-gray-400 text-sm">' + t('Loading...') + '</div>'
             + '</div>';
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
@@ -692,19 +760,19 @@
                 if (!filter || 'admin'.includes(filter.toLowerCase()) || 'platform'.includes(filter.toLowerCase())) {
                     var isCurrentAdmin = currentUser && currentUser.role === 'admin';
                     var adminBg = isCurrentAdmin ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50';
-                    html += '<div class="px-4 pt-3 pb-1 text-[0.65rem] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-medium">Platform</div>';
+                    html += '<div class="px-4 pt-3 pb-1 text-[0.65rem] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-medium">' + t('Platform') + '</div>';
                     html += '<div class="flex items-center justify-between px-4 py-2 cursor-pointer transition-colors ' + adminBg + '" data-uid="admin" data-role="admin" data-org="" data-company="">'
                         + '<span class="text-gray-800 dark:text-gray-200 text-sm flex items-center gap-2">'
                         + '<span class="w-5 h-5 rounded-full inline-flex items-center justify-center bg-red-500 text-white text-[0.6rem] font-bold shrink-0">S</span>'
-                        + 'Platform Admin'
+                        + t('Platform Admin')
                         + '<span class="text-[0.6rem] ml-0.5 px-1 py-0.5 rounded font-semibold uppercase bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400">admin</span>'
                         + '</span>'
-                        + (isCurrentAdmin ? '<span class="text-xs text-gray-400">current</span>' : '')
+                        + (isCurrentAdmin ? '<span class="text-xs text-gray-400">' + t('current') + '</span>' : '')
                         + '</div>';
                 }
 
                 if (!filtered.length && !html) {
-                    listEl.innerHTML = '<div class="px-4 py-6 text-center text-gray-400 text-sm">No matches</div>';
+                    listEl.innerHTML = '<div class="px-4 py-6 text-center text-gray-400 text-sm">' + t('No matches') + '</div>';
                     return;
                 }
 
@@ -732,7 +800,7 @@
                         var bg = isCurrent ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50';
                         html += '<div class="flex items-center justify-between px-4 py-2 cursor-pointer transition-colors ' + bg + '" data-uid="' + esc(gu.user_id) + '" data-role="' + gu.role + '" data-org="' + esc(gu.org_id || '') + '" data-company="' + esc(cid) + '">'
                             + '<span class="text-gray-800 dark:text-gray-200 text-sm">' + esc(gu.user_id) + badge + orgLabel + '</span>'
-                            + (isCurrent ? '<span class="text-xs text-gray-400">current</span>' : '')
+                            + (isCurrent ? '<span class="text-xs text-gray-400">' + t('current') + '</span>' : '')
                             + '</div>';
                     }
                 }
