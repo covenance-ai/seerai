@@ -21,6 +21,7 @@ from seerai.cost.endpoint import (
     session_value,
 )
 from seerai.entities import OrgNode, Session, Subscription, User
+from seerai.privacy import Visibility, privacy_surface
 
 router = APIRouter(tags=["analytics"])
 
@@ -128,6 +129,7 @@ def _week_start(d: date) -> date:
 
 
 @router.get("/analytics/org/{org_id}")
+@privacy_surface(Visibility.AGGREGATE, strip=("users",))
 def org_analytics(org_id: str) -> AnalyticsResponse:
     """Aggregated slices for the analytics dashboard.
 
@@ -375,6 +377,7 @@ def org_analytics(org_id: str) -> AnalyticsResponse:
 
 
 @router.get("/analytics")
+@privacy_surface(Visibility.AGGREGATE, strip=("users",))
 def analytics_for_user(user_id: str | None = None) -> AnalyticsResponse:
     """Convenience route — returns analytics for the requesting user's root org.
 

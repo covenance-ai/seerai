@@ -7,6 +7,7 @@ from google.cloud.firestore_v1 import Increment
 from seerai.entities import Event, Session, User
 from seerai.firestore_client import get_firestore_client
 from seerai.models import IngestEvent, StoredEvent
+from seerai.privacy import Visibility, privacy_surface
 
 router = APIRouter(tags=["ingest"])
 
@@ -71,10 +72,12 @@ def _write_event(event: IngestEvent) -> StoredEvent:
 
 
 @router.post("/ingest")
+@privacy_surface(Visibility.PUBLIC)
 def ingest(event: IngestEvent) -> StoredEvent:
     return _write_event(event)
 
 
 @router.post("/ingest/batch")
+@privacy_surface(Visibility.PUBLIC)
 def ingest_batch(events: list[IngestEvent]) -> list[StoredEvent]:
     return [_write_event(e) for e in events]

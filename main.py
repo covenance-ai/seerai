@@ -24,6 +24,8 @@ from seerai.datasource import router as datasource_router
 from seerai.ingest.endpoint import router as ingest_router
 from seerai.insights.endpoint import router as insights_router
 from seerai.org.endpoint import router as org_router
+from seerai.privacy import context_router as privacy_router
+from seerai.privacy import install_privacy_guard
 from seerai.query.endpoint import router as query_router
 from seerai.subscriptions.endpoint import router as subscriptions_router
 
@@ -55,9 +57,14 @@ app.include_router(insights_router, prefix="/api")
 app.include_router(analytics_router, prefix="/api")
 app.include_router(coach_router, prefix="/api")
 app.include_router(datasource_router, prefix="/api")
+app.include_router(privacy_router, prefix="/api")
 app.mount(
     "/static",
     StaticFiles(directory=Path(__file__).parent / "seerai" / "static"),
     name="static",
 )
 app.include_router(dashboard_router)
+
+# Install the privacy guard after all routers are included — it introspects
+# every APIRoute for a @privacy_surface policy and wraps the route handler.
+install_privacy_guard(app)

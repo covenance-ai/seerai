@@ -11,11 +11,18 @@ from seerai.coach.analytics import (
     coach_summary,
 )
 from seerai.entities import CoachCategory
+from seerai.privacy import Visibility, privacy_surface
+
+
+def _subject(user_id: str | None = None, **_) -> str | None:
+    return user_id
+
 
 router = APIRouter(tags=["coach"])
 
 
 @router.get("/coach/summary")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_subject)
 def get_coach_summary(
     user_id: str | None = None,
     org_id: str | None = None,
@@ -26,6 +33,7 @@ def get_coach_summary(
 
 
 @router.get("/coach/feed")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_subject)
 def get_coach_feed(
     user_id: str | None = None,
     org_id: str | None = None,

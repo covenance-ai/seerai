@@ -32,6 +32,12 @@ from pydantic import BaseModel
 
 from seerai.entities import Event, OrgNode, Session, Subscription, User
 from seerai.pricing import token_cost
+from seerai.privacy import Visibility, privacy_surface
+
+
+def _user_id(user_id: str, **_) -> str:
+    return user_id
+
 
 router = APIRouter(tags=["cost"])
 
@@ -179,6 +185,7 @@ def _user_cost(
 
 
 @router.get("/cost/user/{user_id}")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_user_id)
 def user_cost(user_id: str) -> UserCost:
     """Cost efficiency and ROI for a single user."""
     user = User.get(user_id)
@@ -191,6 +198,7 @@ def user_cost(user_id: str) -> UserCost:
 
 
 @router.get("/cost/org/{org_id}")
+@privacy_surface(Visibility.AGGREGATE, strip=("users",))
 def org_cost(org_id: str) -> OrgCostSummary:
     """Cost efficiency and ROI for an org and all its descendants."""
     descendants = OrgNode.query("path", "array_contains", org_id)
@@ -253,6 +261,7 @@ def org_cost(org_id: str) -> OrgCostSummary:
 
 
 @router.post("/cost/backfill-token-usage")
+@privacy_surface(Visibility.PUBLIC)
 def backfill_token_usage() -> dict:
     """One-time backfill: compute token_usage from events for sessions that lack it."""
     from seerai.firestore_client import get_firestore_client

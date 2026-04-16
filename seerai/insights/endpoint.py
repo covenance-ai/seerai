@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from seerai.entities import Insight, OrgNode
+from seerai.privacy import Visibility, privacy_surface
 
 router = APIRouter(tags=["insights"])
 
@@ -15,6 +16,7 @@ class FlagRequest(BaseModel):
 
 
 @router.get("/insights")
+@privacy_surface(Visibility.INSIGHT)
 def list_insights(
     user_id: str | None = None,
     org_id: str | None = None,
@@ -54,6 +56,7 @@ def list_insights(
 
 
 @router.post("/insights/{insight_id}/dismiss")
+@privacy_surface(Visibility.PUBLIC)
 def dismiss_insight(insight_id: str) -> Insight:
     """Mark an insight as archived. Idempotent — re-dismissing keeps original timestamp."""
     insight = Insight.get(insight_id)
@@ -66,6 +69,7 @@ def dismiss_insight(insight_id: str) -> Insight:
 
 
 @router.post("/insights/{insight_id}/restore")
+@privacy_surface(Visibility.PUBLIC)
 def restore_insight(insight_id: str) -> Insight:
     """Move an archived insight back to active."""
     insight = Insight.get(insight_id)
@@ -78,6 +82,7 @@ def restore_insight(insight_id: str) -> Insight:
 
 
 @router.post("/insights/{insight_id}/flag")
+@privacy_surface(Visibility.PUBLIC)
 def flag_insight(insight_id: str, req: FlagRequest) -> Insight:
     """Flag an insight for seer.ai support review (e.g. wrong analysis)."""
     insight = Insight.get(insight_id)
@@ -90,6 +95,7 @@ def flag_insight(insight_id: str, req: FlagRequest) -> Insight:
 
 
 @router.post("/insights/{insight_id}/unflag")
+@privacy_surface(Visibility.PUBLIC)
 def unflag_insight(insight_id: str) -> Insight:
     """Withdraw a support flag."""
     insight = Insight.get(insight_id)

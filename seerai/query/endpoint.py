@@ -82,6 +82,7 @@ def list_flagged_sessions() -> list[Session]:
 
 
 @router.post("/users/{user_id}/sessions/{session_id}/flag")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_user_id)
 def flag_session(user_id: str, session_id: str, req: FlagRequest) -> Session:
     """Flag a session for seer.ai support review."""
     session = Session.get(session_id, parent_path=Session.parent_path(user_id))
@@ -94,6 +95,7 @@ def flag_session(user_id: str, session_id: str, req: FlagRequest) -> Session:
 
 
 @router.post("/users/{user_id}/sessions/{session_id}/unflag")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_user_id)
 def unflag_session(user_id: str, session_id: str) -> Session:
     """Withdraw a session's support flag."""
     session = Session.get(session_id, parent_path=Session.parent_path(user_id))
@@ -106,6 +108,7 @@ def unflag_session(user_id: str, session_id: str) -> Session:
 
 
 @router.get("/users/{user_id}/sessions/{session_id}")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_user_id)
 def get_session(user_id: str, session_id: str) -> SessionDetail:
     session = Session.get(session_id, parent_path=Session.parent_path(user_id))
     if not session:

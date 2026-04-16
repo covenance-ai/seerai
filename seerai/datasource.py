@@ -9,6 +9,7 @@ from seerai.firestore_client import (
     set_datasource,
     snapshot_exists,
 )
+from seerai.privacy import Visibility, privacy_surface
 
 router = APIRouter(tags=["datasource"])
 
@@ -19,17 +20,20 @@ class DataSourceInfo(BaseModel):
 
 
 @router.get("/datasource")
+@privacy_surface(Visibility.PUBLIC)
 def info() -> DataSourceInfo:
     return DataSourceInfo(source=get_datasource(), local_available=snapshot_exists())
 
 
 @router.post("/datasource")
+@privacy_surface(Visibility.PUBLIC)
 def switch(body: DataSourceInfo) -> DataSourceInfo:
     set_datasource(body.source)
     return DataSourceInfo(source=get_datasource(), local_available=snapshot_exists())
 
 
 @router.post("/datasource/download")
+@privacy_surface(Visibility.PUBLIC)
 def download_snapshot() -> dict:
     """Download Firestore data to local snapshot, then switch to local."""
     from seerai.snapshot import download

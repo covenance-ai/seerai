@@ -5,6 +5,12 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from seerai.entities import Subscription
+from seerai.privacy import Visibility, privacy_surface
+
+
+def _subject(user_id: str | None = None, **_) -> str | None:
+    return user_id
+
 
 router = APIRouter(tags=["subscriptions"])
 
@@ -19,6 +25,7 @@ class CreateSubscriptionRequest(BaseModel):
 
 
 @router.post("/subscriptions")
+@privacy_surface(Visibility.PUBLIC)
 def create_subscription(req: CreateSubscriptionRequest) -> Subscription:
     sub = Subscription(
         subscription_id=str(uuid.uuid4()),
@@ -34,6 +41,7 @@ def create_subscription(req: CreateSubscriptionRequest) -> Subscription:
 
 
 @router.get("/subscriptions")
+@privacy_surface(Visibility.INDIVIDUAL, subject=_subject)
 def list_subscriptions(user_id: str | None = None) -> list[Subscription]:
     if user_id:
         return Subscription.query("user_id", "==", user_id)
@@ -41,6 +49,7 @@ def list_subscriptions(user_id: str | None = None) -> list[Subscription]:
 
 
 @router.delete("/subscriptions/{subscription_id}")
+@privacy_surface(Visibility.PUBLIC)
 def delete_subscription(subscription_id: str) -> dict:
     sub = Subscription.get(subscription_id)
     if not sub:
