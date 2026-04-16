@@ -1,7 +1,9 @@
 """Firestore / LocalStore client provider.
 
-The backend is a duck-typed ``LocalStore`` pointed at ``data/snapshot.json``
-by default, switchable to real Firestore via ``DATA_SOURCE=firestore``.
+The default backend is the real Firestore database (project
+``GCP_PROJECT``, database ``FIRESTORE_DATABASE``). Set
+``DATA_SOURCE=local`` to use the duck-typed ``LocalStore`` pointed at
+``data/snapshot.json`` for demo / offline / test modes.
 
 **Localized local snapshots**
 
@@ -84,16 +86,17 @@ def available_langs() -> list[str]:
 
 
 def get_datasource() -> str:
-    """Return current data source: 'local' or 'firestore'."""
+    """Return current data source: 'local' or 'firestore'.
+
+    Defaults to ``firestore``; set ``DATA_SOURCE=local`` (or call
+    :func:`set_datasource`) to opt into the snapshot-backed demo/dev mode.
+    """
     if _source:
         return _source
     env = os.getenv("DATA_SOURCE")
     if env:
         return env
-    # Auto-detect: if the primary (English) snapshot exists, default to
-    # local. Locale-specific snapshots alone aren't enough — they're opt-in
-    # via the lang header.
-    return "local" if snapshot_path_for("en").exists() else "firestore"
+    return "firestore"
 
 
 def set_datasource(source: str) -> None:

@@ -1,7 +1,7 @@
 """Tests for the data source switching logic.
 
-Verifies auto-detection (local if snapshot exists, else firestore),
-explicit switching, and that the client singleton resets on switch.
+Verifies the firestore default, env-var override, explicit switching,
+and that the client singleton resets on switch.
 """
 
 from unittest.mock import patch
@@ -21,34 +21,21 @@ def reset_state():
     fc._source = None
 
 
-class TestAutoDetect:
-    def test_defaults_to_local_when_snapshot_exists(self, tmp_path):
-        """If snapshot file exists, auto-detect picks 'local'."""
-        snap = tmp_path / "snapshot.json"
-        snap.write_text("{}")
-        with (
-            patch.object(fc, "SNAPSHOT_PATH", snap),
-            patch.dict("os.environ", {}, clear=True),
-        ):
-            assert fc.get_datasource() == "local"
-
-    def test_defaults_to_firestore_when_no_snapshot(self, tmp_path):
-        """If no snapshot file, auto-detect picks 'firestore'."""
-        snap = tmp_path / "missing.json"
-        with (
-            patch.object(fc, "SNAPSHOT_PATH", snap),
-            patch.dict("os.environ", {}, clear=True),
-        ):
+class TestDefaults:
+    def test_defaults_to_firestore(self):
+        """Without DATA_SOURCE set, default is firestore regardless of
+        whether a snapshot file exists on disk."""
+        with patch.dict("os.environ", {}, clear=True):
             assert fc.get_datasource() == "firestore"
 
-    def test_env_var_overrides_auto_detect(self, tmp_path):
-        """DATA_SOURCE env var takes precedence over auto-detection."""
-        snap = tmp_path / "snapshot.json"
-        snap.write_text("{}")
-        with (
-            patch.object(fc, "SNAPSHOT_PATH", snap),
-            patch.dict("os.environ", {"DATA_SOURCE": "firestore"}),
-        ):
+    def test_env_var_local_opt_in(self):
+        """DATA_SOURCE=local opts into the snapshot-backed LocalStore."""
+        with patch.dict("os.environ", {"DATA_SOURCE": "local"}):
+            assert fc.get_datasource() == "local"
+
+    def test_env_var_firestore_explicit(self):
+        """DATA_SOURCE=firestore is also accepted (explicit)."""
+        with patch.dict("os.environ", {"DATA_SOURCE": "firestore"}):
             assert fc.get_datasource() == "firestore"
 
 
