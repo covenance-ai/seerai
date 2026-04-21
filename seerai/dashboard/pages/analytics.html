@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
+    <script src="/static/i18n.js"></script>
     <script src="/static/nav.js" defer></script>
     <style>
         /* A small hover highlight for interactive marks (bubbles, heatmap cells) */
@@ -25,19 +26,19 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
     <div class="max-w-6xl mx-auto px-4 py-8">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+        <p data-i18n-html class="text-sm text-gray-500 dark:text-gray-400 mb-1">
             <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a>
             <span class="mx-1">/</span>
             <span class="text-gray-700 dark:text-gray-300">analytics</span>
         </p>
         <div class="flex items-end justify-between mb-6 gap-4 flex-wrap">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1" id="title">Analytics</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400" id="subtitle">Cross-department AI usage patterns. All figures over the trailing 30 days unless noted.</p>
+                <h1 data-i18n class="text-2xl font-bold text-gray-900 dark:text-white mb-1" id="title">Analytics</h1>
+                <p data-i18n class="text-sm text-gray-500 dark:text-gray-400" id="subtitle">Cross-department AI usage patterns. All figures over the trailing 30 days unless noted.</p>
             </div>
             <div id="org-picker" class="hidden"></div>
         </div>
-        <div id="content"><p class="text-gray-400 text-center py-8">Loading…</p></div>
+        <div id="content"><p data-i18n class="text-gray-400 text-center py-8">Loading…</p></div>
     </div>
     <div id="chart-tip"></div>
 
@@ -65,7 +66,7 @@
         unclassified: '#D1D5DB',
     };
     const UTIL_ORDER = ['useful', 'trivial', 'non_work', 'harmful', 'unclassified'];
-    const UTIL_LABEL = { useful: 'Useful', trivial: 'Trivial', non_work: 'Non-work', harmful: 'Harmful', unclassified: 'Unclassified' };
+    const UTIL_LABEL = { useful: t('Useful'), trivial: t('Trivial'), non_work: t('Non-work'), harmful: t('Harmful'), unclassified: t('Unclassified') };
     const PROV_COLOR = {
         anthropic: '#D97706',
         openai:    '#10B981',
@@ -112,12 +113,12 @@
         const roiLabel = roi === null ? '—' : roi.toFixed(1) + 'x';
         const adoption = d.user_count > 0 ? Math.round(d.active_user_count / d.user_count * 100) : 0;
         const items = [
-            { v: d.user_count,                     l: 'Users',             sub: d.active_user_count + ' active (30d)' },
-            { v: adoption + '%',                   l: 'Adoption rate',     sub: d.active_user_count + ' / ' + d.user_count + ' used AI' },
-            { v: fmtK(d.session_count),            l: 'Sessions (30d)',    sub: fmtK(d.message_count) + ' messages' },
-            { v: fmt$(d.total_subscription_cost),  l: 'Subscriptions / mo',sub: '' },
-            { v: fmt$(d.total_estimated_value),    l: 'Estimated value',   sub: '' },
-            { v: roiLabel,                         l: 'ROI',               sub: '', cls: roiColor },
+            { v: d.user_count,                     l: t('Users'),             sub: d.active_user_count + ' ' + t('active (30d)') },
+            { v: adoption + '%',                   l: t('Adoption rate'),     sub: d.active_user_count + ' / ' + d.user_count + ' ' + t('used AI') },
+            { v: fmtK(d.session_count),            l: t('Sessions (30d)'),    sub: fmtK(d.message_count) + ' ' + t('messages') },
+            { v: fmt$(d.total_subscription_cost),  l: t('Subscriptions / mo'),sub: '' },
+            { v: fmt$(d.total_estimated_value),    l: t('Estimated value'),   sub: '' },
+            { v: roiLabel,                         l: t('ROI'),               sub: '', cls: roiColor },
         ];
         return '<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">'
             + items.map(it => `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
@@ -134,7 +135,7 @@
     // Raw counts (active/total) are shown as the side label so headcount isn't lost.
     // Sorted by rate desc — the question "who adopted?" reads top-to-bottom.
     function chartAdoption(depts) {
-        if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">No departments to display.</p>';
+        if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">' + t('No departments to display.') + '</p>';
         const sorted = depts.slice().sort((a, b) => {
             const ra = a.user_count > 0 ? a.active_user_count / a.user_count : 0;
             const rb = b.user_count > 0 ? b.active_user_count / b.user_count : 0;
@@ -158,9 +159,9 @@
             </div>`;
         }
         return rows + legend([
-            { color: '#10B981', label: '≥75% adoption' },
-            { color: '#3B82F6', label: '40–74%' },
-            { color: '#F59E0B', label: '<40%' },
+            { color: '#10B981', label: t('≥75% adoption') },
+            { color: '#3B82F6', label: t('40–74%') },
+            { color: '#F59E0B', label: t('<40%') },
         ]);
     }
 
@@ -170,7 +171,7 @@
     // Totals are shown as a faint annotation so absolute $ exposure isn't lost.
     // Sorted by value-per-user desc.
     function chartValueCost(depts) {
-        if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">No data.</p>';
+        if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">' + t('No data.') + '</p>';
         const enriched = depts.map(d => {
             const denom = d.active_user_count || d.user_count || 0;
             return {
@@ -196,23 +197,23 @@
             const valBg = negative ? '#EF4444' : '#10B981';
             const valLabelCls = negative ? 'text-red-500' : 'text-gray-700 dark:text-gray-200';
             const denomTag = denom > 0
-                ? `${denom} active user${denom === 1 ? '' : 's'}`
-                : 'no active users';
+                ? `${denom} ${denom === 1 ? t('active user') : t('active users')}`
+                : t('no active users');
             rows += `<div class="mb-4 last:mb-0">
                 <div class="flex items-baseline justify-between text-xs mb-1.5">
                     <span class="font-medium text-gray-700 dark:text-gray-200">${esc(d.name)} <span class="text-[0.65rem] text-gray-400 font-normal">· ${denomTag}</span></span>
-                    <span class="${roiColor} font-semibold">${roiLabel} <span class="text-[0.65rem] text-gray-400 font-normal">ROI</span></span>
+                    <span class="${roiColor} font-semibold">${roiLabel} <span class="text-[0.65rem] text-gray-400 font-normal">${t('ROI')}</span></span>
                 </div>
                 <div class="space-y-1">
                     <div class="flex items-center gap-2 text-[0.68rem] text-gray-500 dark:text-gray-400">
-                        <span class="w-14 shrink-0">Value/user</span>
+                        <span class="w-14 shrink-0">${t('Value/user')}</span>
                         <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
                             <div class="h-full rounded-r-sm" style="width:${wVal}%;background:${valBg}"></div>
                         </div>
                         <span class="w-24 text-right ${valLabelCls} tabular-nums">${negative ? '−' : ''}${fmt$(Math.abs(valPerUser))} <span class="text-[0.6rem] text-gray-400">(${fmt$(d.estimated_value)})</span></span>
                     </div>
                     <div class="flex items-center gap-2 text-[0.68rem] text-gray-500 dark:text-gray-400">
-                        <span class="w-14 shrink-0">Sub $/user</span>
+                        <span class="w-14 shrink-0">${t('Sub $/user')}</span>
                         <div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded overflow-hidden">
                             <div class="h-full rounded-r-sm" style="width:${wSub}%;background:#94A3B8"></div>
                         </div>
@@ -221,24 +222,24 @@
                 </div>
             </div>`;
         }
-        return rows + '<p class="text-[0.65rem] text-gray-400 mt-2">Bars: per active user (30d). Parens: dept totals.</p>';
+        return rows + '<p class="text-[0.65rem] text-gray-400 mt-2">' + t('Bars: per active user (30d). Parens: dept totals.') + '</p>';
     }
 
     // ---------------- Chart 3: Utility mix by dept (100% stacked) ----------------
     function chartUtilityMix(depts) {
-        if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">No data.</p>';
+        if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">' + t('No data.') + '</p>';
         let rows = '';
         for (const d of depts) {
             const u = d.utility;
             const total = UTIL_ORDER.reduce((s, k) => s + (u[k] || 0), 0);
             if (total === 0) {
                 rows += `<div class="mb-2.5 last:mb-0 text-xs">
-                    <div class="flex items-baseline justify-between mb-1"><span class="font-medium text-gray-700 dark:text-gray-200">${esc(d.name)}</span><span class="text-gray-400">no sessions</span></div>
+                    <div class="flex items-baseline justify-between mb-1"><span class="font-medium text-gray-700 dark:text-gray-200">${esc(d.name)}</span><span class="text-gray-400">${t('no sessions')}</span></div>
                     <div class="h-4 bg-gray-100 dark:bg-gray-800 rounded"></div></div>`;
                 continue;
             }
             let bar = '';
-            let tipLines = `<div class="font-semibold mb-1">${esc(d.name)} · ${total} sessions</div>`;
+            let tipLines = `<div class="font-semibold mb-1">${esc(d.name)} · ${total} ${t('sessions')}</div>`;
             for (const k of UTIL_ORDER) {
                 const n = u[k] || 0;
                 if (!n) continue;
@@ -256,7 +257,7 @@
 
     // ---------------- Chart 4: Provider mix by dept (100% stacked) ----------------
     function chartProviderMix(depts) {
-        if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">No data.</p>';
+        if (!depts.length) return '<p class="text-gray-400 text-sm text-center py-4">' + t('No data.') + '</p>';
         const allProviders = new Set();
         depts.forEach(d => Object.keys(d.provider_counts || {}).forEach(p => allProviders.add(p)));
         const orderedProviders = ['anthropic', 'openai', 'google', 'mistral']
@@ -274,7 +275,7 @@
                 continue;
             }
             let bar = '';
-            let tipLines = `<div class="font-semibold mb-1">${esc(d.name)} · ${total} sessions</div>`;
+            let tipLines = `<div class="font-semibold mb-1">${esc(d.name)} · ${total} ${t('sessions')}</div>`;
             for (const p of orderedProviders) {
                 const n = counts[p] || 0;
                 if (!n) continue;
@@ -295,7 +296,7 @@
     // Y log-ish (sqrt) because ROI spans orders of magnitude with flat-rate subs.
     function chartScatter(users, depts) {
         const pts = users.filter(u => u.hourly_rate != null && u.roi != null && u.session_count > 0);
-        if (!pts.length) return '<p class="text-gray-400 text-sm text-center py-4">No users with ROI data.</p>';
+        if (!pts.length) return '<p class="text-gray-400 text-sm text-center py-4">' + t('No users with ROI data.') + '</p>';
 
         const deptColor = {};
         depts.forEach((d, i) => { deptColor[d.org_id] = DEPT_PALETTE[i % DEPT_PALETTE.length]; });
@@ -362,14 +363,14 @@
             const color = deptColor[p.dept_id] || '#9CA3AF';
             const tipHtml = `<div class="font-semibold">${esc(p.user_id)}</div>
                 <div>${esc(p.dept_name || '—')} · $${p.hourly_rate}/hr</div>
-                <div>ROI: ${p.roi.toFixed(1)}x · ${p.session_count} sessions</div>
-                <div>Value $${p.estimated_value.toFixed(0)} / sub $${p.subscription_cost.toFixed(0)}</div>`;
+                <div>${t('ROI')}: ${p.roi.toFixed(1)}x · ${p.session_count} ${t('sessions')}</div>
+                <div>${t('Value')} $${p.estimated_value.toFixed(0)} / ${t('sub')} $${p.subscription_cost.toFixed(0)}</div>`;
             dots += `<circle class="hx" cx="${cx}" cy="${cy}" r="${r}" fill="${color}" fill-opacity="0.7" stroke="${color}" stroke-width="1.5" data-tip='${tipHtml.replace(/'/g, "&#39;")}'/>`;
         }
 
         const svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-72 text-gray-500 dark:text-gray-400">
-            <text x="${pad.l + innerW / 2}" y="${H - 4}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.55">hourly rate ($/hr)</text>
-            <text x="10" y="${pad.t + innerH / 2}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.55" transform="rotate(-90 10 ${pad.t + innerH / 2})">ROI (signed √ scale)</text>
+            <text x="${pad.l + innerW / 2}" y="${H - 4}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.55">${t('hourly rate ($/hr)')}</text>
+            <text x="10" y="${pad.t + innerH / 2}" text-anchor="middle" font-size="10" fill="currentColor" opacity="0.55" transform="rotate(-90 10 ${pad.t + innerH / 2})">${t('ROI (signed √ scale)')}</text>
             ${yAxis}
             ${xAxis}
             <line x1="${pad.l}" x2="${pad.l + innerW}" y1="${pad.t + innerH}" y2="${pad.t + innerH}" stroke="currentColor" stroke-opacity="0.4"/>
@@ -391,7 +392,7 @@
         const topByValue = active.slice(0, 10);
         const negatives = active.filter(u => u.estimated_value < 0 && !topByValue.includes(u));
         const rows_users = [...topByValue, ...negatives];
-        if (!rows_users.length) return '<p class="text-gray-400 text-sm text-center py-4">No active users.</p>';
+        if (!rows_users.length) return '<p class="text-gray-400 text-sm text-center py-4">' + t('No active users.') + '</p>';
 
         const maxAbsValue = Math.max(...rows_users.map(u => Math.abs(u.estimated_value)), 1);
         let rows = '';
@@ -413,7 +414,7 @@
                 if (!n) continue;
                 const pct = n / utilTotal * 100;
                 const href = '/sessions/' + encodeURIComponent(u.user_id) + '?utility=' + k + '&sort=value-asc';
-                const label = `${UTIL_LABEL[k]}: ${n} (${Math.round(pct)}%) — click to filter`;
+                const label = `${UTIL_LABEL[k]}: ${n} (${Math.round(pct)}%) — ${t('click to filter')}`;
                 miniBar += `<a href="${href}" style="width:${pct}%;background:${UTIL_COLOR[k]}" class="block hover:brightness-125 transition" title="${esc(label)}"></a>`;
             }
             // Mark negative-ROI users visually (red row accent).
@@ -421,7 +422,7 @@
                 ? 'border-b border-gray-100 dark:border-gray-800 last:border-b-0 bg-red-50/40 dark:bg-red-900/10 hover:bg-red-100/60 dark:hover:bg-red-900/20 transition-colors'
                 : 'border-b border-gray-100 dark:border-gray-800 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors';
             const harmfulCell = u.harmful_count > 0
-                ? `<a href="/sessions/${encodeURIComponent(u.user_id)}?utility=harmful&sort=value-asc" class="inline-flex items-center gap-1 text-[0.65rem] text-red-500 hover:text-red-700 dark:hover:text-red-400 font-semibold" title="View ${u.harmful_count} harmful session${u.harmful_count === 1 ? '' : 's'}">⚠ ${u.harmful_count}</a>`
+                ? `<a href="/sessions/${encodeURIComponent(u.user_id)}?utility=harmful&sort=value-asc" class="inline-flex items-center gap-1 text-[0.65rem] text-red-500 hover:text-red-700 dark:hover:text-red-400 font-semibold" title="${t('View')} ${u.harmful_count} ${u.harmful_count === 1 ? t('harmful session') : t('harmful sessions')}">⚠ ${u.harmful_count}</a>`
                 : '<span class="text-gray-300 dark:text-gray-700 text-[0.65rem]">—</span>';
             rows += `<tr class="${rowCls}">
                 <td class="py-2 pl-2 text-gray-400 tabular-nums w-6">${negative ? '!' : i + 1}</td>
@@ -448,22 +449,22 @@
         return `<table class="w-full text-sm">
             <thead><tr class="text-xs text-gray-400 uppercase tracking-wider text-left">
                 <th class="pl-2 pb-2 w-6">#</th>
-                <th class="px-2 pb-2">User</th>
-                <th class="px-2 pb-2 text-right">Sessions</th>
-                <th class="px-2 pb-2">Value / mo</th>
-                <th class="px-2 pb-2 text-right">ROI</th>
-                <th class="px-2 pb-2">Mix</th>
-                <th class="pr-2 pb-2 text-center" title="Harmful (QA-flagged) sessions — click to view">⚠</th>
+                <th class="px-2 pb-2">${t('User')}</th>
+                <th class="px-2 pb-2 text-right">${t('Sessions')}</th>
+                <th class="px-2 pb-2">${t('Value / mo')}</th>
+                <th class="px-2 pb-2 text-right">${t('ROI')}</th>
+                <th class="px-2 pb-2">${t('Mix')}</th>
+                <th class="pr-2 pb-2 text-center" title="${t('Harmful (QA-flagged) sessions — click to view')}">⚠</th>
             </tr></thead>
             <tbody>${rows}</tbody></table>
-            <p class="text-[0.65rem] text-gray-400 mt-2">Click any utility segment in the Mix bar to see that slice of a user's sessions. Negative-ROI users included even when outside top 10.</p>`;
+            <p class="text-[0.65rem] text-gray-400 mt-2">${t("Click any utility segment in the Mix bar to see that slice of a user's sessions. Negative-ROI users included even when outside top 10.")}</p>`;
     }
 
     // ---------------- Chart 7: Weekly activity (stacked area) ----------------
     function chartWeekly(weekly) {
         const totals = weekly.map(w => UTIL_ORDER.reduce((s, k) => s + (w[k] || 0), 0));
         const max = Math.max(...totals, 1);
-        if (totals.every(t => t === 0)) return '<p class="text-gray-400 text-sm text-center py-4">No activity data.</p>';
+        if (totals.every(tot => tot === 0)) return '<p class="text-gray-400 text-sm text-center py-4">' + t('No activity data.') + '</p>';
         const W = 560, H = 210, pad = { l: 36, r: 10, t: 8, b: 32 };
         const innerW = W - pad.l - pad.r, innerH = H - pad.t - pad.b;
         const step = innerW / Math.max(weekly.length - 1, 1);
@@ -519,7 +520,7 @@
         for (let i = 0; i < weekly.length; i++) {
             const w = weekly[i];
             const total = totals[i];
-            const tipHtml = `<div class="font-semibold">${esc(w.week_start)} · ${total} sessions</div>`
+            const tipHtml = `<div class="font-semibold">${esc(w.week_start)} · ${total} ${t('sessions')}</div>`
                 + UTIL_ORDER.filter(k => (w[k] || 0) > 0).map(k => `<div>${UTIL_LABEL[k]}: ${w[k]}</div>`).join('');
             hovers += `<rect class="hx" x="${x(i) - cellW / 2}" y="${pad.t}" width="${cellW}" height="${innerH}" fill="transparent" data-tip='${tipHtml.replace(/'/g, "&#39;")}'/>`;
         }
@@ -537,7 +538,7 @@
     // ---------------- Chart 8: Hour × weekday heatmap ----------------
     function chartHeatmap(grid) {
         const max = Math.max(...grid.flat(), 1);
-        const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const DAYS = [t('Mon'), t('Tue'), t('Wed'), t('Thu'), t('Fri'), t('Sat'), t('Sun')];
         let cells = '<div class="inline-grid" style="grid-template-columns: 28px repeat(24, 1fr);gap:2px">';
         // header row
         cells += '<div></div>';
@@ -551,31 +552,31 @@
                 const v = grid[d][h];
                 const intensity = v / max;  // 0..1
                 const alpha = v === 0 ? 0 : 0.15 + 0.85 * intensity;
-                const tipHtml = `<div class="font-semibold">${DAYS[d]} ${String(h).padStart(2,'0')}:00 UTC</div><div>${v} session${v === 1 ? '' : 's'}</div>`;
+                const tipHtml = `<div class="font-semibold">${DAYS[d]} ${String(h).padStart(2,'0')}:00 UTC</div><div>${v} ${v === 1 ? t('session') : t('sessions')}</div>`;
                 cells += `<div class="hx rounded-sm" style="background:rgba(59,130,246,${alpha});aspect-ratio:1;min-height:14px" data-tip='${tipHtml.replace(/'/g, "&#39;")}'></div>`;
             }
         }
         cells += '</div>';
         return `<div class="overflow-x-auto"><div class="min-w-[540px]">${cells}</div></div>
-            <p class="text-[0.65rem] text-gray-400 mt-2">Times in UTC. Darker = more sessions in that hour.</p>`;
+            <p class="text-[0.65rem] text-gray-400 mt-2">${t('Times in UTC. Darker = more sessions in that hour.')}</p>`;
     }
 
     // ---------------- Render orchestrator ----------------
     function render(container, d) {
         container.innerHTML = kpiStrip(d)
             + '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">'
-                + card('Department adoption', '% of headcount with ≥1 session in 30d',           chartAdoption(d.departments))
-                + card('Value vs subscription cost', 'Per active user — comparable across dept sizes', chartValueCost(d.departments))
-                + card('Session utility mix by department', '% of sessions classified useful / trivial / non-work / harmful', chartUtilityMix(d.departments))
-                + card('Provider mix by department',   'Which tools each team reaches for',        chartProviderMix(d.departments))
+                + card(t('Department adoption'), t('% of headcount with ≥1 session in 30d'),           chartAdoption(d.departments))
+                + card(t('Value vs subscription cost'), t('Per active user — comparable across dept sizes'), chartValueCost(d.departments))
+                + card(t('Session utility mix by department'), t('% of sessions classified useful / trivial / non-work / harmful'), chartUtilityMix(d.departments))
+                + card(t('Provider mix by department'),   t('Which tools each team reaches for'),        chartProviderMix(d.departments))
             + '</div>'
             + '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">'
-                + card('ROI vs paygrade', 'Each dot = one user · size ~ session count · color = department', chartScatter(d.users, d.departments))
-                + card('Top users by estimated value', 'Last 30 days — power users to learn from', chartTopUsers(d.users))
+                + card(t('ROI vs paygrade'), t('Each dot = one user · size ~ session count · color = department'), chartScatter(d.users, d.departments))
+                + card(t('Top users by estimated value'), t('Last 30 days — power users to learn from'), chartTopUsers(d.users))
             + '</div>'
             + '<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">'
-                + card('Weekly activity (' + d.weekly.length + ' weeks)', 'Stacked by utility class — shows adoption and quality together', chartWeekly(d.weekly))
-                + card('Hour × weekday heatmap', 'When sessions happen — reveals off-hours usage', chartHeatmap(d.hour_weekday))
+                + card(t('Weekly activity') + ' (' + d.weekly.length + ' ' + t('weeks') + ')', t('Stacked by utility class — shows adoption and quality together'), chartWeekly(d.weekly))
+                + card(t('Hour × weekday heatmap'), t('When sessions happen — reveals off-hours usage'), chartHeatmap(d.hour_weekday))
             + '</div>';
 
         // Wire tooltips for any element with data-tip.
@@ -599,14 +600,14 @@
     }
 
     function loadAnalytics(orgId, rootName) {
-        document.getElementById('title').textContent = 'Analytics — ' + rootName;
+        document.getElementById('title').textContent = t('Analytics') + ' — ' + rootName;
         const el = document.getElementById('content');
-        el.innerHTML = '<p class="text-gray-400 text-center py-8">Loading…</p>';
+        el.innerHTML = '<p class="text-gray-400 text-center py-8">' + t('Loading…') + '</p>';
         fetch('/api/analytics/org/' + encodeURIComponent(orgId))
             .then(r => { if (!r.ok) throw new Error('' + r.status); return r.json(); })
             .then(data => render(el, data))
             .catch(e => {
-                el.innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + esc(e.message) + '</p>';
+                el.innerHTML = '<p class="text-red-400 text-center py-8">' + t('Error') + ': ' + esc(e.message) + '</p>';
             });
     }
 
@@ -614,7 +615,7 @@
     waitForReady().then(() => {
         const user = window.seerai.getCurrentUser();
         if (!user) {
-            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">Select a user to view analytics.</p>';
+            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">' + t('Select a user to view analytics.') + '</p>';
             return;
         }
 
@@ -622,7 +623,7 @@
             // Admin sees a picker across all root orgs.
             fetch('/api/orgs').then(r => r.json()).then(roots => {
                 if (!roots.length) {
-                    document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">No organizations.</p>';
+                    document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">' + t('No organizations.') + '</p>';
                     return;
                 }
                 let current = roots[0];
@@ -636,7 +637,7 @@
         }
 
         if (!user.org_id) {
-            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">No organization assigned.</p>';
+            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">' + t('No organization assigned.') + '</p>';
             return;
         }
 
@@ -647,7 +648,7 @@
             })
             .then(root => loadAnalytics(root.org_id, root.name))
             .catch(e => {
-                document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + esc(e.message) + '</p>';
+                document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">' + t('Error') + ': ' + esc(e.message) + '</p>';
             });
     });
     </script>

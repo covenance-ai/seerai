@@ -7,17 +7,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
+    <script src="/static/i18n.js"></script>
     <script src="/static/nav.js" defer></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
+        <div id="content"><p data-i18n class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
     <script>
         const user = (() => { try { return JSON.parse(localStorage.getItem('seerai_user')); } catch { return null; } })();
 
         if (!user) {
-            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">Select a user first to view their organization dashboard.</p>';
+            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">' + t('Select a user first to view their organization dashboard.') + '</p>';
         } else if (user.role === 'admin') {
             // Admin: show list of all root orgs
             fetch('/api/orgs')
@@ -26,7 +27,7 @@
                     if (roots.length === 1) {
                         window.location.replace('/exec/' + encodeURIComponent(roots[0].org_id));
                     } else {
-                        let html = '<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Organizations</h1>';
+                        let html = '<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">' + t('Organizations') + '</h1>';
                         html += '<div class="grid gap-4">';
                         for (const org of roots) {
                             const badge = (window.seerai && window.seerai.companyBadge)
@@ -41,20 +42,20 @@
                     }
                 })
                 .catch(e => {
-                    document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
+                    document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">' + t('Error') + ': ' + e.message + '</p>';
                 });
         } else if (user.org_id) {
             // Exec/user: redirect to their root org
             fetch('/api/orgs/' + encodeURIComponent(user.org_id))
-                .then(r => { if (!r.ok) throw new Error('Org not found'); return r.json(); })
+                .then(r => { if (!r.ok) throw new Error(t('Org not found')); return r.json(); })
                 .then(org => {
                     window.location.replace('/exec/' + encodeURIComponent(org.path[0]));
                 })
                 .catch(e => {
-                    document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
+                    document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">' + t('Error') + ': ' + e.message + '</p>';
                 });
         } else {
-            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">No organization assigned to this user.</p>';
+            document.getElementById('content').innerHTML = '<p class="text-gray-400 text-center py-8">' + t('No organization assigned to this user.') + '</p>';
         }
     </script>
 </body>

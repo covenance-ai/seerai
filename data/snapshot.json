@@ -2,7 +2,7 @@
   "users": {
     "alice.johnson": {
       "role": "exec",
-      "last_active": "2026-04-16T08:09:54.631029+00:00",
+      "last_active": "2026-04-16T14:37:16.642039+00:00",
       "org_id": "acme-eng-backend",
       "hourly_rate": 118.16,
       "user_id": "alice.johnson"
@@ -1133,6 +1133,348 @@
             "model": "gemini-2.5-pro",
             "tokens": 27,
             "latency_ms": 1200
+          }
+        }
+      ],
+      "intervention_count": 1,
+      "intervention_categories": [
+        "factuality"
+      ]
+    },
+    "48268064-ecac-4f9e-b897-d0046af1abe1": {
+      "session_id": "48268064-ecac-4f9e-b897-d0046af1abe1",
+      "user_id": "alice.johnson",
+      "last_event_at": "2026-04-16T14:38:16.605036+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 3,
+      "provider": "anthropic",
+      "platform": "vscode",
+      "error_count": 0,
+      "token_usage": {
+        "claude-sonnet-4": 120
+      },
+      "utility": "useful",
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "5c8c9c93-e7cd-42df-a9e7-27535a93fd66",
+          "event_type": "user_message",
+          "content": "How do I Z?",
+          "timestamp": "2026-04-16T14:37:16.605036+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "eeb93be8-79bd-4e7e-85b2-b50bfd6b3d8e",
+          "event_type": "ai_message",
+          "content": "Try df.nonexistent_method()",
+          "timestamp": "2026-04-16T14:37:46.605036+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 60,
+            "latency_ms": 500
+          }
+        },
+        {
+          "event_id": "7a7f086c-2935-4041-b685-bf692e509e99",
+          "event_type": "user_message",
+          "content": "AttributeError \u2014 no such method.",
+          "timestamp": "2026-04-16T14:38:16.605036+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "2e654fc5-3c17-4052-bb69-f93c13b83c7d",
+          "event_type": "ai_message",
+          "content": "Apologies \u2014 use df.real_method() instead.",
+          "timestamp": "2026-04-16T14:38:46.605036+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 50,
+            "latency_ms": 400
+          }
+        }
+      ],
+      "intervention_count": 1,
+      "intervention_categories": [
+        "factuality"
+      ]
+    },
+    "b56a8d34-7323-410c-8e1a-223a1c841f81": {
+      "session_id": "b56a8d34-7323-410c-8e1a-223a1c841f81",
+      "user_id": "alice.johnson",
+      "last_event_at": "2026-04-16T14:38:16.612617+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 3,
+      "provider": "anthropic",
+      "platform": "vscode",
+      "error_count": 0,
+      "token_usage": {
+        "claude-sonnet-4": 120
+      },
+      "utility": "useful",
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "505942b4-0d83-4fb1-946f-6ce2221d1625",
+          "event_type": "user_message",
+          "content": "How do I Z?",
+          "timestamp": "2026-04-16T14:37:16.612617+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "134510d7-107e-4a52-b5f3-328b50f38537",
+          "event_type": "ai_message",
+          "content": "Try df.nonexistent_method()",
+          "timestamp": "2026-04-16T14:37:46.612617+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 60,
+            "latency_ms": 500
+          }
+        },
+        {
+          "event_id": "7967c94b-50eb-4487-a409-a1a2627ce212",
+          "event_type": "user_message",
+          "content": "AttributeError \u2014 no such method.",
+          "timestamp": "2026-04-16T14:38:16.612617+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "ebef6c00-d2fa-4175-8007-157c5ee2c932",
+          "event_type": "ai_message",
+          "content": "Apologies \u2014 use df.real_method() instead.",
+          "timestamp": "2026-04-16T14:38:46.612617+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 50,
+            "latency_ms": 400
+          }
+        }
+      ],
+      "intervention_count": 1,
+      "intervention_categories": [
+        "factuality"
+      ]
+    },
+    "c7c223e2-855b-44b4-b5e2-58d19982c34d": {
+      "session_id": "c7c223e2-855b-44b4-b5e2-58d19982c34d",
+      "user_id": "alice.johnson",
+      "last_event_at": "2026-04-16T14:38:16.619981+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 3,
+      "provider": "anthropic",
+      "platform": "vscode",
+      "error_count": 0,
+      "token_usage": {
+        "claude-sonnet-4": 120
+      },
+      "utility": "useful",
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "819e7b62-2c6b-4ebd-8201-a177df729c68",
+          "event_type": "user_message",
+          "content": "How do I Z?",
+          "timestamp": "2026-04-16T14:37:16.619981+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "ff25a7bb-259d-402f-86a5-365a65598316",
+          "event_type": "ai_message",
+          "content": "Try df.nonexistent_method()",
+          "timestamp": "2026-04-16T14:37:46.619981+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 60,
+            "latency_ms": 500
+          }
+        },
+        {
+          "event_id": "99caaf40-4906-4ff2-a63d-2e964ee1d15d",
+          "event_type": "user_message",
+          "content": "AttributeError \u2014 no such method.",
+          "timestamp": "2026-04-16T14:38:16.619981+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "e4049936-9dfc-4a1a-9359-88d8d347e1d3",
+          "event_type": "ai_message",
+          "content": "Apologies \u2014 use df.real_method() instead.",
+          "timestamp": "2026-04-16T14:38:46.619981+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 50,
+            "latency_ms": 400
+          }
+        }
+      ],
+      "intervention_count": 1,
+      "intervention_categories": [
+        "factuality"
+      ]
+    },
+    "8f6d64ed-3df2-4f18-8895-30657d250f27": {
+      "session_id": "8f6d64ed-3df2-4f18-8895-30657d250f27",
+      "user_id": "alice.johnson",
+      "last_event_at": "2026-04-16T14:39:16.627165+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 5,
+      "provider": "anthropic",
+      "platform": "vscode",
+      "error_count": 0,
+      "token_usage": {
+        "claude-sonnet-4": 100
+      },
+      "utility": "useful",
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "2fc5bc01-bda5-471c-b2eb-677eb53818d8",
+          "event_type": "user_message",
+          "content": "How do I Z?",
+          "timestamp": "2026-04-16T14:37:16.627165+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "31f69c69-87ea-46ec-975c-e5b419e68fa0",
+          "event_type": "ai_message",
+          "content": "Try df.nonexistent_method()",
+          "timestamp": "2026-04-16T14:37:46.627165+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 60,
+            "latency_ms": 500
+          }
+        },
+        {
+          "event_id": "67514e1c-8caa-406e-9bbb-887364036d3e",
+          "event_type": "user_message",
+          "content": "AttributeError \u2014 no such method.",
+          "timestamp": "2026-04-16T14:38:16.627165+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "d89a2491-5d86-4b88-a452-62d534b19056",
+          "event_type": "ai_message",
+          "content": "Apologies \u2014 use df.real_method() instead.",
+          "timestamp": "2026-04-16T14:38:46.627165+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 50,
+            "latency_ms": 400
+          }
+        }
+      ],
+      "intervention_count": 1,
+      "intervention_categories": [
+        "factuality"
+      ]
+    },
+    "9c472c35-5822-4cfb-b5ab-8f518302b972": {
+      "session_id": "9c472c35-5822-4cfb-b5ab-8f518302b972",
+      "user_id": "alice.johnson",
+      "last_event_at": "2026-04-16T14:38:16.635054+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 3,
+      "provider": "anthropic",
+      "platform": "vscode",
+      "error_count": 0,
+      "token_usage": {
+        "claude-sonnet-4": 120
+      },
+      "utility": "useful",
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "2680ae7d-c773-4719-b520-7320e7613a60",
+          "event_type": "user_message",
+          "content": "How do I Z?",
+          "timestamp": "2026-04-16T14:37:16.635054+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "3d84a5aa-e013-4a3a-891c-0db27496c2c9",
+          "event_type": "ai_message",
+          "content": "Try df.nonexistent_method()",
+          "timestamp": "2026-04-16T14:37:46.635054+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 60,
+            "latency_ms": 500
+          }
+        },
+        {
+          "event_id": "45dabdc0-8b46-42c2-8012-c028ac781c7a",
+          "event_type": "user_message",
+          "content": "AttributeError \u2014 no such method.",
+          "timestamp": "2026-04-16T14:38:16.635054+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "f09d0dd5-0879-4d4e-8f00-4c1757ede8b3",
+          "event_type": "ai_message",
+          "content": "Apologies \u2014 use df.real_method() instead.",
+          "timestamp": "2026-04-16T14:38:46.635054+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 50,
+            "latency_ms": 400
+          }
+        }
+      ],
+      "intervention_count": 1,
+      "intervention_categories": [
+        "factuality"
+      ]
+    },
+    "bed37639-7dea-4eeb-a975-34a070da42ed": {
+      "session_id": "bed37639-7dea-4eeb-a975-34a070da42ed",
+      "user_id": "alice.johnson",
+      "last_event_at": "2026-04-16T14:38:16.642039+00:00",
+      "last_event_type": "ai_message",
+      "event_count": 3,
+      "provider": "anthropic",
+      "platform": "vscode",
+      "error_count": 0,
+      "token_usage": {
+        "claude-sonnet-4": 120
+      },
+      "utility": "useful",
+      "counterfactual_utility": "harmful",
+      "counterfactual_events": [
+        {
+          "event_id": "cfb1d2c6-8f90-4613-8748-545404e886c8",
+          "event_type": "user_message",
+          "content": "How do I Z?",
+          "timestamp": "2026-04-16T14:37:16.642039+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "746064f3-1424-4381-beb5-365f88e5cc07",
+          "event_type": "ai_message",
+          "content": "Try df.nonexistent_method()",
+          "timestamp": "2026-04-16T14:37:46.642039+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 60,
+            "latency_ms": 500
+          }
+        },
+        {
+          "event_id": "b207c9d8-4118-4d50-82e8-e73fdec2515f",
+          "event_type": "user_message",
+          "content": "AttributeError \u2014 no such method.",
+          "timestamp": "2026-04-16T14:38:16.642039+00:00",
+          "metadata": null
+        },
+        {
+          "event_id": "2edb41ab-7f40-4577-92bb-71754d674d95",
+          "event_type": "ai_message",
+          "content": "Apologies \u2014 use df.real_method() instead.",
+          "timestamp": "2026-04-16T14:38:46.642039+00:00",
+          "metadata": {
+            "model": "claude-sonnet-4",
+            "tokens": 50,
+            "latency_ms": 400
           }
         }
       ],
@@ -68369,6 +68711,283 @@
         "pre_coach_content": "Here are some suggested talking points for the sales discussion with John Doe, VP of Sales, who reports to Jane Smith, CEO:\n\n1. Highlight the benefits of your product in enhancing team productivity to John.\n2. Emphasize how the product integrates seamlessly with the existing tools used by Jane's organization.\n3. Discuss cost-saving benefits with John and provide relevant case studies or data for him to consider.\n4. Reassure Jane about potential concerns related to data security and compliance.\n\nThese points are tailored to resonate with John and Jane's strategic priorities.",
         "coach_intervention_ids": [
           "210d3985-74ef-4f4e-981b-f7c8d609d845"
+        ]
+      }
+    }
+  },
+  "users/alice.johnson/sessions/48268064-ecac-4f9e-b897-d0046af1abe1/events": {
+    "c2303bc9-cd64-4065-937f-d1da86f39d6d": {
+      "event_id": "c2303bc9-cd64-4065-937f-d1da86f39d6d",
+      "event_type": "user_message",
+      "content": "How do I Z?",
+      "timestamp": "2026-04-16T14:37:16.605036+00:00",
+      "metadata": null
+    },
+    "4c987f57-e684-4b59-b949-a0fa289d9f96": {
+      "event_id": "4c987f57-e684-4b59-b949-a0fa289d9f96",
+      "event_type": "coach_intervention",
+      "content": "Caught a hallucinated API in the drafted answer.",
+      "timestamp": "2026-04-16T14:37:46.605036+00:00",
+      "metadata": {
+        "category": "factuality",
+        "kind": "hallucinated_api",
+        "mode": "rewrite",
+        "severity": 2,
+        "targets_event_id": "57b476eb-e8d8-4a4b-bfe8-a0c9a974b7c9",
+        "quoted_span": "df.nonexistent_method()",
+        "sources": [
+          "https://example.com/docs"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 2500
+      }
+    },
+    "57b476eb-e8d8-4a4b-bfe8-a0c9a974b7c9": {
+      "event_id": "57b476eb-e8d8-4a4b-bfe8-a0c9a974b7c9",
+      "event_type": "ai_message",
+      "content": "Use the real API: df.real_method().",
+      "timestamp": "2026-04-16T14:38:16.605036+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 120,
+        "latency_ms": 900,
+        "coached": true,
+        "pre_coach_content": "Try df.nonexistent_method()",
+        "coach_intervention_ids": [
+          "4c987f57-e684-4b59-b949-a0fa289d9f96"
+        ]
+      }
+    }
+  },
+  "users/alice.johnson/sessions/b56a8d34-7323-410c-8e1a-223a1c841f81/events": {
+    "5ec57c8b-94ac-428a-9e4a-8fbcd62cabc8": {
+      "event_id": "5ec57c8b-94ac-428a-9e4a-8fbcd62cabc8",
+      "event_type": "user_message",
+      "content": "How do I Z?",
+      "timestamp": "2026-04-16T14:37:16.612617+00:00",
+      "metadata": null
+    },
+    "63c3564e-a6a6-4a01-91a8-6ec0d7dd2683": {
+      "event_id": "63c3564e-a6a6-4a01-91a8-6ec0d7dd2683",
+      "event_type": "coach_intervention",
+      "content": "Caught a hallucinated API in the drafted answer.",
+      "timestamp": "2026-04-16T14:37:46.612617+00:00",
+      "metadata": {
+        "category": "factuality",
+        "kind": "hallucinated_api",
+        "mode": "rewrite",
+        "severity": 2,
+        "targets_event_id": "5f789183-74fa-4f1f-9542-99a24a512bd8",
+        "quoted_span": "df.nonexistent_method()",
+        "sources": [
+          "https://example.com/docs"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 2500
+      }
+    },
+    "5f789183-74fa-4f1f-9542-99a24a512bd8": {
+      "event_id": "5f789183-74fa-4f1f-9542-99a24a512bd8",
+      "event_type": "ai_message",
+      "content": "Use the real API: df.real_method().",
+      "timestamp": "2026-04-16T14:38:16.612617+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 120,
+        "latency_ms": 900,
+        "coached": true,
+        "pre_coach_content": "Try df.nonexistent_method()",
+        "coach_intervention_ids": [
+          "63c3564e-a6a6-4a01-91a8-6ec0d7dd2683"
+        ]
+      }
+    }
+  },
+  "users/alice.johnson/sessions/c7c223e2-855b-44b4-b5e2-58d19982c34d/events": {
+    "ffa02d1f-dcb4-4952-a84c-228c0580e6c4": {
+      "event_id": "ffa02d1f-dcb4-4952-a84c-228c0580e6c4",
+      "event_type": "user_message",
+      "content": "How do I Z?",
+      "timestamp": "2026-04-16T14:37:16.619981+00:00",
+      "metadata": null
+    },
+    "d7aed717-41b9-4dfe-ae72-9211550e8578": {
+      "event_id": "d7aed717-41b9-4dfe-ae72-9211550e8578",
+      "event_type": "coach_intervention",
+      "content": "Caught a hallucinated API in the drafted answer.",
+      "timestamp": "2026-04-16T14:37:46.619981+00:00",
+      "metadata": {
+        "category": "factuality",
+        "kind": "hallucinated_api",
+        "mode": "rewrite",
+        "severity": 2,
+        "targets_event_id": "1f3f1c49-85ed-4485-b590-b8383775c963",
+        "quoted_span": "df.nonexistent_method()",
+        "sources": [
+          "https://example.com/docs"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 2500
+      }
+    },
+    "1f3f1c49-85ed-4485-b590-b8383775c963": {
+      "event_id": "1f3f1c49-85ed-4485-b590-b8383775c963",
+      "event_type": "ai_message",
+      "content": "Use the real API: df.real_method().",
+      "timestamp": "2026-04-16T14:38:16.619981+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 120,
+        "latency_ms": 900,
+        "coached": true,
+        "pre_coach_content": "Try df.nonexistent_method()",
+        "coach_intervention_ids": [
+          "d7aed717-41b9-4dfe-ae72-9211550e8578"
+        ]
+      }
+    }
+  },
+  "users/alice.johnson/sessions/8f6d64ed-3df2-4f18-8895-30657d250f27/events": {
+    "af2457f3-c554-40f8-b3b5-a361a8cac310": {
+      "event_id": "af2457f3-c554-40f8-b3b5-a361a8cac310",
+      "event_type": "user_message",
+      "content": "How do I Z?",
+      "timestamp": "2026-04-16T14:37:16.627165+00:00",
+      "metadata": null
+    },
+    "13b82425-4866-455f-8c37-3e9c26fd40c9": {
+      "event_id": "13b82425-4866-455f-8c37-3e9c26fd40c9",
+      "event_type": "ai_message",
+      "content": "Try df.nonexistent_method()",
+      "timestamp": "2026-04-16T14:37:46.627165+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 60,
+        "latency_ms": 500
+      }
+    },
+    "f7048736-766b-445f-9737-4a2a5721ba51": {
+      "event_id": "f7048736-766b-445f-9737-4a2a5721ba51",
+      "event_type": "coach_intervention",
+      "content": "That method does not exist; recommend df.real_method().",
+      "timestamp": "2026-04-16T14:38:16.627165+00:00",
+      "metadata": {
+        "category": "factuality",
+        "kind": "hallucinated_api",
+        "mode": "rewrite",
+        "severity": 2,
+        "targets_event_id": "13b82425-4866-455f-8c37-3e9c26fd40c9",
+        "quoted_span": "df.nonexistent_method()",
+        "sources": [
+          "https://example.com/docs"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 2500
+      }
+    },
+    "a9b57a10-21da-420a-b425-1c675cd7ce37": {
+      "event_id": "a9b57a10-21da-420a-b425-1c675cd7ce37",
+      "event_type": "user_message",
+      "content": "Thanks \u2014 trying real_method.",
+      "timestamp": "2026-04-16T14:38:46.627165+00:00",
+      "metadata": null
+    },
+    "a84de241-a024-447c-916c-7749d3290822": {
+      "event_id": "a84de241-a024-447c-916c-7749d3290822",
+      "event_type": "ai_message",
+      "content": "Good \u2014 df.real_method() is the right call.",
+      "timestamp": "2026-04-16T14:39:16.627165+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 40,
+        "latency_ms": 400
+      }
+    }
+  },
+  "users/alice.johnson/sessions/9c472c35-5822-4cfb-b5ab-8f518302b972/events": {
+    "f06b28ba-9931-40bc-bdea-2879eb15f55b": {
+      "event_id": "f06b28ba-9931-40bc-bdea-2879eb15f55b",
+      "event_type": "user_message",
+      "content": "How do I Z?",
+      "timestamp": "2026-04-16T14:37:16.635054+00:00",
+      "metadata": null
+    },
+    "698f3973-4a86-4896-a79b-a8c833a0a2dd": {
+      "event_id": "698f3973-4a86-4896-a79b-a8c833a0a2dd",
+      "event_type": "coach_intervention",
+      "content": "Caught a hallucinated API in the drafted answer.",
+      "timestamp": "2026-04-16T14:37:46.635054+00:00",
+      "metadata": {
+        "category": "factuality",
+        "kind": "hallucinated_api",
+        "mode": "rewrite",
+        "severity": 2,
+        "targets_event_id": "558c40e4-21c7-4e42-b700-a70f66880534",
+        "quoted_span": "df.nonexistent_method()",
+        "sources": [
+          "https://example.com/docs"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 2500
+      }
+    },
+    "558c40e4-21c7-4e42-b700-a70f66880534": {
+      "event_id": "558c40e4-21c7-4e42-b700-a70f66880534",
+      "event_type": "ai_message",
+      "content": "Use the real API: df.real_method().",
+      "timestamp": "2026-04-16T14:38:16.635054+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 120,
+        "latency_ms": 900,
+        "coached": true,
+        "pre_coach_content": "Try df.nonexistent_method()",
+        "coach_intervention_ids": [
+          "698f3973-4a86-4896-a79b-a8c833a0a2dd"
+        ]
+      }
+    }
+  },
+  "users/alice.johnson/sessions/bed37639-7dea-4eeb-a975-34a070da42ed/events": {
+    "1788b98a-57da-456f-8789-d4ffc2825423": {
+      "event_id": "1788b98a-57da-456f-8789-d4ffc2825423",
+      "event_type": "user_message",
+      "content": "How do I Z?",
+      "timestamp": "2026-04-16T14:37:16.642039+00:00",
+      "metadata": null
+    },
+    "1739ea8d-d8f5-41db-ad84-7f3bd1c5a59e": {
+      "event_id": "1739ea8d-d8f5-41db-ad84-7f3bd1c5a59e",
+      "event_type": "coach_intervention",
+      "content": "Caught a hallucinated API in the drafted answer.",
+      "timestamp": "2026-04-16T14:37:46.642039+00:00",
+      "metadata": {
+        "category": "factuality",
+        "kind": "hallucinated_api",
+        "mode": "rewrite",
+        "severity": 2,
+        "targets_event_id": "5fd1bbae-1d8e-4ae0-bb69-fef08f87ef01",
+        "quoted_span": "df.nonexistent_method()",
+        "sources": [
+          "https://example.com/docs"
+        ],
+        "accepted": true,
+        "estimated_savings_cents": 2500
+      }
+    },
+    "5fd1bbae-1d8e-4ae0-bb69-fef08f87ef01": {
+      "event_id": "5fd1bbae-1d8e-4ae0-bb69-fef08f87ef01",
+      "event_type": "ai_message",
+      "content": "Use the real API: df.real_method().",
+      "timestamp": "2026-04-16T14:38:16.642039+00:00",
+      "metadata": {
+        "model": "claude-sonnet-4",
+        "tokens": 120,
+        "latency_ms": 900,
+        "coached": true,
+        "pre_coach_content": "Try df.nonexistent_method()",
+        "coach_intervention_ids": [
+          "1739ea8d-d8f5-41db-ad84-7f3bd1c5a59e"
         ]
       }
     }

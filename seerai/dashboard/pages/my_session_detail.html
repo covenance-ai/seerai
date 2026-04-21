@@ -8,18 +8,19 @@
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
     <script src="/static/icons.js"></script>
+    <script src="/static/i18n.js"></script>
     <script src="/static/nav.js" defer></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <p data-i18n-html class="text-sm text-gray-500 dark:text-gray-400 mb-6">
             <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a>
             <span class="mx-1">/</span>
             <a href="" id="my-link" class="text-blue-600 dark:text-blue-400 hover:underline">my sessions</a>
             <span class="mx-1">/</span>
             <span id="sid" class="text-gray-700 dark:text-gray-300"></span>
         </p>
-        <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
+        <div id="content"><p data-i18n class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
     <script>
         const parts = window.location.pathname.split('/');
@@ -33,7 +34,7 @@
             .then(session => {
                 const el = document.getElementById('content');
                 if (!session.events.length) {
-                    el.innerHTML = '<p class="text-gray-400 text-center py-8">No events in this session.</p>';
+                    el.innerHTML = '<p class="text-gray-400 text-center py-8">' + t('No events in this session.') + '</p>';
                     return;
                 }
                 let html = '<div class="flex flex-col gap-3">';
@@ -57,13 +58,13 @@
                             : ev.metadata.model.startsWith('mistral') ? 'mistral' : null;
                         label = `<span class="inline-flex items-center gap-1">${providerIcon(modelProvider)}<span>${esc(ev.metadata.model)}</span></span>`;
                     } else {
-                        label = isUser ? 'User' : isError ? 'Error' : 'AI';
+                        label = isUser ? t('User') : isError ? t('Error') : t('AI');
                     }
 
                     let meta = time;
                     if (ev.metadata) {
                         const show = [];
-                        if (ev.metadata.tokens) show.push(`${ev.metadata.tokens} tokens`);
+                        if (ev.metadata.tokens) show.push(`${ev.metadata.tokens} ${t('tokens')}`);
                         if (ev.metadata.latency_ms) show.push(`${ev.metadata.latency_ms}ms`);
                         if (show.length) meta += ' &middot; ' + show.join(' &middot; ');
                     }
@@ -79,7 +80,7 @@
                 el.innerHTML = html;
             })
             .catch(e => {
-                document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
+                document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">' + t('Error') + ': ' + e.message + '</p>';
             });
 
         function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

@@ -9,17 +9,18 @@
     <script>if (localStorage.getItem('seerai_theme') === 'dark' || (!localStorage.getItem('seerai_theme') && matchMedia('(prefers-color-scheme:dark)').matches)) document.documentElement.classList.add('dark');</script>
     <script src="/static/icons.js"></script>
     <script src="/static/tooltips.js"></script>
+    <script src="/static/i18n.js"></script>
     <script src="/static/nav.js" defer></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-200 min-h-screen">
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-1" id="breadcrumb">
+        <p data-i18n-html class="text-sm text-gray-500 dark:text-gray-400 mb-1" id="breadcrumb">
             <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">seerai</a>
             <span class="mx-1">/</span>
             <a href="/exec" class="text-blue-600 dark:text-blue-400 hover:underline">orgs</a>
         </p>
-        <h1 id="title" class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Loading...</h1>
-        <div id="content"><p class="text-gray-400 text-center py-8">Loading...</p></div>
+        <h1 data-i18n id="title" class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Loading...</h1>
+        <div id="content"><p data-i18n class="text-gray-400 text-center py-8">Loading...</p></div>
     </div>
     <script>
         const orgId = decodeURIComponent(window.location.pathname.split('/')[2]);
@@ -65,19 +66,19 @@
             let html = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                     <div class="text-2xl font-bold text-gray-900 dark:text-white">${n.user_count}</div>
-                    <div class="text-xs text-gray-400 mt-0.5">Users</div>
+                    <div class="text-xs text-gray-400 mt-0.5">${t('Users')}</div>
                 </div>
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                     <div class="text-2xl font-bold text-gray-900 dark:text-white">${n.session_count}</div>
-                    <div class="text-xs text-gray-400 mt-0.5">Sessions</div>
+                    <div class="text-xs text-gray-400 mt-0.5">${t('Sessions')}</div>
                 </div>
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                     <div class="text-2xl font-bold text-gray-900 dark:text-white">${n.message_count}</div>
-                    <div class="text-xs text-gray-400 mt-0.5">Messages</div>
+                    <div class="text-xs text-gray-400 mt-0.5">${t('Messages')}</div>
                 </div>
                 <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                     <div class="text-2xl font-bold ${n.error_count > 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'}">${errRate}</div>
-                    <div class="text-xs text-gray-400 mt-0.5">Error Rate</div>
+                    <div class="text-xs text-gray-400 mt-0.5">${t('Error Rate')}</div>
                 </div>
             </div>`;
 
@@ -93,19 +94,19 @@
                 html += `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
                     <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.total_monthly_subscription.toFixed(0)}</div>
-                        <div class="text-xs text-gray-400 mt-0.5">Subscriptions / mo</div>
+                        <div class="text-xs text-gray-400 mt-0.5">${t('Subscriptions / mo')}</div>
                     </div>
                     <div data-metric="value" class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold text-gray-900 dark:text-white">$${costData.total_estimated_value.toFixed(0)}</div>
-                        <div class="text-xs text-gray-400 mt-0.5">Value / mo</div>
+                        <div class="text-xs text-gray-400 mt-0.5">${t('Value / mo')}</div>
                     </div>
                     <div data-metric="efficiency" class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold ${effColor}">${effLabel}</div>
-                        <div class="text-xs text-gray-400 mt-0.5">Cost Efficiency</div>
+                        <div class="text-xs text-gray-400 mt-0.5">${t('Cost Efficiency')}</div>
                     </div>
                     <div data-metric="roi" class="rounded-xl border border-gray-200 dark:border-gray-700/60 p-4 bg-white dark:bg-gray-900">
                         <div class="text-2xl font-bold ${roiColor}">${roiLabel}</div>
-                        <div class="text-xs text-gray-400 mt-0.5">ROI</div>
+                        <div class="text-xs text-gray-400 mt-0.5">${t('ROI')}</div>
                     </div>
                 </div>`;
             } else {
@@ -135,17 +136,17 @@
 
             return childCostPromise.then(childCosts => {
                 if (tree.children.length) {
-                    html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Sub-organizations</h2>';
+                    html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">' + t('Sub-organizations') + '</h2>';
                     html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden mb-8">
                         <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                         <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
-                            <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Name</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="Users with ≥1 session in last 30d / total users">Adoption</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sessions</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="Per active user · total in parens">Sub $/user</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="Per active user · total in parens">Value/user</th>
-                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">ROI</th>
+                            <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('Name')}</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="${t('Users with ≥1 session in last 30d / total users')}">${t('Adoption')}</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('Sessions')}</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="${t('Per active user · total in parens')}">${t('Sub $/user')}</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400" title="${t('Per active user · total in parens')}">${t('Value/user')}</th>
+                            <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('ROI')}</th>
                         </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
                     for (let i = 0; i < tree.children.length; i++) {
                         const c = tree.children[i].node;
@@ -168,7 +169,7 @@
                         if (suppressed) {
                             html += `<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                                 <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a>${insightBadge(orgInsCount, {org_id: c.org_id})}</td>
-                                <td class="px-4 py-2.5 text-right text-[0.7rem] text-gray-400 italic" colspan="5" title="Cohort below ${totalUsers}-user privacy threshold — metrics suppressed">cohort &lt; threshold · suppressed</td>
+                                <td class="px-4 py-2.5 text-right text-[0.7rem] text-gray-400 italic" colspan="5" title="${t('Cohort below privacy threshold — metrics suppressed')} (${totalUsers})">${t('cohort < threshold · suppressed')}</td>
                             </tr>`;
                             continue;
                         }
@@ -188,8 +189,8 @@
                             <td class="px-4 py-2.5"><a href="/exec/${encodeURIComponent(c.org_id)}" class="text-blue-600 dark:text-blue-400 hover:underline">${esc(c.name)}</a>${insightBadge(orgInsCount, {org_id: c.org_id})}</td>
                             <td class="px-4 py-2.5 text-right">${adoptionCell}</td>
                             <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${c.session_count}</td>
-                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400 tabular-nums">${subPerUserStr}<div class="text-[0.65rem] text-gray-400">${subTotalStr} total</div></td>
-                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400 tabular-nums">${valPerUserStr}<div class="text-[0.65rem] text-gray-400">${valTotalStr} total</div></td>
+                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400 tabular-nums">${subPerUserStr}<div class="text-[0.65rem] text-gray-400">${subTotalStr} ${t('total')}</div></td>
+                            <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400 tabular-nums">${valPerUserStr}<div class="text-[0.65rem] text-gray-400">${valTotalStr} ${t('total')}</div></td>
                             <td class="px-4 py-2.5 text-right font-medium ${cRoiColor}">${cRoiLabel}</td>
                         </tr>`;
                     }
@@ -201,20 +202,20 @@
                     .then(r => r.json())
                     .then(users => {
                         if (users.length) {
-                            html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Users</h2>';
+                            html += '<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">' + t('Users') + '</h2>';
                             html += `<div class="rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
                                 <div class="overflow-x-auto">
                                 <table class="w-full text-sm">
                                 <thead><tr class="bg-gray-100 dark:bg-gray-800/60">
-                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">User</th>
-                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Sub $/mo</th>
-                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Value / mo</th>
-                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">ROI</th>
-                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Utility</th>
-                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">Last Active</th>
+                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('User')}</th>
+                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('Sub $/mo')}</th>
+                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('Value / mo')}</th>
+                                    <th class="text-right px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('ROI')}</th>
+                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('Utility')}</th>
+                                    <th class="text-left px-4 py-2.5 font-medium text-gray-500 dark:text-gray-400">${t('Last Active')}</th>
                                 </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
                             for (const u of users) {
-                                const t = new Date(u.last_active).toLocaleString();
+                                const lastActive = new Date(u.last_active).toLocaleString();
                                 const uc = userCostMap[u.user_id];
                                 const uSub = uc ? '$' + uc.monthly_subscription.toFixed(0) : '—';
                                 const uVal = uc ? '$' + uc.estimated_value.toFixed(0) : '—';
@@ -229,12 +230,12 @@
                                     <td class="px-4 py-2.5 text-right text-gray-600 dark:text-gray-400">${uVal}</td>
                                     <td class="px-4 py-2.5 text-right font-medium ${uRoiColor}">${uRoiLabel}</td>
                                     <td class="px-4 py-2.5">${utilBar}</td>
-                                    <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${t}</td>
+                                    <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${lastActive}</td>
                                 </tr>`;
                             }
                             html += '</tbody></table></div></div>';
                         } else if (!tree.children.length) {
-                            html += '<p class="text-gray-400 text-center py-8">No sub-organizations or users.</p>';
+                            html += '<p class="text-gray-400 text-center py-8">' + t('No sub-organizations or users.') + '</p>';
                         }
                         document.getElementById('content').innerHTML = html;
                         if (costData) {
@@ -249,7 +250,7 @@
             });
         })
         .catch(e => {
-            document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">Error: ' + e.message + '</p>';
+            document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">' + t('Error') + ': ' + e.message + '</p>';
         });
 
         function miniBar(ub) {
@@ -257,8 +258,8 @@
             const total = ub.non_work + ub.trivial + ub.useful + harmful + (ub.unclassified || 0);
             if (total === 0) return '<span class="text-gray-400 text-xs">—</span>';
             const w = (n) => Math.round(n / total * 100);
-            const title = ub.useful + ' useful, ' + ub.trivial + ' trivial, ' + ub.non_work + ' non-work' +
-                (harmful ? ', ' + harmful + ' harmful (QA-flagged)' : '');
+            const title = ub.useful + ' ' + t('useful') + ', ' + ub.trivial + ' ' + t('trivial') + ', ' + ub.non_work + ' ' + t('non-work') +
+                (harmful ? ', ' + harmful + ' ' + t('harmful (QA-flagged)') : '');
             let bar = '<div class="flex h-2 w-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700" title="' + title + '">';
             if (ub.useful) bar += `<div class="bg-emerald-500" style="width:${w(ub.useful)}%"></div>`;
             if (ub.trivial) bar += `<div class="bg-blue-400" style="width:${w(ub.trivial)}%"></div>`;
@@ -272,16 +273,16 @@
             if (!count) return '';
             var qs = new URLSearchParams(params || {}).toString();
             var href = '/exec/insights' + (qs ? '?' + qs : '');
-            return ' <a href="' + href + '" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-800/50 transition-colors" title="' + count + ' insight' + (count > 1 ? 's' : '') + '">'
+            return ' <a href="' + href + '" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[0.6rem] font-semibold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-800/50 transition-colors" title="' + count + ' ' + t(count > 1 ? 'insights' : 'insight') + '">'
                 + '<svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>'
                 + count + '</a>';
         }
 
         const COACH_CAT_STYLES = {
-            factuality: { label: 'Factuality', dot: 'bg-rose-500' },
-            efficiency: { label: 'Efficiency', dot: 'bg-sky-500' },
-            sources:    { label: 'Sources',    dot: 'bg-violet-500' },
-            other:      { label: 'Other',      dot: 'bg-amber-500' },
+            factuality: { label: t('Factuality'), dot: 'bg-rose-500' },
+            efficiency: { label: t('Efficiency'), dot: 'bg-sky-500' },
+            sources:    { label: t('Sources'),    dot: 'bg-violet-500' },
+            other:      { label: t('Other'),      dot: 'bg-amber-500' },
         };
 
         function fmtMoneyShort(cents) {
@@ -308,26 +309,26 @@
                     <div class="flex items-center gap-3 flex-wrap">
                         <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v6c0 4.5-3.1 8.4-7 9-3.9-.6-7-4.5-7-9V6l7-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>
-                            Coach
+                            ${t('Coach')}
                         </span>
                         <span class="text-sm text-gray-700 dark:text-gray-200">
                             <span class="font-semibold">${s.interventions_total}</span>
-                            <span class="text-gray-500 dark:text-gray-400">interventions across ${s.coached_sessions} sessions</span>
+                            <span class="text-gray-500 dark:text-gray-400">${t('interventions across')} ${s.coached_sessions} ${t('sessions')}</span>
                         </span>
                         ${catChips ? '<span class="text-gray-300 dark:text-gray-700">·</span>' + catChips : ''}
                     </div>
                     <div class="flex items-center gap-4">
                         <div class="text-right">
-                            <div class="text-xs text-gray-500 dark:text-gray-400">Value Δ</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">${t('Value Δ')}</div>
                             <div class="text-sm font-bold ${delta > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500'}">${deltaSign}${fmtMoneyShort(delta)}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xs text-gray-500 dark:text-gray-400">Turns saved</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">${t('Turns saved')}</div>
                             <div class="text-sm font-bold text-gray-900 dark:text-white">${turnsSaved}</div>
                         </div>
                         <a href="/exec/coach?org_id=${encodeURIComponent(orgId)}"
                            class="text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:underline whitespace-nowrap">
-                            Open →
+                            ${t('Open →')}
                         </a>
                     </div>
                 </div>
