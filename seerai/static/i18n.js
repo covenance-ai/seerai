@@ -19,7 +19,7 @@
     var LANG_KEY = 'seerai_lang';
     var USER_KEY = 'seerai_user';
     var DEFAULT = 'en';
-    var SUPPORTED = ['en', 'de', 'it'];
+    var SUPPORTED = ['en', 'de', 'it', 'ru'];
 
     // Install the lang + caller header injector as early as possible — i18n.js
     // is loaded synchronously at the top of every page, while nav.js is

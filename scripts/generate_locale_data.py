@@ -503,7 +503,7 @@ def _write_insights(db: LocalStore, locale: LocaleConfig, session_log) -> int:
             "session_ids": [sid for sid, _ in all_sessions],
         }
 
-    currency_symbol = "€" if locale.currency == "EUR" else "$"
+    currency_symbol = {"EUR": "€", "RUB": "₽"}.get(locale.currency, "$")
 
     batch = db.batch()
     written = 0
@@ -581,7 +581,31 @@ def _write_insights(db: LocalStore, locale: LocaleConfig, session_log) -> int:
                 "produttività attesa e reale dell'IA."
             ),
         },
-    }[locale.lang if locale.lang in ("en", "de", "it") else "en"]
+        "ru": {
+            "cross_title": "{name} интересуется темами отдела «{dept}»",
+            "cross_desc": (
+                "Анализ последних сессий {uid} показывает устойчивое "
+                "внимание к запросам, связанным с отделом «{dept}». "
+                "За последние 2 недели несколько сессий были посвящены "
+                "темам: {topics}. Это может говорить о реальном интересе "
+                "или о возникающей межфункциональной потребности."
+            ),
+            "above_title": "{name} выдаёт результаты выше своей грейд-зоны",
+            "above_desc": (
+                "Анализ сессий {uid} показывает {pct}% сессий высокой "
+                "полезности со сложными многоходовыми решениями, "
+                "характерными для более высоких грейдов. Текущая ставка "
+                "({cur}{rate:.0f}/ч) ниже медианы команды — возможна "
+                "недооплата."
+            ),
+            "below_title": "{name} недоиспользует ИИ относительно роли",
+            "below_desc": (
+                "Использование {uid} показывает {nwp}% нерабочих и {trp}% "
+                "тривиальных сессий. При ставке {cur}{rate:.0f}/ч это "
+                "разрыв между ожидаемой и фактической отдачей от ИИ."
+            ),
+        },
+    }[locale.lang if locale.lang in ("en", "de", "it", "ru") else "en"]
 
     def _display(uid: str) -> str:
         return locale.display_names.get(uid) or uid.split(".")[0].title()
@@ -758,7 +782,7 @@ def generate(lang: str, clear: bool, seed: int | None = None) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate localized demo snapshots (en, de, it)."
+        description="Generate localized demo snapshots (en, de, it, ru)."
     )
     parser.add_argument(
         "langs",

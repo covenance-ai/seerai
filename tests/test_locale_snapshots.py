@@ -22,6 +22,7 @@ def test_snapshot_paths_are_locale_specific():
     assert snapshot_path("en").name == "snapshot.json"
     assert snapshot_path("de").name == "snapshot.de.json"
     assert snapshot_path("it").name == "snapshot.it.json"
+    assert snapshot_path("ru").name == "snapshot.ru.json"
 
 
 def test_generated_de_snapshot_has_expected_shape(tmp_path, monkeypatch):
@@ -46,7 +47,7 @@ def test_generated_de_snapshot_has_expected_shape(tmp_path, monkeypatch):
 def test_generated_snapshots_pass_plausibility(tmp_path, monkeypatch):
     """Regression guard: generator output must satisfy every plausibility rule."""
     monkeypatch.setattr("scripts.generate_locale_data.DATA_DIR", tmp_path)
-    for lang in ("de", "it"):
+    for lang in ("de", "it", "ru"):
         generate(lang, clear=True, seed=7)
         store = LocalStore(snapshot_path_in(tmp_path, lang))
         violations = []
@@ -77,6 +78,12 @@ def test_lang_header_routes_to_localized_snapshot():
     assert "moda" in root_ids_it
     assert "acme" not in root_ids_it
 
+    # With ru header → Russian banking companies appear.
+    r = client.get("/api/orgs", headers={"X-Seerai-Lang": "ru"})
+    root_ids_ru = {row["org_id"] for row in r.json()}
+    assert "volga" in root_ids_ru
+    assert "acme" not in root_ids_ru
+
 
 def test_datasource_endpoint_lists_available_langs():
     """The frontend queries this to decide which language rows to show."""
@@ -87,6 +94,7 @@ def test_datasource_endpoint_lists_available_langs():
     assert "en" in info["local_langs"]
     assert "de" in info["local_langs"]
     assert "it" in info["local_langs"]
+    assert "ru" in info["local_langs"]
 
 
 # ── helpers ────────────────────────────────────────────────────────────

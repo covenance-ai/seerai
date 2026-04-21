@@ -13,7 +13,7 @@
     // so the sidebar still works if the bundle 404s (e.g. new language).
     function t(s) { return (window.t ? window.t(s) : s); }
 
-    var LANG_LABELS = { en: 'English', de: 'Deutsch', it: 'Italiano' };
+    var LANG_LABELS = { en: 'English', de: 'Deutsch', it: 'Italiano', ru: 'Русский' };
 
     // Fetch interceptor lives in i18n.js — it's loaded synchronously at the
     // top of every page so inline scripts that fetch during HTML parsing

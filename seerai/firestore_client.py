@@ -7,12 +7,13 @@ The default backend is the real Firestore database (project
 
 **Localized local snapshots**
 
-The dashboard supports a language toggle (``en`` / ``de`` / ``it``). When
-"local" data source is selected, the client picks one of:
+The dashboard supports a language toggle (``en`` / ``de`` / ``it`` / ``ru``).
+When "local" data source is selected, the client picks one of:
 
   - ``data/snapshot.json``       (en — kept at legacy filename)
   - ``data/snapshot.de.json``    (de)
   - ``data/snapshot.it.json``    (it)
+  - ``data/snapshot.ru.json``    (ru)
 
 The language is read from a ContextVar populated by the FastAPI middleware
 in ``main.py`` from the ``X-Seerai-Lang`` request header. Outside of a
@@ -45,7 +46,7 @@ SNAPSHOT_PATH = _DATA_DIR / "snapshot.json"
 # request it falls back to SEERAI_LANG or "en".
 current_lang: ContextVar[str | None] = ContextVar("current_lang", default=None)
 
-SUPPORTED_LANGS = ("en", "de", "it")
+SUPPORTED_LANGS = ("en", "de", "it", "ru")
 
 
 def _resolve_lang() -> str:
