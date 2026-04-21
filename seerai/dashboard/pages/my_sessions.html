@@ -234,7 +234,7 @@
                     ${sortableTh('last_event_at', t('Last Active'), 'left')}
                 </tr></thead><tbody class="divide-y divide-gray-100 dark:divide-gray-800">`;
             for (const s of sessions) {
-                const t = new Date(s.last_event_at).toLocaleString();
+                const ts = new Date(s.last_event_at).toLocaleString();
                 const badgeCls = s.last_event_type === 'error'
                     ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
                     : s.last_event_type === 'ai_message'
@@ -266,7 +266,7 @@
                     <td class="px-4 py-2.5">${utilityBadge(s.utility)}</td>
                     <td class="px-4 py-2.5 text-right ${valCls} tabular-nums" title="${valTitle}">${valLabel}</td>
                     <td class="px-4 py-2.5">${badge}</td>
-                    <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${t}</td>
+                    <td class="px-4 py-2.5 text-gray-500 dark:text-gray-400 text-xs">${ts}</td>
                 </tr>`;
             }
             html += '</tbody></table></div></div>';
