@@ -428,14 +428,28 @@
             for (var ii = 0; ii < section.items.length; ii++) {
                 var item = section.items[ii];
                 var act = item.active;
+                // Tour lock: dims links to features the user hasn't unlocked
+                // yet in the guided demo. window.seerai.tour.isUnlocked
+                // returns true whenever the tour is off or the href isn't
+                // part of the tour, so this is a no-op outside demo mode.
+                var locked = !!(window.seerai && window.seerai.tour
+                    && !window.seerai.tour.isUnlocked(item.href));
                 var cls = act
                     ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200';
-                navHtml += '<a href="' + item.href + '" class="nav-item ' + (act ? 'active' : '')
+                var lockedCls = locked ? ' seerai-nav-locked' : '';
+                var hrefAttr = locked ? 'href="javascript:void(0)" aria-disabled="true"' : 'href="' + item.href + '"';
+                var lockIcon = locked
+                    ? '<span class="seerai-nav-lock nav-label" aria-hidden="true">🔒</span>'
+                    : '';
+                var tipText = locked ? t('Unlocks during the demo tour') : item.label;
+                navHtml += '<a ' + hrefAttr + ' class="nav-item ' + (act ? 'active' : '')
+                    + lockedCls
                     + ' relative flex items-center gap-3 mx-2 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ' + cls + '">'
                     + item.icon
                     + '<span class="nav-label">' + item.label + '</span>'
-                    + '<span class="nav-tip bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-lg">' + item.label + '</span>'
+                    + lockIcon
+                    + '<span class="nav-tip bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 shadow-lg">' + tipText + '</span>'
                     + '</a>';
             }
             navHtml += '</div>';
@@ -840,6 +854,9 @@
         };
         document.addEventListener('keydown', onKey);
     }
+
+    // --- Expose for other scripts (e.g. tour.js re-renders nav when locks change) ---
+    window.seerai.renderSidebar = renderSidebar;
 
     // --- Init ---
     renderSidebar();

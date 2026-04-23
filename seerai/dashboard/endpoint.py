@@ -26,7 +26,13 @@ def _static_version(filename: str) -> str:
 
 
 def _render(page: str) -> HTMLResponse:
-    """Read an HTML page and inject cache-busting ?v=<mtime> on our scripts."""
+    """Read an HTML page and inject cache-busting ?v=<mtime> on our scripts.
+
+    Also appends the guided demo tour (``tour.js``) right before ``</body>`` so
+    every dashboard page gets the right-hand tour panel without per-template
+    edits. Tour requires nav.js's ``window.seerai.renderSidebar``, so it loads
+    deferred after nav.
+    """
     html = _PAGES.joinpath(page).read_text()
     html = html.replace(
         'src="/static/i18n.js"',
@@ -36,6 +42,10 @@ def _render(page: str) -> HTMLResponse:
         'src="/static/nav.js"',
         f'src="/static/nav.js?v={_static_version("nav.js")}"',
     )
+    tour_tag = (
+        f'<script src="/static/tour.js?v={_static_version("tour.js")}" defer></script>'
+    )
+    html = html.replace("</body>", f"{tour_tag}</body>")
     return HTMLResponse(html)
 
 
