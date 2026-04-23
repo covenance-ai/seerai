@@ -425,6 +425,8 @@
             navHtml += '<div class="' + (si > 0 ? 'mt-5' : '') + '">'
                 + '<div class="section-label px-4 mb-1.5 text-[0.6rem] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">'
                 + section.label + '</div>';
+            var tourTarget = (window.seerai && window.seerai.tour && window.seerai.tour.currentHref)
+                ? window.seerai.tour.currentHref() : null;
             for (var ii = 0; ii < section.items.length; ii++) {
                 var item = section.items[ii];
                 var act = item.active;
@@ -434,17 +436,22 @@
                 // part of the tour, so this is a no-op outside demo mode.
                 var locked = !!(window.seerai && window.seerai.tour
                     && !window.seerai.tour.isUnlocked(item.href));
+                // Spotlight on the item whose href matches the tour's current
+                // step. Layers on top of the active state so the currently-
+                // explained feature doesn't blend in with the quiet active bar.
+                var spotlight = !locked && tourTarget && tourTarget === item.href;
                 var cls = act
                     ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200';
                 var lockedCls = locked ? ' seerai-nav-locked' : '';
+                var spotCls = spotlight ? ' seerai-tour-target' : '';
                 var hrefAttr = locked ? 'href="javascript:void(0)" aria-disabled="true"' : 'href="' + item.href + '"';
                 var lockIcon = locked
                     ? '<span class="seerai-nav-lock nav-label" aria-hidden="true">🔒</span>'
                     : '';
                 var tipText = locked ? t('Unlocks during the demo tour') : item.label;
                 navHtml += '<a ' + hrefAttr + ' class="nav-item ' + (act ? 'active' : '')
-                    + lockedCls
+                    + lockedCls + spotCls
                     + ' relative flex items-center gap-3 mx-2 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ' + cls + '">'
                     + item.icon
                     + '<span class="nav-label">' + item.label + '</span>'

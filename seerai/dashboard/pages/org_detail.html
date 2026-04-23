@@ -114,7 +114,14 @@
             }
 
             // Coach impact strip — compact, only when coach has fired in this org.
-            if (coachData && coachData.interventions_total > 0) {
+            // During the guided demo, hide until the user reaches the Coach step,
+            // so the feature is a surprise in the tour rather than a spoiler on
+            // the dashboard. tour.isUnlocked() returns true whenever the tour
+            // is off or the href isn't part of the current tour, so this is a
+            // no-op outside demo mode.
+            const coachUnlocked = !(window.seerai && window.seerai.tour)
+                || window.seerai.tour.isUnlocked('/exec/coach');
+            if (coachUnlocked && coachData && coachData.interventions_total > 0) {
                 html += renderCoachStrip(orgId, coachData);
             }
 

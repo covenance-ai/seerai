@@ -113,7 +113,10 @@
     }
 
     function defaultState() {
-        return { version: FLOW_VERSION, enabled: true, dismissed: false, maxUnlocked: 0, completed: [] };
+        return {
+            version: FLOW_VERSION, enabled: true, dismissed: false,
+            currentStep: 0, maxUnlocked: 0, completed: [],
+        };
     }
 
     // Find the step index matching the current URL (exact path match).
@@ -125,15 +128,24 @@
         return -1;
     }
 
-    // Step the panel should display. URL match wins (so navigating back via
-    // the sidebar repaints that step's narrative), except on a fresh tour
-    // where we always start at Welcome so deep-landing on /exec doesn't skip
-    // the preamble.
+    // Step the panel should display. We track `currentStep` explicitly because
+    // terminal steps (like "All set") have no href — the URL alone can't tell
+    // us whether the user advanced to them. URL match still wins when the
+    // user navigates via the sidebar to a previous feature (so the panel
+    // repaints the matching narrative).
     function displayStepIdx(state, steps) {
-        if (state.maxUnlocked === 0 && (!state.completed || !state.completed.length)) return 0;
+        var max = steps.length - 1;
+        var cs = typeof state.currentStep === 'number'
+            ? Math.max(0, Math.min(state.currentStep, max))
+            : 0;
         var u = urlStepIdx(steps);
-        if (u >= 0) return u;
-        return Math.min(state.maxUnlocked, steps.length - 1);
+        if (u >= 0 && steps[cs] && steps[cs].href !== null && u !== cs) {
+            // User clicked a sidebar link for a feature they already unlocked —
+            // show that step's narrative. (But don't override a no-href
+            // terminal step: there, the URL doesn't represent the step.)
+            return u;
+        }
+        return cs;
     }
 
     // --- Public API ---
@@ -162,10 +174,22 @@
             return idx <= s.maxUnlocked;
         },
 
+        // The href (or null) of the step the panel is currently on. nav.js
+        // uses this to paint a spotlight ring on the matching sidebar item.
+        currentHref: function () {
+            var s = loadState();
+            if (!s || !s.enabled || s.dismissed) return null;
+            var steps = getSteps(currentUser());
+            if (!steps.length) return null;
+            var idx = displayStepIdx(s, steps);
+            return steps[idx] ? (steps[idx].href || null) : null;
+        },
+
         start: function () {
             var s = loadState() || defaultState();
             s.enabled = true;
             s.dismissed = false;
+            if (typeof s.currentStep !== 'number') s.currentStep = 0;
             if (typeof s.maxUnlocked !== 'number') s.maxUnlocked = 0;
             if (!s.completed) s.completed = [];
             saveState(s);
@@ -193,6 +217,7 @@
             if (!steps.length) return;
             var cur = displayStepIdx(s, steps);
             var nextIdx = Math.min(cur + 1, steps.length - 1);
+            s.currentStep = nextIdx;
             if (nextIdx > s.maxUnlocked) s.maxUnlocked = nextIdx;
             saveState(s);
             var target = steps[nextIdx];
@@ -210,10 +235,13 @@
             if (!steps.length) return;
             var cur = displayStepIdx(s, steps);
             var prevIdx = Math.max(cur - 1, 0);
+            s.currentStep = prevIdx;
+            saveState(s);
             var target = steps[prevIdx];
             if (target.href && window.location.pathname !== target.href) {
                 window.location.href = target.href;
             } else {
+                refreshNav();
                 render();
             }
         },
@@ -223,10 +251,13 @@
             var steps = getSteps(currentUser());
             if (i < 0 || i >= steps.length) return;
             if (i > s.maxUnlocked) return;  // locked
+            s.currentStep = i;
+            saveState(s);
             var target = steps[i];
             if (target.href && window.location.pathname !== target.href) {
                 window.location.href = target.href;
             } else {
+                refreshNav();
                 render();
             }
         },
@@ -310,7 +341,20 @@
         '.seerai-nav-locked{opacity:.45;cursor:not-allowed !important;' +
         'pointer-events:none;position:relative}' +
         '.seerai-nav-locked:hover{background:transparent !important;color:inherit !important}' +
-        '.seerai-nav-lock{margin-left:auto;font-size:.7rem;opacity:.7}';
+        '.seerai-nav-lock{margin-left:auto;font-size:.7rem;opacity:.7}' +
+        // Spotlight on the sidebar item matching the tour's current step.
+        // Uses an inset box-shadow ring so it layers cleanly over the existing
+        // hover/active backgrounds without shifting layout.
+        '.seerai-tour-target{position:relative;animation:seerai-tour-pulse 2s ease-in-out infinite}' +
+        '.seerai-tour-target::after{content:"";position:absolute;inset:-2px;border-radius:10px;' +
+        'pointer-events:none;box-shadow:0 0 0 2px #3b82f6, 0 0 14px rgba(59,130,246,.45);' +
+        'animation:seerai-tour-glow 2s ease-in-out infinite}' +
+        '@keyframes seerai-tour-pulse{' +
+        '0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}' +
+        '@keyframes seerai-tour-glow{' +
+        '0%,100%{opacity:.55}50%{opacity:1}}' +
+        // When sidebar is collapsed, the label hides — keep the ring on the icon box.
+        '#seerai-sidebar.collapsed .seerai-tour-target::after{inset:-1px}';
     var styleEl = document.createElement('style');
     styleEl.id = 'seerai-tour-style';
     styleEl.textContent = css;
@@ -439,6 +483,13 @@
         if (idx < 0) return;
         var changed = false;
         if (idx > s.maxUnlocked) { s.maxUnlocked = idx; changed = true; }
+        // Keep currentStep synced to the URL when the user clicks through the
+        // sidebar — but never rewind past a no-href terminal step they
+        // already reached (they might be on /my/uid viewing the "All set"
+        // wrap-up; we don't want to drop them back onto My Sessions).
+        var curStep = steps[s.currentStep || 0];
+        var onTerminal = curStep && curStep.href === null && s.currentStep > idx;
+        if (!onTerminal && idx !== s.currentStep) { s.currentStep = idx; changed = true; }
         var href = steps[idx].href;
         if (href && s.completed.indexOf(href) === -1) { s.completed.push(href); changed = true; }
         if (changed) saveState(s);
