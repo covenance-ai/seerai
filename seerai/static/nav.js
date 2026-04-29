@@ -875,6 +875,21 @@
         fetchPrivacyContext(),
     ]).then(function () {
         var user = getCurrentUser();
+        // Local snapshots are per-locale: each locale has its own users and
+        // orgs. If the persisted seerai_user no longer exists in the active
+        // locale's snapshot, every API call would 404. Drop the stale user
+        // and re-prompt instead of rendering a broken dashboard.
+        if (user && _allUsers.length) {
+            var stillValid = false;
+            for (var i = 0; i < _allUsers.length; i++) {
+                if (_allUsers[i].user_id === user.user_id) { stillValid = true; break; }
+            }
+            if (!stillValid) {
+                localStorage.removeItem(USER_KEY);
+                user = null;
+                openSwitcher();
+            }
+        }
         if (user && user.org_id && !user.company) {
             user.company = _companyMap[user.org_id] || null;
             setCurrentUser(user);
