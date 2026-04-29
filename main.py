@@ -1,5 +1,3 @@
-import logging
-import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -7,16 +5,12 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from seerai._logging import setup_logging
 from seerai.firestore_client import SUPPORTED_LANGS, current_lang
 
-logging.basicConfig(level=logging.INFO)
-
-role = os.getenv("SERVICE_ROLE", "local")
-if role != "local":
-    import google.cloud.logging
-
-    client = google.cloud.logging.Client()
-    client.setup_logging()
+# JSON-to-stdout logging works for both GCP Cloud Logging and Yandex Cloud
+# Logging — both providers auto-ingest structured JSON from container stdout.
+setup_logging()
 
 from seerai.analytics.endpoint import router as analytics_router
 from seerai.coach.endpoint import router as coach_router

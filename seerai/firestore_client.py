@@ -27,6 +27,12 @@ import os
 from contextvars import ContextVar
 from pathlib import Path
 
+# Re-export Firestore sentinels through this module so call sites
+# (e.g. ingest/endpoint.py) don't import from `google.cloud.*` directly.
+# This is the single seam where the GCP SDK touches the rest of the code;
+# alternative backends supply their own `Increment` here when wired in.
+from google.cloud.firestore_v1 import Increment  # noqa: F401  (re-exported)
+
 from seerai.local_client import LocalStore
 
 _source: str | None = None  # None = auto-detect

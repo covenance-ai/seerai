@@ -19,7 +19,6 @@ dependencies = [
     "uvicorn[standard]",
     "pydantic",
     "google-cloud-firestore",
-    "google-cloud-logging",
 ]
 
 [project.optional-dependencies]
@@ -29,6 +28,11 @@ generate = [
 dev = [
     "pytest",
     "ruff",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
 ]
 
 [tool.pytest.ini_options]

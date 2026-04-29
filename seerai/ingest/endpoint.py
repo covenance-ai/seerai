@@ -2,10 +2,9 @@ import uuid
 from datetime import UTC, datetime
 
 from fastapi import APIRouter
-from google.cloud.firestore_v1 import Increment
 
 from seerai.entities import Event, Session, User
-from seerai.firestore_client import get_firestore_client
+from seerai.firestore_client import Increment, get_firestore_client
 from seerai.models import IngestEvent, StoredEvent
 from seerai.privacy import Visibility, privacy_surface
 
