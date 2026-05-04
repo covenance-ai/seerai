@@ -85,14 +85,9 @@ def _clear_prior_insights(snapshot: dict) -> int:
 
 
 def _format_shifts(shifts) -> str:
-    """Render the top utility shifts as 'rescued N from harmful'-style phrase."""
-    parts = []
-    for sh in shifts:
-        n = sh.sessions
-        parts.append(
-            f"rescued {n} session{'s' if n != 1 else ''} from {sh.from_class}"
-        )
-    return "; ".join(parts) if parts else "no utility-class shifts observed"
+    """Render the top utility shifts as 'N from harmful, M from trivial' — compact for cards."""
+    parts = [f"{sh.sessions} from {sh.from_class}" for sh in shifts]
+    return ", ".join(parts) if parts else "no class shifts"
 
 
 def _format_kinds(by_kind: dict[str, int], limit: int = 3) -> str:
@@ -137,14 +132,9 @@ def emit_insights(snapshot: dict, rng: random.Random) -> int:
             "created_at": (now - timedelta(days=rng.randint(0, 3))).isoformat(),
             "title": f"Coach prevented ~${value_dollars:,.0f} in likely waste in {org_name}",
             "description": (
-                f"Across {summary.sessions_observed} observed sessions in {org_name}, "
-                f"{summary.coached_sessions} were coached "
-                f"({summary.interventions_total} interventions total). "
-                f"Coach {shifts_phrase}; top interventions: {kinds_phrase}. "
-                f"Counterfactual value: {summary.value_cents.without_coach / 100:,.0f} USD "
-                f"without coach vs {summary.value_cents.with_coach / 100:,.0f} USD with coach "
-                f"(delta {value_dollars:+,.0f} USD). Review the coach feed to confirm "
-                f"these interventions align with the team's risk appetite."
+                f"{summary.coached_sessions} of {summary.sessions_observed:,} sessions coached. "
+                f"Pulled {shifts_phrase}. Top fixes: {kinds_phrase}. "
+                f"Net {value_dollars:+,.0f} USD prevented."
             ),
             "user_id": top_user,
             "org_id": root_id,

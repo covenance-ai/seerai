@@ -160,13 +160,10 @@ def emit_insights(snapshot: dict, rng: random.Random) -> int:
             "created_at": (now - timedelta(days=rng.randint(0, 5))).isoformat(),
             "title": f"{org_name}: AI usage flagged net-negative by QA review",
             "description": (
-                f"Post-hoc QA (stronger model + user feedback) re-reviewed sessions in "
-                f"{org_name} and flagged {harmful} of {total} ({pct:.0f}%) as harmful — "
-                f"AI hallucinations, broken suggestions, or confidently-wrong outputs "
-                f"that the user acted on. Sample notes from the QA pass: "
+                f"{harmful} of {total} sessions ({pct:.0f}%) re-flagged harmful — "
+                f"hallucinations the user acted on. Sample: "
                 f"{snapshot['users/' + top_user + '/sessions'][evidence[0]].get('utility_qa_note', '')!r}. "
-                f"Recommend reviewing the team's prompts, model choice, and onboarding — "
-                f"the negative-value signal indicates AI is not yet a productivity win here."
+                f"Review prompts, model choice, onboarding."
             ),
             "user_id": top_user,
             "org_id": org_id,

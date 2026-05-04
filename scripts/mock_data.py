@@ -707,11 +707,8 @@ def create_insights(session_log):
                 "created_at": now - timedelta(days=days_ago),
                 "title": f"{uid.split('.')[0].title()} exploring {cd['target_dept']} topics",
                 "description": (
-                    f"Analysis of {uid}'s recent sessions reveals sustained engagement "
-                    f"with {cd['target_dept']}-related queries. Over the past 2 weeks, "
-                    f"multiple sessions focused on topics typically associated with the "
-                    f"{cd['target_dept']} team, including {cd['topics']}. This pattern "
-                    f"suggests genuine interest or an emerging cross-functional need."
+                    f"Last 2 weeks: multiple sessions on {cd['target_dept']} topics — "
+                    f"{cd['topics']}. Cross-team interest, hidden gap, or reassignment signal."
                 ),
                 "user_id": uid,
                 "org_id": stats["org_id"],
@@ -741,11 +738,9 @@ def create_insights(session_log):
                 "created_at": now - timedelta(days=days_ago),
                 "title": f"{uid.split('.')[0].title()} delivering above-level output",
                 "description": (
-                    f"{uid}'s session analysis shows {stats['useful_pct']}% of sessions "
-                    f"classified as highly useful, with complex multi-turn problem-solving "
-                    f"patterns typically seen at higher pay bands. Current rate "
-                    f"(${stats['rate']:.0f}/hr) is below the team median, suggesting "
-                    f"this employee may be undercompensated relative to output quality."
+                    f"{stats['useful_pct']}% of sessions are highly useful — complex "
+                    f"multi-turn work typical of higher pay bands. At ${stats['rate']:.0f}/hr, "
+                    f"below team median. Likely undercompensated for output quality."
                 ),
                 "user_id": uid,
                 "org_id": stats["org_id"],
@@ -775,10 +770,9 @@ def create_insights(session_log):
                 "created_at": now - timedelta(days=days_ago),
                 "title": f"{uid.split('.')[0].title()} underutilizing AI relative to role",
                 "description": (
-                    f"{uid}'s usage pattern shows {stats['nonwork_pct']}% non-work and "
-                    f"{stats['trivial_pct']}% trivial sessions. At ${stats['rate']:.0f}/hr, "
-                    f"this represents a gap between expected and actual AI-driven "
-                    f"productivity. Consider targeted training or role alignment review."
+                    f"{stats['nonwork_pct'] + stats['trivial_pct']}% of sessions are "
+                    f"non-work or trivial. At ${stats['rate']:.0f}/hr, AI usage doesn't "
+                    f"match the role — coach or realign."
                 ),
                 "user_id": uid,
                 "org_id": stats["org_id"],
