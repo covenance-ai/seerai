@@ -323,6 +323,7 @@
         '#seerai-tour-panel .tour-actions{padding:12px 14px;border-top:1px solid #e5e7eb;' +
         'display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}' +
         '.dark #seerai-tour-panel .tour-actions{border-top-color:#1f2937}' +
+        '#seerai-tour-panel .tour-actions-right{display:flex;align-items:center;gap:8px}' +
         '#seerai-tour-panel .tour-btn{padding:8px 14px;border-radius:7px;font-size:.8rem;' +
         'font-weight:600;cursor:pointer;border:1px solid transparent;transition:background 120ms}' +
         '#seerai-tour-panel .tour-btn-primary{background:#2563eb;color:#fff}' +
@@ -331,6 +332,11 @@
         '.dark #seerai-tour-panel .tour-btn-secondary{color:#9ca3af;border-color:#374151}' +
         '#seerai-tour-panel .tour-btn-secondary:hover{background:#f3f4f6}' +
         '.dark #seerai-tour-panel .tour-btn-secondary:hover{background:#1f2937}' +
+        '#seerai-tour-panel .tour-btn-skip{background:transparent;color:#6b7280;border-color:transparent;' +
+        'padding:8px 10px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#d1d5db}' +
+        '#seerai-tour-panel .tour-btn-skip:hover{color:#111827;text-decoration-color:#6b7280;background:transparent}' +
+        '.dark #seerai-tour-panel .tour-btn-skip{color:#9ca3af;text-decoration-color:#374151}' +
+        '.dark #seerai-tour-panel .tour-btn-skip:hover{color:#f3f4f6;text-decoration-color:#9ca3af;background:transparent}' +
         '#seerai-tour-panel .tour-btn[disabled]{opacity:.35;cursor:not-allowed}' +
         // Narrow viewport: hide the panel entirely (it competes with the sidebar
         // and would overlap content on tablets). Reopen pill also hidden — the
@@ -445,13 +451,20 @@
             + '</div>'
             + '</div>'
             + '<div class="tour-actions">'
+            + '<button class="tour-btn tour-btn-skip" type="button" id="seerai-tour-skip">'
+            + esc(t('Skip tour')) + '</button>'
+            + '<div class="tour-actions-right">'
             + '<button class="tour-btn tour-btn-secondary" type="button" id="seerai-tour-prev"'
             + (prevDisabled ? ' disabled' : '') + '>‹ ' + esc(t('Back')) + '</button>'
             + '<button class="tour-btn tour-btn-primary" type="button" id="seerai-tour-next">'
             + esc(nextLabel) + (isLast ? '' : ' ›') + '</button>'
+            + '</div>'
             + '</div>';
 
         document.getElementById('seerai-tour-close').addEventListener('click', function () {
+            window.seerai.tour.dismiss();
+        });
+        document.getElementById('seerai-tour-skip').addEventListener('click', function () {
             window.seerai.tour.dismiss();
         });
         document.getElementById('seerai-tour-next').addEventListener('click', function () {
