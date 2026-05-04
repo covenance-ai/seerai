@@ -641,14 +641,26 @@
             return;
         }
 
-        fetch('/api/orgs/' + encodeURIComponent(user.org_id)).then(r => r.json())
+        // Resolve the user's org → its root, then load analytics for the root.
+        // Both fetches can 404 when the stored user has stale data (e.g. an
+        // org_id that no longer exists in the active dataset). Surface a
+        // human-readable empty state instead of letting the JSON-parsed 404
+        // body crash on `.path[0]`.
+        fetch('/api/orgs/' + encodeURIComponent(user.org_id))
+            .then(r => {
+                if (!r.ok) throw new Error(t("This account's organization isn't in the current dataset. Switch user from the sidebar to continue."));
+                return r.json();
+            })
             .then(org => {
-                const rootId = org.path[0];
-                return fetch('/api/orgs/' + encodeURIComponent(rootId)).then(r => r.json());
+                const rootId = (org.path && org.path[0]) || org.org_id;
+                return fetch('/api/orgs/' + encodeURIComponent(rootId)).then(r => {
+                    if (!r.ok) throw new Error(t("Root organization not found in the current dataset."));
+                    return r.json();
+                });
             })
             .then(root => loadAnalytics(root.org_id, root.name))
             .catch(e => {
-                document.getElementById('content').innerHTML = '<p class="text-red-400 text-center py-8">' + t('Error') + ': ' + esc(e.message) + '</p>';
+                document.getElementById('content').innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">' + esc(e.message) + '</p>';
             });
     });
     </script>
